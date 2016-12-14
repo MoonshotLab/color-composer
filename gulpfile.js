@@ -38,7 +38,7 @@ gulp.task('js', function() {
     .pipe(browserSync.stream());
 });
 
-gulp.task('serve', ['sass', 'js'], function() {
+gulp.task('watch', ['sass', 'js'], function() {
 
   var port = process.env.PORT || 3000;
   browserSync.init({
@@ -50,4 +50,4 @@ gulp.task('serve', ['sass', 'js'], function() {
   gulp.watch("views/**/*.pug").on('change', browserSync.reload);
 });
 
-gulp.task('default', ['serve']);
+gulp.task('default', ['watch']);
