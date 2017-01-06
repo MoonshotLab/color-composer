@@ -9,6 +9,7 @@ var webpack = require('webpack');
 var gulpWebpack = require('gulp-webpack');
 var babel = require('gulp-babel');
 var browserSync = require('browser-sync').create();
+var tap = require('gulp-tap');
 
 gulp.task('sass', function () {
   var processors = [
@@ -23,9 +24,12 @@ gulp.task('sass', function () {
 });
 
 gulp.task('js', function() {
-  return gulp.src('./src/js/main.js')
-    .pipe(babel({
-        presets: ['es2015']
+  return gulp.src('./src/js/**/*.js')
+    // .pipe(babel({
+    //     presets: ['es2015']
+    // }))
+    .pipe(tap(function(file, t) {
+      console.log(file.name);
     }))
     .pipe(gulpWebpack({
       output: {
@@ -34,7 +38,7 @@ gulp.task('js', function() {
       },
       plugins: [new webpack.optimize.UglifyJsPlugin()],
     }, webpack))
-    .pipe(gulp.dest('./public'))
+    .pipe(gulp.dest('./public/js'))
     .pipe(browserSync.stream());
 });
 

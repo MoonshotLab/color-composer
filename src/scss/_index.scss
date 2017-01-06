@@ -1,5 +1,6 @@
 html,
-body {
+body,
+main {
   width: 100%;
   height: 100%;
 }
@@ -11,7 +12,61 @@ body {
 path {
   fill: none;
   stroke: #000;
-  stroke-width: 3px;
+  stroke-width: 8px;
   stroke-linejoin: round;
   stroke-linecap: round;
+}
+
+.control-panel {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.control-panel ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.controls-wrap {
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  height: 10rem;
+
+  ul,
+  li {
+    margin: 0;
+  }
+
+  > ul {
+    padding: 1rem 0;
+  }
+
+  li {
+    padding: 0 1rem;
+  }
+}
+
+.main-controls-wrap {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.aux-controls-wrap {
+  right: 0;
+}
+
+.palette-colors {
+  padding: 0.8rem 0;
+  
+  li {
+    margin: 0;
+    padding: 0 0.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
