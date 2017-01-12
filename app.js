@@ -5,6 +5,8 @@ const app = express();
 
 const path = require('path');
 
+const config = require('./config');
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
@@ -16,7 +18,9 @@ app.listen(port, function() {
 });
 
 app.get('/', function (req, res) {
-  res.render('index');
+  res.render('index', {
+    palette: config.palette
+  });
 });
 
 app.get('/demo/:demo', function(req, res) {

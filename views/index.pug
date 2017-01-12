@@ -20,6 +20,14 @@ html
               img(src='img/undo.svg' alt='Undo Last')
             li.palette
               ul.palette-colors
+                each color, index in palette.colors
+                  li
+                    if index == 0
+                      svg.palette-color.palette-selected(width=palette.selectedColorSize, height=palette.selectedColorSize)
+                        rect(width='100%', height='100%', fill=color, rx=palette.selectedColorSize / 2, ry=palette.selectedColorSize / 2)
+                    else
+                      svg.palette-color(width=palette.colorSize, height=palette.colorSize)
+                        rect(width='100%', height='100%', fill=color)
             li.play
               img(src='img/play.svg' alt='Play')
         div.aux-controls-wrap.controls-wrap
@@ -28,23 +36,12 @@ html
               img(src='img/tips.svg' alt='Tips')
             li.share
               img(src='img/share.svg' alt='Share')
-      svg.main(width='100%', height='100%')
-    script(src='js/lib/d3.v4.min.js')
-    script(src='js/lib/Tone.min.js')
-    script(src='js/lib/dollar.js')
-
-    //- <script src="https://d3js.org/d3-path.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-shape.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-selection.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-drag.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-color.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-array.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-collection.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-color.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-format.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-time.v1.min.js"></script>
-    //- <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
-    //- <script src="https://d3js.org/d3-scale.v1.min.js"></script>
-    script(src='js/main.js')
+      canvas#mainCanvas(style='width:100%;height:100%')
+  script(src='js/lib/jquery.min.js')
+  //- script(src='js/lib/hammer.min.js')
+  //- script(src='js/lib/jquery.hammer.js')
+  script(src='js/lib/paper-full.min.js')
+  //- script(src='js/lib/Tone.min.js')
+  //- script(src='js/lib/dollar.js')
+  //- script(type='text/x-paperscript', src='js/paperscript/test.js', canvas='mainCanvas')
+  script(src='js/main.js')

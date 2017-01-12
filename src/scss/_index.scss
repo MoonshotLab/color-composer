@@ -17,6 +17,12 @@ path {
   stroke-linecap: round;
 }
 
+canvas.main {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .control-panel {
   position: absolute;
   bottom: 0;
