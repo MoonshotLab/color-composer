@@ -2,9 +2,17 @@
 <!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="46.524px" height="64.35px" viewBox="0 0 46.524 64.35" enable-background="new 0 0 46.524 64.35" xml:space="preserve">
-<circle fill="none" stroke="#251F12" stroke-width="3" stroke-miterlimit="10" cx="23.262" cy="23.263" r="21.762"/>
-<polygon fill="none" stroke="#251F12" stroke-width="3" stroke-miterlimit="10" points="16.226,23.331 16.226,13.678 24.586,18.505 
+	 width="46.524px" height="60.71px" viewBox="0 0 46.524 60.71" enable-background="new 0 0 46.524 60.71" xml:space="preserve">
+<circle fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" cx="23.262" cy="23.263" r="21.762"/>
+<polygon fill="none" stroke="#FFFFFF" stroke-width="3" stroke-miterlimit="10" points="16.226,23.331 16.226,13.677 24.586,18.504 
 	32.946,23.331 24.586,28.158 16.226,32.985 "/>
-<text transform="matrix(1 0 0 1 8.2852 60.71)"><tspan x="0" y="0" fill="#231F20" font-family="'Futura-Bold'" font-size="10.5797" letter-spacing="1">PL</tspan><tspan x="14.917" y="0" fill="#231F20" font-family="'Futura-Bold'" font-size="10.5797">A</tspan><tspan x="23.201" y="0" fill="#231F20" font-family="'Futura-Bold'" font-size="10.5797">Y</tspan></text>
+<g>
+	<path fill="#FFFFFF" d="M11.194,60.71H9.121v-7.978h3.301c0.896,0,1.582,0.233,2.058,0.698c0.477,0.466,0.714,1.122,0.714,1.968
+		c0,0.847-0.237,1.503-0.714,1.969c-0.476,0.465-1.162,0.698-2.058,0.698h-1.228V60.71z M11.194,56.394h0.688
+		c0.762,0,1.144-0.332,1.144-0.995c0-0.662-0.382-0.994-1.144-0.994h-0.688V56.394z"/>
+	<path fill="#FFFFFF" d="M19.426,52.732v6.222h2.486v1.756h-4.56v-7.978H19.426z"/>
+	<path fill="#FFFFFF" d="M28.926,59.324h-2.962l-0.477,1.386h-2.211l3.036-7.978h2.265l3.036,7.978h-2.211L28.926,59.324z
+		 M28.376,57.748l-0.932-2.656l-0.931,2.656H28.376z"/>
+	<path fill="#FFFFFF" d="M34.248,56.88l-2.91-4.147h2.476l1.481,2.18l1.471-2.18h2.476l-2.92,4.147v3.83h-2.073V56.88z"/>
+</g>
 </svg>
