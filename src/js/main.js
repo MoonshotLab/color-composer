@@ -244,15 +244,11 @@ $(document).ready(function() {
           paths[i].smooth({type: 'continuous'});
           paths[i].simplify();
           lastChild = paths[i];
-          // console.log(paths[i]);
+          // console.log(lastChild);
         } else {
           paths[i].remove();
         }
       }
-
-      // paper.project.activeLayer.lastChild.strokeColor = 'pink';
-      var foo = paper.project.activeLayer.lastChild;
-      console.log(foo);
 
       // reset paths
       var path;
@@ -353,6 +349,7 @@ $(document).ready(function() {
     console.log('new pressed');
     // d3.selectAll('svg.main path').remove();
     moves = [];
+    paper.project.activeLayer.removeChildren();
   }
 
   function undoPressed() {
