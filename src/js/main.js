@@ -108,6 +108,28 @@ $(document).ready(function() {
     var lastChild;
 
     function touchStart(ev) {
+      if (!ev.touches.length) return;
+
+      var hitResult;
+      var hitOptions = {
+        segments: false,
+        stroke: true,
+        fill: true,
+        tolerance: 5
+      };
+
+      for (var i = 0; i < ev.touches.length; i++) {
+        var tmpPoint = new Point(ev.touches[i].pageX, ev.touches[i].pageY);
+        hitResult = paper.project.hitTest(tmpPoint, hitOptions);
+
+        if (hitResult) {
+          console.log(hitResult);
+          hitResult.item.selected = !hitResult.item.selected;
+          // console.log(tmpPoint);
+          break;
+        }
+      }
+
       if (!touch) {
         touch = true;
         for (var i = 0; i < ev.touches.length; i++) {
@@ -120,6 +142,17 @@ $(document).ready(function() {
           //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
           // }
         }
+
+        // console.log(ev.touches[0]);
+        //
+        // var hitResult = paper.project.hitTest(new Point(ev.touches[0].pageX, ev.touches[0].pageY), hitOptions);
+        //
+        // console.log(hitResult);
+        //
+        // if (hitResult) {
+        //   var path = hitResult.item;
+        //   path.selected = true;
+        // }
       } else {
         console.log('still being touched; ignoring');
       }
@@ -253,7 +286,7 @@ $(document).ready(function() {
             var sin = Math.sin(event.time * timeConst + i);
             segment.point.x += (cos / divConst) * elasticity;
             segment.point.y += (sin / divConst) * elasticity;
-            console.log(cos, sin, elasticity);
+            // console.log(cos, sin, elasticity);
             elasticity -= 0.001;
           }
         }
