@@ -86,7 +86,7 @@ $(document).ready(function() {
     for (var i = 0; i < numPaths; i++) {
       paths.push(new paper.Path({
         strokeColor: window.kan.currentColor,
-        // fillColor: window.kan.currentColor,
+        fillColor: window.kan.currentColor,
         strokeWidth: 5,
         // selected: true
       }));
@@ -105,27 +105,37 @@ $(document).ready(function() {
     var paths = getFreshPaths(window.kan.numPaths);
     var touch = false;
 
-    function touchStart(ev) {
-      touch = true;
-      for (var i = 0; i < ev.touches.length; i++) {
-        paths[i].strokeColor = window.kan.currentColor;
-        // paths[i].fillColor = window.kan.currentColor;
-        paths[i].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+    var lastChild;
 
-        // for (var j = 0; j < paths[i].children.length; j++) {
-        //   // start all paths on the same point
-        //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
-        // }
+    function touchStart(ev) {
+      if (!touch) {
+        touch = true;
+        for (var i = 0; i < ev.touches.length; i++) {
+          paths[i].strokeColor = window.kan.currentColor;
+          paths[i].fillColor = window.kan.currentColor;
+          paths[i].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+
+          // for (var j = 0; j < paths[i].children.length; j++) {
+          //   // start all paths on the same point
+          //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+          // }
+        }
+      } else {
+        console.log('still being touched; ignoring');
       }
     }
 
     var threshold = 20;
-    var alpha = 1;
+    var alpha = 0.3;
     var memory = 10;
     var cumSize, avgSize;
     function touchMove(ev) {
       ev.preventDefault();
-      if (!touch) return;
+      if (!touch) {
+        return;
+      } else {
+        console.log('not ignoring');
+      }
 
       while (sizes.length > memory) {
         sizes.shift();
@@ -169,9 +179,9 @@ $(document).ready(function() {
           topY = y1 + Math.sin(angle - Math.PI/2) * avgSize;
           top = new Point(topX, topY);
 
-          // paths[i].add(top);
-          // paths[i].insert(0, bottom);
-          paths[i].add(p1);
+          paths[i].add(top);
+          paths[i].insert(0, bottom);
+          // paths[i].add(p1);
 
           paths[i].smooth({type: 'continuous'});
 
@@ -193,26 +203,66 @@ $(document).ready(function() {
     }
 
     function touchEnd(ev) {
-      touch = false;
-      console.log(ev);
+      elasticity = 1;
+      // console.log(ev);
 
       for (var i = 0; i < paths.length; i++) {
         if (paths[i].segments.length > 0) {
           paths[i].smooth({type: 'continuous'});
           paths[i].simplify();
-          console.log(paths[i]);
+          lastChild = paths[i];
+          // console.log(paths[i]);
         } else {
           paths[i].remove();
         }
       }
 
+      // paper.project.activeLayer.lastChild.strokeColor = 'pink';
+      var foo = paper.project.activeLayer.lastChild;
+      console.log(foo);
+
       // reset paths
       var path;
 
-      paths = getFreshPaths(window.kan.numPaths);
-      pasts = [];
-      sizes = [];
+      if (ev.touches.length === 0) {
+        touch = false;
+        // console.log('no touches')
+        paths = getFreshPaths(window.kan.numPaths);
+        pasts = [];
+        sizes = [];
+      } else {
+        // console.log('still touching');
+      }
     }
+
+    // var animationId;
+    var elasticity = 0;
+
+    function jiggle(event) {
+
+      // console.log(paper.project.activeLayer.firstChild);
+      // paper.project.activeLayer.firstChild.rotate(3);
+      if (!!lastChild) {
+        if (elasticity > 0) {
+          // console.log(lastChild);
+          for (var i = 0; i < lastChild.segments.length; i++) {
+            var segment = lastChild.segments[i];
+            var timeConst = 15;
+            var divConst = 2;
+            var cos = Math.cos(event.time * timeConst + i);
+            var sin = Math.sin(event.time * timeConst + i);
+            segment.point.x += (cos / divConst) * elasticity;
+            segment.point.y += (sin / divConst) * elasticity;
+            console.log(cos, sin, elasticity);
+            elasticity -= 0.001;
+          }
+        }
+      } else {
+        // console.log('no children yet');
+      }
+    }
+
+    paper.view.onFrame = jiggle;
 
     $canvas.on('touchstart', touchStart);
     $canvas.on('touchmove', touchMove);
