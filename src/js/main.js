@@ -89,14 +89,18 @@ $(document).ready(function() {
         children: [
           new paper.Path(),
           new paper.Path({
-            strokeColor: '#fff'
+            strokeColor: '#ffffff'
           }),
           new paper.Path()
         ]
       }); // [bottom, middle, top]
 
-      compound.strokeColor = window.kan.currentColor;
+      // compound.strokeColor = window.kan.currentColor;
       compound.strokeWidth = 1;
+      compound.children[0].strokeColor = '#ffffff';
+      compound.children[1].strokeColor = '#ffffff';
+      compound.children[2].strokeColor = '#ffffff';
+      compound.selected = true;
       paths.push(compound);
     }
 
@@ -116,7 +120,6 @@ $(document).ready(function() {
     function touchStart(ev) {
       touch = true;
       for (var i = 0; i < ev.touches.length; i++) {
-        paths[i].strokeColor = window.kan.currentColor;
 
         for (var j = 0; j < paths[i].children.length; j++) {
           // start all paths on the same point
@@ -176,13 +179,13 @@ $(document).ready(function() {
           // console.log('bottom point:', bottom, delta(p1, bottom));
           // console.log('top point:', top, delta(p1, top));
           paths[i].children[0].add(bottom);
-          paths[i].children[0].smooth();
+          // paths[i].children[0].smooth();
 
           paths[i].children[1].add(p1);
-          paths[i].children[1].smooth();
+          // paths[i].children[1].smooth();
 
           paths[i].children[2].add(top);
-          paths[i].children[2].smooth();
+          // paths[i].children[2].smooth();
 
         } else {
           // don't have anything to compare to
@@ -209,8 +212,8 @@ $(document).ready(function() {
           if (paths[i].children[j].segments.length && j !== 1) {
             // end all paths on the same point
             paths[i].children[j].segments[paths[i].children[j].segments.length - 1] = paths[i].children[1].segments[paths[i].children[1].segments.length - 1];
-            paths[i].children[j].smooth();
-            paths[i].children[j].simplify();
+            // paths[i].children[j].smooth();
+            // paths[i].children[j].simplify();
             // paths[i].children[j].closed = true;
 
             // console.log(paths[i].children[j].segments);
