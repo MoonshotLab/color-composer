@@ -247,7 +247,7 @@ $(document).ready(function() {
           // console.log(lastChild);
           for (var i = 0; i < lastChild.segments.length; i++) {
             var segment = lastChild.segments[i];
-            var timeConst = 15;
+            var timeConst = 16;
             var divConst = 2;
             var cos = Math.cos(event.time * timeConst + i);
             var sin = Math.sin(event.time * timeConst + i);
