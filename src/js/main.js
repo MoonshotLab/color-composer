@@ -38,7 +38,6 @@ $(document).ready(function() {
   // $(document).on('mouseup', touchEnd);
 
 
-
   function initControlPanel() {
     initColorPalette();
     initCanvasDraw();
@@ -85,23 +84,12 @@ $(document).ready(function() {
     var paths = [];
 
     for (var i = 0; i < numPaths; i++) {
-      var compound = new paper.CompoundPath({
-        children: [
-          new paper.Path(),
-          new paper.Path({
-            strokeColor: '#ffffff'
-          }),
-          new paper.Path()
-        ]
-      }); // [bottom, middle, top]
-
-      // compound.strokeColor = window.kan.currentColor;
-      compound.strokeWidth = 1;
-      compound.children[0].strokeColor = '#ffffff';
-      compound.children[1].strokeColor = '#ffffff';
-      compound.children[2].strokeColor = '#ffffff';
-      compound.selected = true;
-      paths.push(compound);
+      paths.push(new paper.Path({
+        strokeColor: window.kan.currentColor,
+        // fillColor: window.kan.currentColor,
+        strokeWidth: 5,
+        // selected: true
+      }));
     }
 
     return paths;
@@ -120,11 +108,14 @@ $(document).ready(function() {
     function touchStart(ev) {
       touch = true;
       for (var i = 0; i < ev.touches.length; i++) {
+        paths[i].strokeColor = window.kan.currentColor;
+        // paths[i].fillColor = window.kan.currentColor;
+        paths[i].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
 
-        for (var j = 0; j < paths[i].children.length; j++) {
-          // start all paths on the same point
-          paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
-        }
+        // for (var j = 0; j < paths[i].children.length; j++) {
+        //   // start all paths on the same point
+        //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+        // }
       }
     }
 
@@ -142,6 +133,8 @@ $(document).ready(function() {
       // console.log(sizes);
 
       for (var i = 0; i < ev.touches.length; i++) {
+        if (!ev.touches[i]) continue;
+
         var x1, y1,
           bottomX, bottomY, bottom,
           topX, topY, top,
@@ -176,16 +169,11 @@ $(document).ready(function() {
           topY = y1 + Math.sin(angle - Math.PI/2) * avgSize;
           top = new Point(topX, topY);
 
-          // console.log('bottom point:', bottom, delta(p1, bottom));
-          // console.log('top point:', top, delta(p1, top));
-          paths[i].children[0].add(bottom);
-          // paths[i].children[0].smooth();
+          // paths[i].add(top);
+          // paths[i].insert(0, bottom);
+          paths[i].add(p1);
 
-          paths[i].children[1].add(p1);
-          // paths[i].children[1].smooth();
-
-          paths[i].children[2].add(top);
-          // paths[i].children[2].smooth();
+          paths[i].smooth({type: 'continuous'});
 
         } else {
           // don't have anything to compare to
@@ -206,25 +194,15 @@ $(document).ready(function() {
 
     function touchEnd(ev) {
       touch = false;
+      console.log(ev);
 
       for (var i = 0; i < paths.length; i++) {
-        for (var j = 0; j < paths[i].children.length; j++) {
-          if (paths[i].children[j].segments.length && j !== 1) {
-            // end all paths on the same point
-            paths[i].children[j].segments[paths[i].children[j].segments.length - 1] = paths[i].children[1].segments[paths[i].children[1].segments.length - 1];
-            // paths[i].children[j].smooth();
-            // paths[i].children[j].simplify();
-            // paths[i].children[j].closed = true;
-
-            // console.log(paths[i].children[j].segments);
-            console.log('--------------------------');
-            for (var k = 0; k < paths[i].children[j].segments.length; k++) {
-              console.log(paths[i].children[j].segments[k].point.x, paths[i].children[j].segments[k].point.y);
-            }
-            console.log('--------------------------');
-            // console.log(paths[i].children[j].segments.length);
-
-          }
+        if (paths[i].segments.length > 0) {
+          paths[i].smooth({type: 'continuous'});
+          paths[i].simplify();
+          console.log(paths[i]);
+        } else {
+          paths[i].remove();
         }
       }
 
