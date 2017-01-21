@@ -7,6 +7,16 @@ window.kan = window.kan || {
 
 paper.install(window);
 
+// Converts from degrees to radians.
+Math.rad = function(degrees) {
+  return degrees * Math.PI / 180;
+};
+
+// Converts from radians to degrees.
+Math.deg = function(radians) {
+  return radians * 180 / Math.PI;
+};
+
 $(document).ready(function() {
   // window.kan.currentColor = window.kan.palette[0];
   var MOVES = []; // store global moves list
@@ -80,187 +90,276 @@ $(document).ready(function() {
         });
   }
 
-  function getFreshPaths(numPaths) {
-    var paths = [];
-
-    for (var i = 0; i < numPaths; i++) {
-      paths.push(new paper.Path({
-        strokeColor: window.kan.currentColor,
-        fillColor: window.kan.currentColor,
-        strokeWidth: 5,
-        // selected: true
-      }));
-    }
-
-    return paths;
-  }
-
   function initCanvasDraw() {
 
     paper.setup($canvas[0]);
 
     var path;
+    var past;
     var pasts = [];
-    var sizes = [];
-    var paths = getFreshPaths(window.kan.numPaths);
+    var sizes;
+    // var paths = getFreshPaths(window.kan.numPaths);
     var touch = false;
-
     var lastChild;
 
-    function touchStart(ev) {
-      if (!ev.touches.length) return;
+    function panStart(event) {
+      sizes = [];
 
-      var hitResult;
-      var hitOptions = {
-        segments: false,
-        stroke: true,
-        fill: true,
-        tolerance: 5
-      };
+      console.log(event.gesture);
 
-      for (var i = 0; i < ev.touches.length; i++) {
-        var tmpPoint = new Point(ev.touches[i].pageX, ev.touches[i].pageY);
-        hitResult = paper.project.hitTest(tmpPoint, hitOptions);
-
-        if (hitResult) {
-          console.log(hitResult);
-          hitResult.item.selected = !hitResult.item.selected;
-          // console.log(tmpPoint);
-          break;
-        }
+      if (!(event.gesture.changedPointers && event.gesture.changedPointers.length > 0)) return;
+      if (event.gesture.changedPointers.length > 1) {
+        console.log('event.gesture.changedPointers > 1');
       }
 
-      if (!touch) {
-        touch = true;
-        for (var i = 0; i < ev.touches.length; i++) {
-          paths[i].strokeColor = window.kan.currentColor;
-          paths[i].fillColor = window.kan.currentColor;
-          paths[i].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+      var pointer = event.gesture.center;
+      var point = new Point(pointer.x, pointer.y);
 
-          // for (var j = 0; j < paths[i].children.length; j++) {
-          //   // start all paths on the same point
-          //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
-          // }
-        }
+      path = new Path({
+        strokeColor: window.kan.currentColor,
+        fillColor: window.kan.currentColor
+      });
 
-        // console.log(ev.touches[0]);
-        //
-        // var hitResult = paper.project.hitTest(new Point(ev.touches[0].pageX, ev.touches[0].pageY), hitOptions);
-        //
-        // console.log(hitResult);
-        //
-        // if (hitResult) {
-        //   var path = hitResult.item;
-        //   path.selected = true;
-        // }
-      } else {
-        console.log('still being touched; ignoring');
-      }
+      path.add(point);
+
+      // if (!touch) {
+      //   touch = true;
+      //   for (var i = 0; i < ev.touches.length; i++) {
+      //     paths[i].strokeColor = window.kan.currentColor;
+      //     // paths[i].fillColor = window.kan.currentColor;
+      //     paths[i].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+      //
+      //     // for (var j = 0; j < paths[i].children.length; j++) {
+      //     //   // start all paths on the same point
+      //     //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
+      //     // }
+      //   }
+      //
+      //   // console.log(ev.touches[0]);
+      //   //
+      //   // var hitResult = paper.project.hitTest(new Point(ev.touches[0].pageX, ev.touches[0].pageY), hitOptions);
+      //   //
+      //   // console.log(hitResult);
+      //   //
+      //   // if (hitResult) {
+      //   //   var path = hitResult.item;
+      //   //   path.selected = true;
+      //   // }
+      // } else {
+      //   console.log('still being touched; ignoring');
+      // }
     }
 
     var threshold = 20;
     var alpha = 0.3;
     var memory = 10;
     var cumSize, avgSize;
-    function touchMove(ev) {
-      ev.preventDefault();
-      if (!touch) {
-        return;
-      } else {
-        console.log('not ignoring');
-      }
+    function panMove(event) {
+      event.preventDefault();
+
+      var pointer = event.gesture.center;
+      var point = new Point(pointer.x, pointer.y);
 
       while (sizes.length > memory) {
         sizes.shift();
       }
-      // console.log(sizes);
 
-      for (var i = 0; i < ev.touches.length; i++) {
-        if (!ev.touches[i]) continue;
+      var bottomX, bottomY, bottom,
+        topX, topY, top,
+        p0, p1,
+        step, angle, dist, size;
 
-        var x1, y1,
-          bottomX, bottomY, bottom,
-          topX, topY, top,
-          p0, p1,
-          step, angle, dist, size;
+      if (sizes.length > 0) {
+        // not the first point, so we have others to compare to
+        p0 = past;
+        dist = delta(point, p0);
+        size = dist * alpha;
+        if (size >= threshold) size = threshold;
 
-        x1 = ev.touches[i].pageX;
-        y1 = ev.touches[i].pageY;
-        p1 = new Point(x1, y1);
-
-        if (pasts.length > i) {
-          p0 = pasts[i];
-          dist = delta(p1, p0);
-          size = dist * alpha;
-          if (size >= threshold) size = threshold;
-
-          cumSize = 0;
-          for (var j = 0; j < sizes.length; j++) {
-            cumSize += sizes[j];
-          }
-          avgSize = Math.round(((cumSize / sizes.length) + size) / 2);
-          // console.log(avgSize);
-
-          angle = Math.atan2(p1.y - p0.y, p1.x - p0.x); // rad
-
-          // Point(bottomX, bottomY) is bottom, Point(topX, topY) is top
-          bottomX = x1 + Math.cos(angle + Math.PI/2) * avgSize;
-          bottomY = y1 + Math.sin(angle + Math.PI/2) * avgSize;
-          bottom = new Point(bottomX, bottomY);
-
-          topX = x1 + Math.cos(angle - Math.PI/2) * avgSize;
-          topY = y1 + Math.sin(angle - Math.PI/2) * avgSize;
-          top = new Point(topX, topY);
-
-          paths[i].add(top);
-          paths[i].insert(0, bottom);
-          // paths[i].add(p1);
-
-          paths[i].smooth({type: 'continuous'});
-
-        } else {
-          // don't have anything to compare to
-          dist = 1;
-          angle = 0;
-
-          size = dist * alpha;
-          if (size >= threshold) size = threshold;
-          // console.log('first point:', p1);
+        cumSize = 0;
+        for (var j = 0; j < sizes.length; j++) {
+          cumSize += sizes[j];
         }
+        avgSize = Math.round(((cumSize / sizes.length) + size) / 2);
+        // console.log(avgSize);
 
-        paper.view.draw();
+        angle = Math.atan2(point.y - p0.y, point.x - p0.x); // rad
+        // angle = Math.rad(event.gesture.angle);
 
-        pasts[i] = p1;
-        sizes.push(size);
+        // Point(bottomX, bottomY) is bottom, Point(topX, topY) is top
+        bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
+        bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
+        bottom = new Point(bottomX, bottomY);
+
+        topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
+        topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
+        top = new Point(topX, topY);
+
+        path.add(top);
+        path.insert(0, bottom);
+        // paths[i].add(point);
+
+        path.smooth();
+      } else {
+        // don't have anything to compare to
+        dist = 1;
+        angle = 0;
+
+        size = dist * alpha;
+        if (size >= threshold) size = threshold;
       }
+
+      paper.view.draw();
+
+      past = point;
+      sizes.push(size);
     }
 
-    function touchEnd(ev) {
+    function panEnd(event) {
       elasticity = 1;
-      // console.log(ev);
 
-      for (var i = 0; i < paths.length; i++) {
-        if (paths[i].segments.length > 0) {
-          paths[i].smooth({type: 'continuous'});
-          paths[i].simplify();
-          lastChild = paths[i];
-          // console.log(lastChild);
-        } else {
-          paths[i].remove();
+      var pointer = event.gesture.center;
+      var point = new Point(pointer.x, pointer.y);
+
+      path.add(point);
+      path.smooth();
+      path.simplify(0);
+      path.closed = true;
+      lastChild = path;
+
+      var intersections = path.getCrossings();
+      if (intersections && intersections.length > 0) {
+        for (var i = 0; i < intersections.length; i++) {
+          // console.log('----------------');
+          var intersection = intersections[i];
+          // console.log(intersection);
+          var circle = new Path.Circle({
+              center: intersection.point,
+              radius: 3,
+              fillColor: 'pink'
+          });
         }
       }
 
-      // reset paths
-      var path;
+      // // for (var i = 0; i < paths.length; i++) {
+      //   if (paths[i].segments.length > 0) {
+      //     // console.log(paths[i].segments.length);
+      //     // if (paths[i].get(paths[i])) {
+      //     //   console.log('self intersection');
+      //     // } else {
+      //     //   console.log('no intersection');
+      //     // }
+      //     var intersections = paths[i].getCrossings();
+      //     if (intersections && intersections.length > 0) {
+      //       for (var j = 0; j < intersections.length; j++) {
+      //         console.log('----------------');
+      //         var intersection = intersections[j];
+      //         console.log(intersection);
+      //         var circle = new Path.Circle({
+      //             center: intersection.point,
+      //             radius: 3,
+      //             fillColor: 'pink'
+      //         });
+      //         console.log('----------------');
+      //         // var segment = new paper.Segment(intersection.point, intersection.segment1, intersection.segment2, {
+      //         //   strokeColor: 'pink',
+      //         //   fillColor: 'pink'
+      //         // })
+      //
+      //         // var intersectionPath = new paper.Path(intersection.segments, {
+      //         //   strokeColor: 'pink',
+      //         //   fillColor: 'pink',
+      //         //   strokeWidth: 5
+      //         // });
+      //         // break;
+      //         // var interior = false;
+      //         // var interiorPaths = [];
+      //         // for (var k = 0; k < paths[i].segments.length; k++) {
+      //         //   if (paths[i].segments[k].point.isClose(intersection.point, 1)) {
+      //         //     if (!interior) {
+      //         //       console.log('start');
+      //         //       interiorPaths.push(new paper.Path({
+      //         //         strokeColor: '#eeeeee',
+      //         //         fillColor: '#eeeeee'
+      //         //       }))
+      //         //       interior = true;
+      //         //     } else {
+      //         //       console.log('end');
+      //         //       interiorPaths[interiorPaths.length - 1].closed = true;
+      //         //       interior = false;
+      //         //     }
+      //         //   } else {
+      //         //     if (interior) {
+      //         //       console.log('interior');
+      //         //       interiorPaths[interiorPaths.length - 1].add(paths[i].segments[k].point);
+      //         //     }
+      //         //     // console.log(paths[i].segments[k].point, intersection.point);
+      //         //   }
+      //         // }
+      //         // console.log(intersections[j]);
+      //         // console.log(paths[i].getLocationOf(intersections[j].point));
+      //         // var intersectionPath = new paper.Curve(intersection.curve, {
+      //         //   strokeColor: '#eeeeee',
+      //         //   strokeFill: '#eeeeee'
+      //         // });
+      //         // console.log(intersectionPath);
+      //         // var offset = paths[i].getOffsetOf(intersections[j].point);
+      //         // var point = paths[i].getPointAt(offset);
+      //         // console.log(offset);
+      //         // console.log(paths[i]);
+      //         // var circle = new Path.Circle({
+      //         //     center: point,
+      //         //     radius: 3,
+      //         //     fillColor: 'pink'
+      //         // });
+      //         console.log('----------------');
+      //       }
+      //       // console.log(intersections);
+      //
+      //     }
+      //
+      //     paths[i].smooth();
+      //     paths[i].simplify(0);
+      //     // console.log(paths[i].segments.length);
+      //     lastChild = paths[i];
+      //
+      //     // for (var j = 0; j < paths[i].segments.length; j++) {
+      //     //   console.log(paths[i].segments[j].point.x, paths[i].segments[j].point.y);
+      //     // }
+      //     // console.log(lastChild);
+      //   } else {
+      //     paths[i].remove();
+      //   }
+      // }
 
-      if (ev.touches.length === 0) {
-        touch = false;
-        // console.log('no touches')
-        paths = getFreshPaths(window.kan.numPaths);
-        pasts = [];
-        sizes = [];
-      } else {
-        // console.log('still touching');
+      // reset paths
+      // var path;
+
+      // if (ev.touches.length === 0) {
+      //   touch = false;
+      //   // console.log('no touches')
+      //   paths = getFreshPaths(window.kan.numPaths);
+      //   pasts = [];
+      //   sizes = [];
+      // } else {
+      //   // console.log('still touching');
+      // }
+    }
+
+    var hitOptions = {
+      segments: false,
+      stroke: true,
+      fill: true,
+      tolerance: 5
+    };
+
+    function tap(event) {
+      var pointer = event.gesture.center,
+          point = new Point(pointer.x, pointer.y),
+          hitResult = paper.project.hitTest(point, hitOptions);
+
+      if (hitResult) {
+        hitResult.item.selected = !hitResult.item.selected;
       }
     }
 
@@ -291,63 +390,24 @@ $(document).ready(function() {
       }
     }
 
-    paper.view.onFrame = jiggle;
+    // paper.view.onFrame = jiggle;
 
-    $canvas.on('touchstart', touchStart);
-    $canvas.on('touchmove', touchMove);
-    $canvas.on('touchend', touchEnd);
+    $canvas.hammer()
+      .on('panstart', panStart)
+      .on('panmove', panMove)
+      .on('panend', panEnd)
+      .on('tap', tap);
+
+    $canvas.data('hammer').get('pan').set({ direction: Hammer.DIRECTION_ALL });
   }
 
   function delta(p1, p2) {
     return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)); // pythagorean!
   }
 
-  function initCanvasDrawD3() {
-    var line = d3.line()
-      .curve(d3.curveBasis);
-
-    var svg = d3.select("svg.main")
-      .call(d3.drag()
-      .container(function() { return this; })
-      .subject(function() { var p = [d3.event.x, d3.event.y]; return [p, p]; })
-      .on("start", dragstarted));
-
-    // var color = d3.scaleOrdinal(d3.schemeCategory10);
-    function dragstarted() {
-      var d = d3.event.subject;
-      // var active = svg.append("path").datum(d).style("stroke", function() { return "hsl(" + Math.random() * 360 + ",100%,50%)" });
-      var active = svg.append("path").datum(d).style("stroke", function() { return window.kan.currentColor });
-      var x0 = d3.event.x;
-      var y0 = d3.event.y;
-
-      // d3.event.on("drag", function(d) {
-      //   console.log(d3.event);
-      // });
-
-      d3.event.on("drag", function() {
-        var x1 = d3.event.x;
-        var y1 = d3.event.y;
-        var dx = x1 - x0;
-        var dy = y1 - y0;
-
-        // console.log(dx, dy);
-        // console.log(dx * dx + dy * dy);
-
-        if (dx * dx + dy * dy > 100) {
-          d.push([x0 = x1, y0 = y1]);
-        } else {
-          d[d.length - 1] = [x1, y1];
-          active.attr("d", line);
-        }
-      }).on("end", function() {
-        console.log('drag end');
-      });
-    }
-  }
-
   function newPressed() {
     console.log('new pressed');
-    // d3.selectAll('svg.main path').remove();
+
     moves = [];
     paper.project.activeLayer.removeChildren();
   }
