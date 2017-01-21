@@ -105,8 +105,6 @@ $(document).ready(function() {
     function panStart(event) {
       sizes = [];
 
-      console.log(event.gesture);
-
       if (!(event.gesture.changedPointers && event.gesture.changedPointers.length > 0)) return;
       if (event.gesture.changedPointers.length > 1) {
         console.log('event.gesture.changedPointers > 1');
@@ -121,33 +119,6 @@ $(document).ready(function() {
       });
 
       path.add(point);
-
-      // if (!touch) {
-      //   touch = true;
-      //   for (var i = 0; i < ev.touches.length; i++) {
-      //     paths[i].strokeColor = window.kan.currentColor;
-      //     // paths[i].fillColor = window.kan.currentColor;
-      //     paths[i].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
-      //
-      //     // for (var j = 0; j < paths[i].children.length; j++) {
-      //     //   // start all paths on the same point
-      //     //   paths[i].children[j].add(new Point(ev.touches[i].pageX, ev.touches[i].pageY));
-      //     // }
-      //   }
-      //
-      //   // console.log(ev.touches[0]);
-      //   //
-      //   // var hitResult = paper.project.hitTest(new Point(ev.touches[0].pageX, ev.touches[0].pageY), hitOptions);
-      //   //
-      //   // console.log(hitResult);
-      //   //
-      //   // if (hitResult) {
-      //   //   var path = hitResult.item;
-      //   //   path.selected = true;
-      //   // }
-      // } else {
-      //   console.log('still being touched; ignoring');
-      // }
     }
 
     var threshold = 20;
