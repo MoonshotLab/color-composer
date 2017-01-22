@@ -18,8 +18,7 @@ Math.deg = function(radians) {
 };
 
 $(document).ready(function() {
-  // window.kan.currentColor = window.kan.palette[0];
-  var MOVES = []; // store global moves list
+  let MOVES = []; // store global moves list
   // moves = [
   //   {
   //     'type': 'colorChange',
@@ -39,14 +38,9 @@ $(document).ready(function() {
   //   // others?
   // ]
 
-  var $window = $(window);
-  var $body = $('body');
-  var $canvas = $('canvas#mainCanvas');
-
-  // $(document).on('mousedown', touchStart);
-  // $(document).on('mousemove', touchMove);
-  // $(document).on('mouseup', touchEnd);
-
+  const $window = $(window);
+  const $body = $('body');
+  const $canvas = $('canvas#mainCanvas');
 
   function initControlPanel() {
     initColorPalette();
@@ -59,15 +53,15 @@ $(document).ready(function() {
   }
 
   function initColorPalette() {
-    var $paletteWrap = $('ul.palette-colors');
-    var $paletteColors = $paletteWrap.find('li');
-    var paletteColorSize = 20;
-    var paletteSelectedColorSize = 30;
-    var paletteSelectedClass = 'palette-selected';
+    const $paletteWrap = $('ul.palette-colors');
+    const $paletteColors = $paletteWrap.find('li');
+    const paletteColorSize = 20;
+    const paletteSelectedColorSize = 30;
+    const paletteSelectedClass = 'palette-selected';
 
     // hook up click
       $paletteColors.on('click tap touch', function() {
-          var $svg = $(this).find('svg.palette-color');
+          let $svg = $(this).find('svg.palette-color');
 
           if (!$svg.hasClass(paletteSelectedClass)) {
             $('.' + paletteSelectedClass)
@@ -94,13 +88,13 @@ $(document).ready(function() {
 
     paper.setup($canvas[0]);
 
-    var path;
-    var past;
-    var pasts = [];
-    var sizes;
-    // var paths = getFreshPaths(window.kan.numPaths);
-    var touch = false;
-    var lastChild;
+    let path;
+    let past;
+    let pasts = [];
+    let sizes;
+    // let paths = getFreshPaths(window.kan.numPaths);
+    let touch = false;
+    let lastChild;
 
     function panStart(event) {
       sizes = [];
@@ -110,8 +104,8 @@ $(document).ready(function() {
         console.log('event.gesture.changedPointers > 1');
       }
 
-      var pointer = event.gesture.center;
-      var point = new Point(pointer.x, pointer.y);
+      const pointer = event.gesture.center;
+      const point = new Point(pointer.x, pointer.y);
 
       path = new Path({
         strokeColor: window.kan.currentColor,
@@ -121,21 +115,21 @@ $(document).ready(function() {
       path.add(point);
     }
 
-    var threshold = 20;
-    var alpha = 0.3;
-    var memory = 10;
-    var cumSize, avgSize;
+    const threshold = 20;
+    const alpha = 0.3;
+    const memory = 10;
+    let cumSize, avgSize;
     function panMove(event) {
       event.preventDefault();
 
-      var pointer = event.gesture.center;
-      var point = new Point(pointer.x, pointer.y);
+      const pointer = event.gesture.center;
+      const point = new Point(pointer.x, pointer.y);
 
       while (sizes.length > memory) {
         sizes.shift();
       }
 
-      var bottomX, bottomY, bottom,
+      let bottomX, bottomY, bottom,
         topX, topY, top,
         p0, p1,
         step, angle, dist, size;
@@ -189,8 +183,8 @@ $(document).ready(function() {
     function panEnd(event) {
       elasticity = 1;
 
-      var pointer = event.gesture.center;
-      var point = new Point(pointer.x, pointer.y);
+      const pointer = event.gesture.center;
+      const point = new Point(pointer.x, pointer.y);
 
       path.add(point);
       path.smooth();
@@ -198,126 +192,22 @@ $(document).ready(function() {
       path.closed = true;
       lastChild = path;
 
-      var intersections = path.getCrossings();
+      let intersections = path.getCrossings();
       if (intersections && intersections.length > 0) {
         for (var i = 0; i < intersections.length; i++) {
           // console.log('----------------');
-          var intersection = intersections[i];
+          let intersection = intersections[i];
           // console.log(intersection);
-          var circle = new Path.Circle({
+          const circle = new Path.Circle({
               center: intersection.point,
               radius: 3,
               fillColor: 'pink'
           });
         }
       }
-
-      // // for (var i = 0; i < paths.length; i++) {
-      //   if (paths[i].segments.length > 0) {
-      //     // console.log(paths[i].segments.length);
-      //     // if (paths[i].get(paths[i])) {
-      //     //   console.log('self intersection');
-      //     // } else {
-      //     //   console.log('no intersection');
-      //     // }
-      //     var intersections = paths[i].getCrossings();
-      //     if (intersections && intersections.length > 0) {
-      //       for (var j = 0; j < intersections.length; j++) {
-      //         console.log('----------------');
-      //         var intersection = intersections[j];
-      //         console.log(intersection);
-      //         var circle = new Path.Circle({
-      //             center: intersection.point,
-      //             radius: 3,
-      //             fillColor: 'pink'
-      //         });
-      //         console.log('----------------');
-      //         // var segment = new paper.Segment(intersection.point, intersection.segment1, intersection.segment2, {
-      //         //   strokeColor: 'pink',
-      //         //   fillColor: 'pink'
-      //         // })
-      //
-      //         // var intersectionPath = new paper.Path(intersection.segments, {
-      //         //   strokeColor: 'pink',
-      //         //   fillColor: 'pink',
-      //         //   strokeWidth: 5
-      //         // });
-      //         // break;
-      //         // var interior = false;
-      //         // var interiorPaths = [];
-      //         // for (var k = 0; k < paths[i].segments.length; k++) {
-      //         //   if (paths[i].segments[k].point.isClose(intersection.point, 1)) {
-      //         //     if (!interior) {
-      //         //       console.log('start');
-      //         //       interiorPaths.push(new paper.Path({
-      //         //         strokeColor: '#eeeeee',
-      //         //         fillColor: '#eeeeee'
-      //         //       }))
-      //         //       interior = true;
-      //         //     } else {
-      //         //       console.log('end');
-      //         //       interiorPaths[interiorPaths.length - 1].closed = true;
-      //         //       interior = false;
-      //         //     }
-      //         //   } else {
-      //         //     if (interior) {
-      //         //       console.log('interior');
-      //         //       interiorPaths[interiorPaths.length - 1].add(paths[i].segments[k].point);
-      //         //     }
-      //         //     // console.log(paths[i].segments[k].point, intersection.point);
-      //         //   }
-      //         // }
-      //         // console.log(intersections[j]);
-      //         // console.log(paths[i].getLocationOf(intersections[j].point));
-      //         // var intersectionPath = new paper.Curve(intersection.curve, {
-      //         //   strokeColor: '#eeeeee',
-      //         //   strokeFill: '#eeeeee'
-      //         // });
-      //         // console.log(intersectionPath);
-      //         // var offset = paths[i].getOffsetOf(intersections[j].point);
-      //         // var point = paths[i].getPointAt(offset);
-      //         // console.log(offset);
-      //         // console.log(paths[i]);
-      //         // var circle = new Path.Circle({
-      //         //     center: point,
-      //         //     radius: 3,
-      //         //     fillColor: 'pink'
-      //         // });
-      //         console.log('----------------');
-      //       }
-      //       // console.log(intersections);
-      //
-      //     }
-      //
-      //     paths[i].smooth();
-      //     paths[i].simplify(0);
-      //     // console.log(paths[i].segments.length);
-      //     lastChild = paths[i];
-      //
-      //     // for (var j = 0; j < paths[i].segments.length; j++) {
-      //     //   console.log(paths[i].segments[j].point.x, paths[i].segments[j].point.y);
-      //     // }
-      //     // console.log(lastChild);
-      //   } else {
-      //     paths[i].remove();
-      //   }
-      // }
-
-      // reset paths
-      // var path;
-
-      // if (ev.touches.length === 0) {
-      //   touch = false;
-      //   // console.log('no touches')
-      //   paths = getFreshPaths(window.kan.numPaths);
-      //   pasts = [];
-      //   sizes = [];
-      // } else {
-      //   // console.log('still touching');
-      // }
     }
 
-    var hitOptions = {
+    const hitOptions = {
       segments: false,
       stroke: true,
       fill: true,
@@ -325,7 +215,7 @@ $(document).ready(function() {
     };
 
     function tap(event) {
-      var pointer = event.gesture.center,
+      const pointer = event.gesture.center,
           point = new Point(pointer.x, pointer.y),
           hitResult = paper.project.hitTest(point, hitOptions);
 
@@ -335,7 +225,7 @@ $(document).ready(function() {
     }
 
     // var animationId;
-    var elasticity = 0;
+    let elasticity = 0;
 
     function jiggle(event) {
 
@@ -345,11 +235,11 @@ $(document).ready(function() {
         if (elasticity > 0) {
           // console.log(lastChild);
           for (var i = 0; i < lastChild.segments.length; i++) {
-            var segment = lastChild.segments[i];
-            var timeConst = 16;
-            var divConst = 2;
-            var cos = Math.cos(event.time * timeConst + i);
-            var sin = Math.sin(event.time * timeConst + i);
+            const segment = lastChild.segments[i];
+            const timeConst = 16;
+            const divConst = 2;
+            const cos = Math.cos(event.time * timeConst + i);
+            const sin = Math.sin(event.time * timeConst + i);
             segment.point.x += (cos / divConst) * elasticity;
             segment.point.y += (sin / divConst) * elasticity;
             // console.log(cos, sin, elasticity);
@@ -379,7 +269,6 @@ $(document).ready(function() {
   function newPressed() {
     console.log('new pressed');
 
-    moves = [];
     paper.project.activeLayer.removeChildren();
   }
 

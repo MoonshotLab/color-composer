@@ -1,15 +1,47 @@
 require('dotenv').config();
 
 var gulp = require('gulp');
+
 var postcss = require('gulp-postcss');
 var autoprefixer = require('autoprefixer');
 var cssnano = require('cssnano');
 var sass = require('gulp-sass');
-var webpack = require('webpack');
-var gulpWebpack = require('gulp-webpack');
-var babel = require('gulp-babel');
+
 var browserSync = require('browser-sync').create();
-var tap = require('gulp-tap');
+var browserify  = require('browserify');
+var babelify    = require('babelify');
+var source      = require('vinyl-source-stream');
+var buffer      = require('vinyl-buffer');
+var uglify      = require('gulp-uglify');
+var sourcemaps  = require('gulp-sourcemaps');
+
+// https://gist.github.com/Fishrock123/8ea81dad3197c2f84366
+var gutil = require('gulp-util')
+var chalk = require('chalk')
+
+function map_error(err) {
+  if (err.fileName) {
+    // regular error
+    gutil.log(chalk.red(err.name)
+      + ': '
+      + chalk.yellow(err.fileName.replace(__dirname + '/src/js/', ''))
+      + ': '
+      + 'Line '
+      + chalk.magenta(err.lineNumber)
+      + ' & '
+      + 'Column '
+      + chalk.magenta(err.columnNumber || err.column)
+      + ': '
+      + chalk.blue(err.description));
+  } else {
+    // browserify error..
+    gutil.log(chalk.red(err.name)
+      + ': '
+      + chalk.yellow(err.message));
+  }
+
+  this.emit('end');
+}
 
 gulp.task('sass', function () {
   var processors = [
@@ -24,22 +56,33 @@ gulp.task('sass', function () {
 });
 
 gulp.task('js', function() {
-  return gulp.src('./src/js/**/*.js')
-    // .pipe(babel({
-    //     presets: ['es2015']
-    // }))
-    .pipe(tap(function(file, t) {
-      console.log(file.name);
-    }))
-    .pipe(gulpWebpack({
-      output: {
-        publicPath: 'public',
-        filename: 'main.js'
-      },
-      plugins: [new webpack.optimize.UglifyJsPlugin()],
-    }, webpack))
-    .pipe(gulp.dest('./public/js'))
-    .pipe(browserSync.stream());
+  return browserify({entries: './src/js/main.js', debug: true})
+       .transform("babelify", { presets: ["es2015"] })
+       .bundle()
+       .on('error', map_error)
+       .pipe(source('main.js'))
+       .pipe(buffer())
+       .pipe(sourcemaps.init())
+       .pipe(uglify())
+       .pipe(sourcemaps.write('./maps'))
+       .pipe(gulp.dest('./public/js'))
+       .pipe(browserSync.stream());
+  // return gulp.src('./src/js/**/*.js')
+  //   // .pipe(babel({
+  //   //     presets: ['es2015']
+  //   // }))
+  //   .pipe(tap(function(file, t) {
+  //     console.log(file.name);
+  //   }))
+  //   .pipe(gulpWebpack({
+  //     output: {
+  //       publicPath: 'public',
+  //       filename: 'main.js'
+  //     },
+  //     plugins: [new webpack.optimize.UglifyJsPlugin()],
+  //   }, webpack))
+  //   .pipe(gulp.dest('./public/js'))
+  //   .pipe(browserSync.stream());
 });
 
 gulp.task('watch', ['sass', 'js'], function() {
