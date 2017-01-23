@@ -201,7 +201,7 @@ $(document).ready(function() {
       lastChild = path;
 
       let intersections = path.children['middle'].getCrossings();
-      if (false && intersections && intersections.length > 0) {
+      if (intersections && intersections.length > 0) {
         for (let i = 0; i < intersections.length; i++) {
           console.log('----------------');
           let intersection = intersections[i];
