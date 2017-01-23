@@ -67,22 +67,6 @@ gulp.task('js', function() {
        .pipe(sourcemaps.write('./maps'))
        .pipe(gulp.dest('./public/js'))
        .pipe(browserSync.stream());
-  // return gulp.src('./src/js/**/*.js')
-  //   // .pipe(babel({
-  //   //     presets: ['es2015']
-  //   // }))
-  //   .pipe(tap(function(file, t) {
-  //     console.log(file.name);
-  //   }))
-  //   .pipe(gulpWebpack({
-  //     output: {
-  //       publicPath: 'public',
-  //       filename: 'main.js'
-  //     },
-  //     plugins: [new webpack.optimize.UglifyJsPlugin()],
-  //   }, webpack))
-  //   .pipe(gulp.dest('./public/js'))
-  //   .pipe(browserSync.stream());
 });
 
 gulp.task('watch', ['sass', 'js'], function() {

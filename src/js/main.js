@@ -7,15 +7,7 @@ window.kan = window.kan || {
 
 paper.install(window);
 
-// Converts from degrees to radians.
-Math.rad = function(degrees) {
-  return degrees * Math.PI / 180;
-};
-
-// Converts from radians to degrees.
-Math.deg = function(radians) {
-  return radians * 180 / Math.PI;
-};
+const util = require('./util');
 
 $(document).ready(function() {
   let MOVES = []; // store global moves list
@@ -107,12 +99,24 @@ $(document).ready(function() {
       const pointer = event.gesture.center;
       const point = new Point(pointer.x, pointer.y);
 
-      path = new Path({
+      // the first path is what is actually drawn, the second path keeps track of center points
+      path = new CompoundPath({
+        children: [
+          new Path({
+            name: 'bounds'
+          }),
+          new Path({
+            name: 'middle'
+          })
+        ],
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor
       });
 
-      path.add(point);
+      path.children['bounds'].add(point);
+
+      path.children['middle'].add(point);
+      path.children['middle'].visible = false; // second path is only for internal use, hide it
     }
 
     const threshold = 20;
@@ -137,19 +141,18 @@ $(document).ready(function() {
       if (sizes.length > 0) {
         // not the first point, so we have others to compare to
         p0 = past;
-        dist = delta(point, p0);
+        dist = util.delta(point, p0);
         size = dist * alpha;
         if (size >= threshold) size = threshold;
 
         cumSize = 0;
-        for (var j = 0; j < sizes.length; j++) {
+        for (let j = 0; j < sizes.length; j++) {
           cumSize += sizes[j];
         }
         avgSize = Math.round(((cumSize / sizes.length) + size) / 2);
         // console.log(avgSize);
 
         angle = Math.atan2(point.y - p0.y, point.x - p0.x); // rad
-        // angle = Math.rad(event.gesture.angle);
 
         // Point(bottomX, bottomY) is bottom, Point(topX, topY) is top
         bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
@@ -160,11 +163,11 @@ $(document).ready(function() {
         topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
         top = new Point(topX, topY);
 
-        path.add(top);
-        path.insert(0, bottom);
-        // paths[i].add(point);
+        path.children['bounds'].add(top);
+        path.children['bounds'].insert(0, bottom);
+        path.children['bounds'].smooth();
 
-        path.smooth();
+        path.children['middle'].add(point);
       } else {
         // don't have anything to compare to
         dist = 1;
@@ -186,24 +189,55 @@ $(document).ready(function() {
       const pointer = event.gesture.center;
       const point = new Point(pointer.x, pointer.y);
 
-      path.add(point);
-      path.smooth();
-      path.simplify(0);
-      path.closed = true;
+      path.children['bounds'].add(point);
+      path.children['bounds'].smooth();
+      path.children['bounds'].simplify(0);
+      path.children['bounds'].closed = true;
+
+      path.children['middle'].add(point);
+      path.children['middle'].smooth();
+      // path.children['middle'].simplify(0);
+      path.children['middle'].closed = false;
       lastChild = path;
 
-      let intersections = path.getCrossings();
-      if (intersections && intersections.length > 0) {
-        for (var i = 0; i < intersections.length; i++) {
-          // console.log('----------------');
+      let intersections = path.children['middle'].getCrossings();
+      if (false && intersections && intersections.length > 0) {
+        for (let i = 0; i < intersections.length; i++) {
+          console.log('----------------');
           let intersection = intersections[i];
+          let location = path.children['middle'].getLocationOf(intersection.point);
+          console.log(location);
+          let index = location.curve.index + 1;
+          console.log(index);
+          // for (let j = index; j < path.children['middle'].segments.length; j++) {
+          //   console.log(path.children['middle'].segments[j].point);
+          //   new Path.Circle({
+          //     center: path.children['middle'].segments[j].point,
+          //     radius: 3,
+          //     fillColor: 'pink'
+          //   });
+          // }
+          // let locationPath = new Path({
+          //   strokeColor: window.kan.currentColor,
+          //   fillColor: window.kan.currentColor
+          // });
+          // for (let j = 0; j < location.path.segments.length; j++) {
+          //   locationPath.add(location.path.segments[j].point);
+          // }
+          // locationPath.closed = false;
           // console.log(intersection);
-          const circle = new Path.Circle({
-              center: intersection.point,
-              radius: 3,
-              fillColor: 'pink'
-          });
+          // const circle = new Path.Circle({
+          //     center: intersection.point,
+          //     radius: 3,
+          //     fillColor: 'pink'
+          // });
         }
+      }
+
+      // console.log(path.children['middle']);
+      for (let i = 0; i < path.children['middle'].segments.length; i++) {
+        let segment = path.children['middle'].segments[i];
+        // console.log(segment);
       }
     }
 
@@ -234,7 +268,7 @@ $(document).ready(function() {
       if (!!lastChild) {
         if (elasticity > 0) {
           // console.log(lastChild);
-          for (var i = 0; i < lastChild.segments.length; i++) {
+          for (let i = 0; i < lastChild.segments.length; i++) {
             const segment = lastChild.segments[i];
             const timeConst = 16;
             const divConst = 2;
@@ -260,10 +294,6 @@ $(document).ready(function() {
       .on('tap', tap);
 
     $canvas.data('hammer').get('pan').set({ direction: Hammer.DIRECTION_ALL });
-  }
-
-  function delta(p1, p2) {
-    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)); // pythagorean!
   }
 
   function newPressed() {
