@@ -89,6 +89,8 @@ $(document).ready(function() {
     let lastChild;
 
     function panStart(event) {
+      paper.project.activeLayer.removeChildren(); // REMOVE
+
       sizes = [];
 
       if (!(event.gesture.changedPointers && event.gesture.changedPointers.length > 0)) return;
@@ -189,56 +191,36 @@ $(document).ready(function() {
       const pointer = event.gesture.center;
       const point = new Point(pointer.x, pointer.y);
 
-      path.children['bounds'].add(point);
-      path.children['bounds'].smooth();
-      path.children['bounds'].simplify(0);
-      path.children['bounds'].closed = true;
+      const group = new Group(path);
 
       path.children['middle'].add(point);
       path.children['middle'].smooth();
       // path.children['middle'].simplify(0);
       path.children['middle'].closed = false;
-      lastChild = path;
+      path.children['middle'].visible = false;
 
-      let intersections = path.children['middle'].getCrossings();
-      if (intersections && intersections.length > 0) {
-        for (let i = 0; i < intersections.length; i++) {
-          console.log('----------------');
-          let intersection = intersections[i];
-          let location = path.children['middle'].getLocationOf(intersection.point);
-          console.log(location);
-          let index = location.curve.index + 1;
-          console.log(index);
-          // for (let j = index; j < path.children['middle'].segments.length; j++) {
-          //   console.log(path.children['middle'].segments[j].point);
-          //   new Path.Circle({
-          //     center: path.children['middle'].segments[j].point,
-          //     radius: 3,
-          //     fillColor: 'pink'
-          //   });
-          // }
-          // let locationPath = new Path({
-          //   strokeColor: window.kan.currentColor,
-          //   fillColor: window.kan.currentColor
-          // });
-          // for (let j = 0; j < location.path.segments.length; j++) {
-          //   locationPath.add(location.path.segments[j].point);
-          // }
-          // locationPath.closed = false;
-          // console.log(intersection);
-          // const circle = new Path.Circle({
-          //     center: intersection.point,
-          //     radius: 3,
-          //     fillColor: 'pink'
-          // });
-        }
-      }
+      path.children['bounds'].add(point);
+      path.children['bounds'].smooth();
+      path.children['bounds'].simplify(0);
+      path.children['bounds'].closed = true;
+      // let intersections = path.children['bounds'].getCrossings();
+      // if (intersections.length > 0) {
+      //   path.children['bounds'].resolveCrossings(); // destroys path.children['bounds']
+      //   let enclosedLoops = util.findInteriorCurves(path);
+      //   console.log('enclosedLoops', enclosedLoops);
+      //   if (enclosedLoops) {
+      //     for (let i = 0; i < enclosedLoops.length; i++) {
+      //       console.log('enclosedLoops[i]', enclosedLoops[i]);
+      //       group.addChild(enclosedLoops[i]);
+      //     }
+      //   }
+      // } else {
+      //   console.log('no intersections');
+      // }
+      //
+      // console.log('group', group);
 
-      // console.log(path.children['middle']);
-      for (let i = 0; i < path.children['middle'].segments.length; i++) {
-        let segment = path.children['middle'].segments[i];
-        // console.log(segment);
-      }
+      lastChild = group;
     }
 
     const hitOptions = {
@@ -254,7 +236,21 @@ $(document).ready(function() {
           hitResult = paper.project.hitTest(point, hitOptions);
 
       if (hitResult) {
-        hitResult.item.selected = !hitResult.item.selected;
+        let item = hitResult.item;
+
+        console.log(item.id, item);
+        item.selected = !item.selected;
+
+        // item.visible = true;
+        // console.log(item);
+        // console.log('fillColor before: ', item.fillColor);
+        // item.fillColor = item.strokeColor;
+        // console.log('fillColor after: ', item.fillColor);
+        // if (item.hasFill()) {
+        //   console.log('item has fill');
+        // } else {
+        //   console.log('no fill');
+        // }
       }
     }
 
