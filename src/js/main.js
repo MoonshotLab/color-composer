@@ -238,8 +238,10 @@ $(document).ready(function() {
 
           if (item.data.transparent) {
             item.fillColor = transparent;
+            item.strokeColor = transparent;
           } else {
             item.fillColor = parent.data.color;
+            item.strokeColor = parent.data.color;
           }
         } else {
           console.log('not interior')
@@ -288,7 +290,6 @@ $(document).ready(function() {
     hammerManager.on('panstart', panStart);
     hammerManager.on('panmove', panMove);
     hammerManager.on('panend', panEnd);
-
 
     hammerManager.get('doubletap').recognizeWith('singletap');
     hammerManager.get('singletap').requireFailure('doubletap');
