@@ -93,32 +93,22 @@ $(document).ready(function() {
 
       sizes = [];
 
-      if (!(event.gesture.changedPointers && event.gesture.changedPointers.length > 0)) return;
-      if (event.gesture.changedPointers.length > 1) {
-        console.log('event.gesture.changedPointers > 1');
+      if (!(event.changedPointers && event.changedPointers.length > 0)) return;
+      if (event.changedPointers.length > 1) {
+        console.log('event.changedPointers > 1');
       }
 
-      const pointer = event.gesture.center;
+      const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
       // the first path is what is actually drawn, the second path keeps track of center points
-      path = new CompoundPath({
-        children: [
-          new Path({
-            name: 'bounds'
-          }),
-          new Path({
-            name: 'middle'
-          })
-        ],
+      path = new Path({
         strokeColor: window.kan.currentColor,
-        fillColor: window.kan.currentColor
+        fillColor: window.kan.currentColor,
+        name: 'bounds'
       });
 
-      path.children['bounds'].add(point);
-
-      path.children['middle'].add(point);
-      path.children['middle'].visible = false; // second path is only for internal use, hide it
+      path.add(point);
     }
 
     const threshold = 20;
@@ -128,7 +118,7 @@ $(document).ready(function() {
     function panMove(event) {
       event.preventDefault();
 
-      const pointer = event.gesture.center;
+      const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
       while (sizes.length > memory) {
@@ -165,11 +155,9 @@ $(document).ready(function() {
         topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
         top = new Point(topX, topY);
 
-        path.children['bounds'].add(top);
-        path.children['bounds'].insert(0, bottom);
-        path.children['bounds'].smooth();
-
-        path.children['middle'].add(point);
+        path.add(top);
+        path.insert(0, bottom);
+        path.smooth();
       } else {
         // don't have anything to compare to
         dist = 1;
@@ -188,38 +176,42 @@ $(document).ready(function() {
     function panEnd(event) {
       elasticity = 1;
 
-      const pointer = event.gesture.center;
+      const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
       const group = new Group(path);
 
-      path.children['middle'].add(point);
-      path.children['middle'].smooth();
-      // path.children['middle'].simplify(0);
-      path.children['middle'].closed = false;
-      path.children['middle'].visible = false;
+      path.add(point);
+      path.smooth();
+      path.simplify(0);
+      path.closed = true;
 
-      path.children['bounds'].add(point);
-      path.children['bounds'].smooth();
-      path.children['bounds'].simplify(0);
-      path.children['bounds'].closed = true;
-      // let intersections = path.children['bounds'].getCrossings();
-      // if (intersections.length > 0) {
-      //   path.children['bounds'].resolveCrossings(); // destroys path.children['bounds']
-      //   let enclosedLoops = util.findInteriorCurves(path);
-      //   console.log('enclosedLoops', enclosedLoops);
-      //   if (enclosedLoops) {
-      //     for (let i = 0; i < enclosedLoops.length; i++) {
-      //       console.log('enclosedLoops[i]', enclosedLoops[i]);
-      //       group.addChild(enclosedLoops[i]);
-      //     }
-      //   }
-      // } else {
-      //   console.log('no intersections');
-      // }
-      //
-      // console.log('group', group);
+      let intersections = path.getCrossings();
+      if (intersections.length > 0) {
+        // we create a copy of the path because resolveCrossings() splits source path
+        let pathCopy = new Path();
+        pathCopy.copyContent(path);
+        pathCopy.visible = false;
 
+        let dividedPath = pathCopy.resolveCrossings();
+        dividedPath.visible = false;
+
+        let enclosedLoops = util.findInteriorCurves(dividedPath);
+
+        if (enclosedLoops) {
+          for (let i = 0; i < enclosedLoops.length; i++) {
+            enclosedLoops[i].visible = true;
+            enclosedLoops[i].closed = true;
+            enclosedLoops[i].fillColor = new Color(0, 0); // transparent
+            enclosedLoops[i].data.interior = true;
+            enclosedLoops[i].data.transparent = true;
+            group.addChild(enclosedLoops[i]);
+          }
+        }
+        pathCopy.remove();
+      }
+
+      group.data.color = path.fillColor;
       lastChild = group;
     }
 
@@ -230,27 +222,31 @@ $(document).ready(function() {
       tolerance: 5
     };
 
-    function tap(event) {
-      const pointer = event.gesture.center,
+    function doubleTap(event) {
+      const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
-          hitResult = paper.project.hitTest(point, hitOptions);
+          hitResult = paper.project.hitTest(point, hitOptions),
+          transparent = new Color(0, 0);
 
       if (hitResult) {
         let item = hitResult.item;
+        let parent = item.parent;
 
-        console.log(item.id, item);
-        item.selected = !item.selected;
+        if (item.data.interior) {
+          console.log('interior');
+          item.data.transparent = !item.data.transparent;
 
-        // item.visible = true;
-        // console.log(item);
-        // console.log('fillColor before: ', item.fillColor);
-        // item.fillColor = item.strokeColor;
-        // console.log('fillColor after: ', item.fillColor);
-        // if (item.hasFill()) {
-        //   console.log('item has fill');
-        // } else {
-        //   console.log('no fill');
-        // }
+          if (item.data.transparent) {
+            item.fillColor = transparent;
+          } else {
+            item.fillColor = parent.data.color;
+          }
+        } else {
+          console.log('not interior')
+        }
+
+      } else {
+        console.log('hit no item');
       }
     }
 
@@ -283,13 +279,25 @@ $(document).ready(function() {
 
     // paper.view.onFrame = jiggle;
 
-    $canvas.hammer()
-      .on('panstart', panStart)
-      .on('panmove', panMove)
-      .on('panend', panEnd)
-      .on('tap', tap);
+    var hammerManager = new Hammer.Manager($canvas[0]);
 
-    $canvas.data('hammer').get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
+    hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
+    hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
+
+    hammerManager.on('panstart', panStart);
+    hammerManager.on('panmove', panMove);
+    hammerManager.on('panend', panEnd);
+
+
+    hammerManager.get('doubletap').recognizeWith('singletap');
+    hammerManager.get('singletap').requireFailure('doubletap');
+
+    hammerManager.on('singletap', function() {
+      console.log('singleTap');
+    });
+
+    hammerManager.on('doubletap', doubleTap);
   }
 
   function newPressed() {
