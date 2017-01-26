@@ -199,8 +199,6 @@ $(document).ready(function() {
       middle.flatten(4);
       middle.smooth();
       middle.simplify();
-      middle.selected = true;
-
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
