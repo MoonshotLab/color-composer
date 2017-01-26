@@ -80,9 +80,8 @@ $(document).ready(function() {
 
     paper.setup($canvas[0]);
 
-    let path;
+    let middle, bounds;
     let past;
-    let pasts = [];
     let sizes;
     // let paths = getFreshPaths(window.kan.numPaths);
     let touch = false;
@@ -101,14 +100,20 @@ $(document).ready(function() {
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
-      // the first path is what is actually drawn, the second path keeps track of center points
-      path = new Path({
+      bounds = new Path({
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor,
         name: 'bounds',
       });
 
-      path.add(point);
+      middle = new Path({
+        strokeColor: window.kan.currentColor,
+        name: 'middle',
+        strokeWidth: 1,
+      });
+
+      bounds.add(point);
+      middle.add(point);
     }
 
     const min = 0;
@@ -156,9 +161,12 @@ $(document).ready(function() {
         topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
         top = new Point(topX, topY);
 
-        path.add(top);
-        path.insert(0, bottom);
-        path.smooth();
+        bounds.add(top);
+        bounds.insert(0, bottom);
+        // bounds.smooth();
+
+        middle.add(point);
+        // middle.smooth();
       } else {
         // don't have anything to compare to
         dist = 1;
@@ -180,19 +188,25 @@ $(document).ready(function() {
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
-      const group = new Group(path);
+      const group = new Group([bounds, middle]);
 
-      path.add(point);
-      path.flatten(4);
-      path.smooth();
-      path.simplify();
-      path.closed = true;
+      bounds.add(point);
+      bounds.flatten(4);
+      bounds.smooth();
+      bounds.simplify();
+      bounds.closed = true;
 
-      let intersections = path.getCrossings();
+      middle.add(point);
+      middle.flatten(4);
+      middle.smooth();
+      middle.simplify();
+      middle.selected = true;
+
+      let intersections = middle.getCrossings();
       if (intersections.length > 0) {
         // we create a copy of the path because resolveCrossings() splits source path
         let pathCopy = new Path();
-        pathCopy.copyContent(path);
+        pathCopy.copyContent(middle);
         pathCopy.visible = false;
 
         let dividedPath = pathCopy.resolveCrossings();
@@ -215,9 +229,7 @@ $(document).ready(function() {
         console.log('no intersections');
       }
 
-      path.selected = true;
-
-      group.data.color = path.fillColor;
+      group.data.color = bounds.fillColor;
       lastChild = group;
     }
 
@@ -300,22 +312,22 @@ $(document).ready(function() {
     hammerManager.on('singletap', function() { console.log('singleTap');});
     hammerManager.on('doubletap', doubleTap);
 
-    // hammerManager.on('panstart', panStart);
-    // hammerManager.on('panmove', panMove);
-    // hammerManager.on('panend', panEnd);
-    hammerManager.on('panstart', function(ev) {
-      console.log(ev)
-    });
-    hammerManager.on('panmove', function(ev) {
-      console.log(ev)
-    });
-    hammerManager.on('panend', function(ev) {
-      console.log(ev)
-    });
-
-    hammerManager.on('pinch', function(ev) {
-      console.log(ev);
-    });
+    hammerManager.on('panstart', panStart);
+    hammerManager.on('panmove', panMove);
+    hammerManager.on('panend', panEnd);
+    // hammerManager.on('panstart', function(ev) {
+    //   console.log(ev)
+    // });
+    // hammerManager.on('panmove', function(ev) {
+    //   console.log(ev)
+    // });
+    // hammerManager.on('panend', function(ev) {
+    //   console.log(ev)
+    // });
+    //
+    // hammerManager.on('pinch', function(ev) {
+    //   console.log(ev);
+    // });
   }
 
   function newPressed() {
