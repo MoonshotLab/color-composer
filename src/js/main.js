@@ -105,13 +105,14 @@ $(document).ready(function() {
       path = new Path({
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor,
-        name: 'bounds'
+        name: 'bounds',
       });
 
       path.add(point);
     }
 
-    const threshold = 20;
+    const min = 0;
+    const max = 20;
     const alpha = 0.3;
     const memory = 10;
     let cumSize, avgSize;
@@ -135,7 +136,7 @@ $(document).ready(function() {
         p0 = past;
         dist = util.delta(point, p0);
         size = dist * alpha;
-        if (size >= threshold) size = threshold;
+        size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
 
         cumSize = 0;
         for (let j = 0; j < sizes.length; j++) {
@@ -164,7 +165,7 @@ $(document).ready(function() {
         angle = 0;
 
         size = dist * alpha;
-        if (size >= threshold) size = threshold;
+        size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
       }
 
       paper.view.draw();
@@ -182,8 +183,9 @@ $(document).ready(function() {
       const group = new Group(path);
 
       path.add(point);
+      path.flatten(4);
       path.smooth();
-      path.simplify(0);
+      path.simplify();
       path.closed = true;
 
       let intersections = path.getCrossings();
@@ -209,7 +211,11 @@ $(document).ready(function() {
           }
         }
         pathCopy.remove();
+      } else {
+        console.log('no intersections');
       }
+
+      path.selected = true;
 
       group.data.color = path.fillColor;
       lastChild = group;
@@ -283,22 +289,33 @@ $(document).ready(function() {
 
     var hammerManager = new Hammer.Manager($canvas[0]);
 
-    hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
-    hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
     hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
-
-    hammerManager.on('panstart', panStart);
-    hammerManager.on('panmove', panMove);
-    hammerManager.on('panend', panEnd);
+    hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
+    hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
+    hammerManager.add(new Hammer.Pinch());
 
     hammerManager.get('doubletap').recognizeWith('singletap');
     hammerManager.get('singletap').requireFailure('doubletap');
 
-    hammerManager.on('singletap', function() {
-      console.log('singleTap');
+    hammerManager.on('singletap', function() { console.log('singleTap');});
+    hammerManager.on('doubletap', doubleTap);
+
+    // hammerManager.on('panstart', panStart);
+    // hammerManager.on('panmove', panMove);
+    // hammerManager.on('panend', panEnd);
+    hammerManager.on('panstart', function(ev) {
+      console.log(ev)
+    });
+    hammerManager.on('panmove', function(ev) {
+      console.log(ev)
+    });
+    hammerManager.on('panend', function(ev) {
+      console.log(ev)
     });
 
-    hammerManager.on('doubletap', doubleTap);
+    hammerManager.on('pinch', function(ev) {
+      console.log(ev);
+    });
   }
 
   function newPressed() {

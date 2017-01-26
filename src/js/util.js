@@ -38,6 +38,9 @@ export function findInteriorCurves(path) {
 
       if (interior) {
         interiorCurves.push(new Path(child.segments));
+        console.log(`child ${child.id} is interior`);
+      } else {
+        console.log(`child ${child.id} is exterior`);
       }
     }
   }
