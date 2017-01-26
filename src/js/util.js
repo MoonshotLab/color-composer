@@ -20,29 +20,11 @@ export function findInteriorCurves(path) {
   for (let i = 0; i < path.children.length; i++) {
     let child = path.children[i];
 
-    if (!child.closed){
-      child.remove();
-    } else {
-      let bounds = child.strokeBounds;
-      let interior = false;
-
-      // iterate through all other children to see if this child is entirely within another. if so, it is an interior path
-      for (let j = 0; j < path.children.length; j++) {
-        // don't test against itself
-        if (j !== i) {
-          if (child.isInside(path.children[j].strokeBounds)) {
-            interior = true;
-          }
-        }
-      }
-
-      if (interior) {
-        interiorCurves.push(new Path(child.segments));
-      }
+    if (child.closed){
+      interiorCurves.push(new Path(child.segments));
     }
   }
 
   path.remove();
-
   return interiorCurves;
 }

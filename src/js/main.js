@@ -81,6 +81,7 @@ $(document).ready(function() {
     paper.setup($canvas[0]);
 
     let path;
+    let middle, bounds;
     let past;
     let pasts = [];
     let sizes;
@@ -101,14 +102,20 @@ $(document).ready(function() {
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
-      // the first path is what is actually drawn, the second path keeps track of center points
-      path = new Path({
+      bounds = new Path({
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor,
         name: 'bounds'
       });
 
-      path.add(point);
+      middle = new Path({
+        strokeColor: window.kan.currentColor,
+        name: 'middle',
+        strokeWidth: 1
+      });
+
+      bounds.add(point);
+      middle.add(point);
     }
 
     const threshold = 20;
@@ -155,9 +162,12 @@ $(document).ready(function() {
         topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
         top = new Point(topX, topY);
 
-        path.add(top);
-        path.insert(0, bottom);
-        path.smooth();
+        bounds.add(top);
+        bounds.insert(0, bottom);
+        // bounds.smooth();
+
+        middle.add(point);
+        // middle.smooth();
       } else {
         // don't have anything to compare to
         dist = 1;
@@ -179,18 +189,26 @@ $(document).ready(function() {
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
-      const group = new Group(path);
+      const group = new Group([bounds, middle]);
 
-      path.add(point);
-      path.smooth();
-      path.simplify(0);
-      path.closed = true;
+      bounds.add(point);
+      bounds.flatten(4);
+      bounds.smooth();
+      bounds.simplify();
+      bounds.closed = true;
 
-      let intersections = path.getCrossings();
+      middle.add(point);
+      middle.flatten(4);
+      middle.smooth();
+      middle.simplify();
+      middle.selected = true;
+
+
+      let intersections = middle.getCrossings();
       if (intersections.length > 0) {
         // we create a copy of the path because resolveCrossings() splits source path
         let pathCopy = new Path();
-        pathCopy.copyContent(path);
+        pathCopy.copyContent(middle);
         pathCopy.visible = false;
 
         let dividedPath = pathCopy.resolveCrossings();
@@ -199,6 +217,7 @@ $(document).ready(function() {
         let enclosedLoops = util.findInteriorCurves(dividedPath);
 
         if (enclosedLoops) {
+          console.log(enclosedLoops);
           for (let i = 0; i < enclosedLoops.length; i++) {
             enclosedLoops[i].visible = true;
             enclosedLoops[i].closed = true;
@@ -211,7 +230,7 @@ $(document).ready(function() {
         pathCopy.remove();
       }
 
-      group.data.color = path.fillColor;
+      group.data.color = bounds.fillColor;
       lastChild = group;
     }
 
