@@ -229,30 +229,52 @@ $(document).ready(function() {
       }
 
       group.data.color = bounds.fillColor;
+      console.log(group.rotation);
       lastChild = group;
     }
 
-    let pinchedGroup;
+    let pinchedGroup, lastScale, lastRotation;
     function pinchStart(event) {
       console.log('pinchstart', event);
+      hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
           hitResult = paper.project.hitTest(point, hitOptions);
 
       if (hitResult) {
         pinchedGroup = hitResult.item.parent;
+        lastScale = pinchedGroup.scale;
+        lastRotation = pinchedGroup.rotation;
       } else {
         console.log('hit no item');
       }
     }
 
     function pinchMove(event) {
-      console.log('pinchmove', event);
-      console.log(pinchedGroup);
+      if (pinchedGroup) {
+        console.log('pinchmove', event);
+        console.log(pinchedGroup);
+        let currentScale = event.scale;
+        let scaleDelta = currentScale / lastScale;
+        lastScale = currentScale;
+        console.log(lastScale, currentScale, scaleDelta);
+
+        let currentRotation = event.rotation;
+        let rotationDelta = currentRotation - lastRotation;
+        lastRotation = currentRotation;
+        console.log(lastRotation, currentRotation, rotationDelta);
+        // pinchedGroup.scale(scaleDelta);
+        pinchedGroup.rotate(rotationDelta);
+
+      }
     }
 
     function pinchEnd(event) {
       console.log('pinchend', event);
+      // wait 250 ms to prevent mistaken pan readings
+      setTimeout(function() {
+        hammerManager.get('pan').set({enable: true});
+      }, 250);
     }
 
     const hitOptions = {
@@ -335,32 +357,14 @@ $(document).ready(function() {
     hammerManager.on('singletap', function() { console.log('singleTap');});
     hammerManager.on('doubletap', doubleTap);
 
-    // hammerManager.on('panstart', panStart);
-    // hammerManager.on('panmove', panMove);
-    // hammerManager.on('panend', panEnd);
-    //
-    // hammerManager.on('pinchstart', pinchStart);
-    // hammerManager.on('pinchmove', pinchMove);
-    // hammerManager.on('pinchend', pinchEnd);
-    hammerManager.on('panstart', function(event) {
-      console.log(event.type, event);
-    });
-    hammerManager.on('panmove', function(event) {
-      console.log(event.type, event);
-    });
-    hammerManager.on('panend', function(event) {
-      console.log(event.type, event);
-    });
+    hammerManager.on('panstart', panStart);
+    hammerManager.on('panmove', panMove);
+    hammerManager.on('panend', panEnd);
 
-    hammerManager.on('pinchstart', function(event) {
-      console.log(event.type, event);
-    });
-    hammerManager.on('pinchmove', function(event) {
-      console.log(event.type, event);
-    });
-    hammerManager.on('pinchend', function(event) {
-      console.log(event.type, event);
-    });
+    hammerManager.on('pinchstart', pinchStart);
+    hammerManager.on('pinchmove', pinchMove);
+    hammerManager.on('pinchend', pinchEnd);
+    hammerManager.on('pinchcancel', function() { hammerManager.get('pan').set({enable: true}); }); // make sure it's reenabled
   }
 
   function newPressed() {
