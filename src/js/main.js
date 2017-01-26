@@ -80,10 +80,8 @@ $(document).ready(function() {
 
     paper.setup($canvas[0]);
 
-    let path;
     let middle, bounds;
     let past;
-    let pasts = [];
     let sizes;
     // let paths = getFreshPaths(window.kan.numPaths);
     let touch = false;
