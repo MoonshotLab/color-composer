@@ -301,8 +301,8 @@ $(document).ready(function() {
 
     var hammerManager = new Hammer.Manager($canvas[0]);
 
-    hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
     hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
+    hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
     hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
     hammerManager.add(new Hammer.Pinch());
 
