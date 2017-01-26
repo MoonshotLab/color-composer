@@ -88,7 +88,7 @@ $(document).ready(function() {
     let lastChild;
 
     function panStart(event) {
-      paper.project.activeLayer.removeChildren(); // REMOVE
+      // paper.project.activeLayer.removeChildren(); // REMOVE
 
       sizes = [];
 
@@ -200,7 +200,6 @@ $(document).ready(function() {
       middle.flatten(4);
       middle.smooth();
       middle.simplify();
-      middle.selected = true;
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
@@ -231,6 +230,29 @@ $(document).ready(function() {
 
       group.data.color = bounds.fillColor;
       lastChild = group;
+    }
+
+    let pinchedGroup;
+    function pinchStart(event) {
+      console.log('pinchstart', event);
+      const pointer = event.center,
+          point = new Point(pointer.x, pointer.y),
+          hitResult = paper.project.hitTest(point, hitOptions);
+
+      if (hitResult) {
+        pinchedGroup = hitResult.item.parent;
+      } else {
+        console.log('hit no item');
+      }
+    }
+
+    function pinchMove(event) {
+      console.log('pinchmove', event);
+      console.log(pinchedGroup);
+    }
+
+    function pinchEnd(event) {
+      console.log('pinchend', event);
     }
 
     const hitOptions = {
@@ -308,26 +330,37 @@ $(document).ready(function() {
 
     hammerManager.get('doubletap').recognizeWith('singletap');
     hammerManager.get('singletap').requireFailure('doubletap');
+    hammerManager.get('pan').requireFailure('pinch');
 
     hammerManager.on('singletap', function() { console.log('singleTap');});
     hammerManager.on('doubletap', doubleTap);
 
-    hammerManager.on('panstart', panStart);
-    hammerManager.on('panmove', panMove);
-    hammerManager.on('panend', panEnd);
-    // hammerManager.on('panstart', function(ev) {
-    //   console.log(ev)
-    // });
-    // hammerManager.on('panmove', function(ev) {
-    //   console.log(ev)
-    // });
-    // hammerManager.on('panend', function(ev) {
-    //   console.log(ev)
-    // });
+    // hammerManager.on('panstart', panStart);
+    // hammerManager.on('panmove', panMove);
+    // hammerManager.on('panend', panEnd);
     //
-    // hammerManager.on('pinch', function(ev) {
-    //   console.log(ev);
-    // });
+    // hammerManager.on('pinchstart', pinchStart);
+    // hammerManager.on('pinchmove', pinchMove);
+    // hammerManager.on('pinchend', pinchEnd);
+    hammerManager.on('panstart', function(event) {
+      console.log(event.type, event);
+    });
+    hammerManager.on('panmove', function(event) {
+      console.log(event.type, event);
+    });
+    hammerManager.on('panend', function(event) {
+      console.log(event.type, event);
+    });
+
+    hammerManager.on('pinchstart', function(event) {
+      console.log(event.type, event);
+    });
+    hammerManager.on('pinchmove', function(event) {
+      console.log(event.type, event);
+    });
+    hammerManager.on('pinchend', function(event) {
+      console.log(event.type, event);
+    });
   }
 
   function newPressed() {
