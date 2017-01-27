@@ -8,6 +8,7 @@ window.kan = window.kan || {
 paper.install(window);
 
 const util = require('./util');
+// require('paper-animate');
 
 $(document).ready(function() {
   let MOVES = []; // store global moves list
@@ -33,6 +34,7 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
+  const runAnimations = true;
 
   function initControlPanel() {
     initColorPalette();
@@ -88,7 +90,7 @@ $(document).ready(function() {
     let lastChild;
 
     function panStart(event) {
-      paper.project.activeLayer.removeChildren(); // REMOVE
+      // paper.project.activeLayer.removeChildren(); // REMOVE
 
       sizes = [];
 
@@ -200,6 +202,8 @@ $(document).ready(function() {
       middle.smooth();
       middle.simplify();
 
+      // util.trueGroup(group);
+
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
         // we create a copy of the path because resolveCrossings() splits source path
@@ -213,7 +217,6 @@ $(document).ready(function() {
         let enclosedLoops = util.findInteriorCurves(dividedPath);
 
         if (enclosedLoops) {
-          console.log(enclosedLoops);
           for (let i = 0; i < enclosedLoops.length; i++) {
             enclosedLoops[i].visible = true;
             enclosedLoops[i].closed = true;
@@ -228,6 +231,29 @@ $(document).ready(function() {
 
       group.data.color = bounds.fillColor;
       lastChild = group;
+
+      if (runAnimations) {
+        group.animate(
+          [{
+            properties: {
+              scale: 0.9
+            },
+            settings: {
+              duration: 100,
+              easing: "easeOut",
+            }
+          },
+          {
+            properties: {
+              scale: 1.11
+            },
+            settings: {
+              duration: 100,
+              easing: "easeIn"
+            }
+          }]
+        );
+      }
     }
 
     const hitOptions = {
@@ -270,7 +296,7 @@ $(document).ready(function() {
     // var animationId;
     let elasticity = 0;
 
-    function jiggle(event) {
+    function bounce(event) {
 
       // console.log(paper.project.activeLayer.firstChild);
       // paper.project.activeLayer.firstChild.rotate(3);
