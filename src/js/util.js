@@ -16,6 +16,7 @@ export function delta(p1, p2) {
 // returns an array of the interior curves of a given compound path
 export function findInteriorCurves(path) {
   let interiorCurves = [];
+  if (!path || !path.children || !path.children.length) return;
 
   for (let i = 0; i < path.children.length; i++) {
     let child = path.children[i];

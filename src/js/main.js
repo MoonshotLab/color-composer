@@ -228,6 +228,7 @@ $(document).ready(function() {
         let dividedPath = pathCopy.resolveCrossings();
         dividedPath.visible = false;
 
+
         let enclosedLoops = util.findInteriorCurves(dividedPath);
 
         if (enclosedLoops) {
@@ -237,7 +238,9 @@ $(document).ready(function() {
             enclosedLoops[i].fillColor = new Color(0, 0); // transparent
             enclosedLoops[i].data.interior = true;
             enclosedLoops[i].data.transparent = true;
+            // enclosedLoops[i].blendMode = 'multiply';
             group.addChild(enclosedLoops[i]);
+            enclosedLoops[i].sendToBack();
           }
         }
         pathCopy.remove();
