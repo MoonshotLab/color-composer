@@ -8,6 +8,7 @@ window.kan = window.kan || {
 paper.install(window);
 
 const util = require('./util');
+// require('paper-animate');
 
 $(document).ready(function() {
   let MOVES = []; // store global moves list
@@ -33,6 +34,8 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
+  const runAnimations = true;
+  const transparent = new Color(0, 0);
 
   function initControlPanel() {
     initColorPalette();
@@ -120,9 +123,21 @@ $(document).ready(function() {
     const max = 20;
     const alpha = 0.3;
     const memory = 10;
+    var cumDistance = 0;
     let cumSize, avgSize;
     function panMove(event) {
       event.preventDefault();
+      // console.log(event.overallVelocity);
+      // let thisDist = parseInt(event.distance);
+      // cumDistance += thisDist;
+      //
+      // if (cumDistance < 100) {
+      //   console.log('ignoring');
+      //   return;
+      // } else {
+      //   cumDistance = 0;
+      //   console.log('not ignoring');
+      // }
 
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
@@ -141,7 +156,9 @@ $(document).ready(function() {
         p0 = past;
         dist = util.delta(point, p0);
         size = dist * alpha;
-        size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
+        if (size >= threshold) size = threshold;
+        // size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
+        // size = threshold - size;
 
         cumSize = 0;
         for (let j = 0; j < sizes.length; j++) {
@@ -201,6 +218,8 @@ $(document).ready(function() {
       middle.smooth();
       middle.simplify();
 
+      // util.trueGroup(group);
+
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
         // we create a copy of the path because resolveCrossings() splits source path
@@ -211,6 +230,7 @@ $(document).ready(function() {
         let dividedPath = pathCopy.resolveCrossings();
         dividedPath.visible = false;
 
+
         let enclosedLoops = util.findInteriorCurves(dividedPath);
 
         if (enclosedLoops) {
@@ -220,7 +240,9 @@ $(document).ready(function() {
             enclosedLoops[i].fillColor = new Color(0, 0); // transparent
             enclosedLoops[i].data.interior = true;
             enclosedLoops[i].data.transparent = true;
+            // enclosedLoops[i].blendMode = 'multiply';
             group.addChild(enclosedLoops[i]);
+            enclosedLoops[i].sendToBack();
           }
         }
         pathCopy.remove();
@@ -231,6 +253,35 @@ $(document).ready(function() {
       group.data.color = bounds.fillColor;
       console.log(group.rotation);
       lastChild = group;
+      // group.selected = true;
+
+      MOVES.push({
+        type: 'newGroup',
+        id: group.id
+      });
+
+      if (runAnimations) {
+        group.animate(
+          [{
+            properties: {
+              scale: 0.9
+            },
+            settings: {
+              duration: 100,
+              easing: "easeOut",
+            }
+          },
+          {
+            properties: {
+              scale: 1.11
+            },
+            settings: {
+              duration: 100,
+              easing: "easeIn"
+            }
+          }]
+        );
+      }
     }
 
     let pinchedGroup, lastScale, lastRotation;
@@ -287,8 +338,7 @@ $(document).ready(function() {
     function doubleTap(event) {
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
-          hitResult = paper.project.hitTest(point, hitOptions),
-          transparent = new Color(0, 0);
+          hitResult = paper.project.hitTest(point, hitOptions);
 
       if (hitResult) {
         let item = hitResult.item;
@@ -305,6 +355,13 @@ $(document).ready(function() {
             item.fillColor = parent.data.color;
             item.strokeColor = parent.data.color;
           }
+
+          MOVES.push({
+            type: 'fillChanged',
+            id: item.id,
+            fill: parent.data.color,
+            transparent: item.data.transparent
+          });
         } else {
           console.log('not interior')
         }
@@ -317,7 +374,7 @@ $(document).ready(function() {
     // var animationId;
     let elasticity = 0;
 
-    function jiggle(event) {
+    function bounce(event) {
 
       // console.log(paper.project.activeLayer.firstChild);
       // paper.project.activeLayer.firstChild.rotate(3);
@@ -375,6 +432,43 @@ $(document).ready(function() {
 
   function undoPressed() {
     console.log('undo pressed');
+    if (!(MOVES.length > 0)) {
+      console.log('no moves yet');
+      return;
+    }
+
+    let lastMove = MOVES.pop();
+
+    switch(lastMove.type) {
+      case 'newGroup':
+        let group = project.getItem({
+          id: lastMove.id
+        });
+        if (group) {
+          console.log('removing group');
+          group.remove();
+        } else {
+          console.log('could not find matching group');
+        }
+        break;
+      case 'fillChanged':
+        let item = project.getItem({
+          id: lastMove.id
+        });
+
+        if (lastMove.transparent) {
+          item.fillColor = lastMove.fill;
+          item.strokeColor = lastMove.fill;
+        } else {
+          item.fillColor = transparent;
+          item.strokeColor = transparent;
+        }
+
+        break;
+      default:
+        console.log('unknown case');
+    }
+    console.log(lastMove);
     // d3.selectAll('svg.main path:last-child').remove();
   }
 
