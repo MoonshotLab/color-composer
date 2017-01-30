@@ -95,6 +95,7 @@ $(document).ready(function() {
 
       sizes = [];
 
+      if (pinching) return;
       if (!(event.changedPointers && event.changedPointers.length > 0)) return;
       if (event.changedPointers.length > 1) {
         console.log('event.changedPointers > 1');
@@ -127,6 +128,7 @@ $(document).ready(function() {
     let cumSize, avgSize;
     function panMove(event) {
       event.preventDefault();
+      if (pinching) return;
       // console.log(event.overallVelocity);
       // let thisDist = parseInt(event.distance);
       // cumDistance += thisDist;
@@ -156,9 +158,9 @@ $(document).ready(function() {
         p0 = past;
         dist = util.delta(point, p0);
         size = dist * alpha;
-        if (size >= threshold) size = threshold;
+        if (size >= max) size = max;
         // size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
-        // size = threshold - size;
+        // size = max - size;
 
         cumSize = 0;
         for (let j = 0; j < sizes.length; j++) {
@@ -201,6 +203,7 @@ $(document).ready(function() {
 
     function panEnd(event) {
       elasticity = 1;
+      if (pinching) return;
 
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
@@ -251,7 +254,7 @@ $(document).ready(function() {
       }
 
       group.data.color = bounds.fillColor;
-      console.log(group.rotation);
+      // console.log(group.rotation);
       lastChild = group;
       // group.selected = true;
 
@@ -284,7 +287,9 @@ $(document).ready(function() {
       }
     }
 
+    let pinching;
     let pinchedGroup, lastScale, lastRotation;
+    let originalPosition, originalRotation;
     function pinchStart(event) {
       console.log('pinchstart', event);
       hammerManager.get('pan').set({enable: false});
@@ -293,9 +298,26 @@ $(document).ready(function() {
           hitResult = paper.project.hitTest(point, hitOptions);
 
       if (hitResult) {
+        pinching = true;
         pinchedGroup = hitResult.item.parent;
-        lastScale = pinchedGroup.scale;
+        lastScale = 1;
         lastRotation = pinchedGroup.rotation;
+
+        originalPosition = pinchedGroup.position;
+        originalRotation = pinchedGroup.rotation;
+
+        console.log('pinchStart lastScale:', lastScale);
+        if (runAnimations) {
+          pinchedGroup.animate({
+            properties: {
+              scale: 1.25
+            },
+            settings: {
+              duration: 100,
+              easing: "easeOut",
+            }
+          });
+        }
       } else {
         console.log('hit no item');
       }
@@ -303,26 +325,59 @@ $(document).ready(function() {
 
     function pinchMove(event) {
       if (pinchedGroup) {
-        console.log('pinchmove', event);
-        console.log(pinchedGroup);
+        // console.log('pinchmove', event);
+        // console.log(pinchedGroup);
         let currentScale = event.scale;
         let scaleDelta = currentScale / lastScale;
+        // console.log(lastScale, currentScale, scaleDelta);
         lastScale = currentScale;
-        console.log(lastScale, currentScale, scaleDelta);
 
         let currentRotation = event.rotation;
         let rotationDelta = currentRotation - lastRotation;
+        // console.log(lastRotation, currentRotation, rotationDelta);
         lastRotation = currentRotation;
-        console.log(lastRotation, currentRotation, rotationDelta);
-        // pinchedGroup.scale(scaleDelta);
-        pinchedGroup.rotate(rotationDelta);
 
+        // console.log(`scaling by ${scaleDelta}`);
+        // console.log(`rotating by ${rotationDelta}`);
+
+        pinchedGroup.position = event.center;
+        pinchedGroup.scale(scaleDelta);
+        pinchedGroup.rotate(rotationDelta);
       }
     }
 
     function pinchEnd(event) {
       console.log('pinchend', event);
       // wait 250 ms to prevent mistaken pan readings
+      if (pinchedGroup) {
+        let move = {
+          id: pinchedGroup.id,
+          type: 'transform'
+        };
+        if (pinchedGroup.position != originalPosition) {
+          move.position = originalPosition;
+        }
+        if (pinchedGroup.rotation != originalRotation) {
+          move.rotation = originalRotation;
+        }
+        // if (pinchedGroup.scale != originalScale) {
+        //   move.scale = originalScale;
+        // }
+        console.log('pushing move:', move);
+        MOVES.push(move);
+        if (runAnimations) {
+          pinchedGroup.animate({
+            properties: {
+              scale: 0.8
+            },
+            settings: {
+              duration: 100,
+              easing: "easeOut",
+            }
+          });
+        }
+      }
+      pinching = false;
       setTimeout(function() {
         hammerManager.get('pan').set({enable: true});
       }, 250);
@@ -357,7 +412,7 @@ $(document).ready(function() {
           }
 
           MOVES.push({
-            type: 'fillChanged',
+            type: 'fillChange',
             id: item.id,
             fill: parent.data.color,
             transparent: item.data.transparent
@@ -438,36 +493,42 @@ $(document).ready(function() {
     }
 
     let lastMove = MOVES.pop();
+    let item = project.getItem({
+      id: lastMove.id
+    });
 
-    switch(lastMove.type) {
-      case 'newGroup':
-        let group = project.getItem({
-          id: lastMove.id
-        });
-        if (group) {
+    if (item) {
+      switch(lastMove.type) {
+        case 'newGroup':
           console.log('removing group');
-          group.remove();
-        } else {
-          console.log('could not find matching group');
-        }
-        break;
-      case 'fillChanged':
-        let item = project.getItem({
-          id: lastMove.id
-        });
-
-        if (lastMove.transparent) {
-          item.fillColor = lastMove.fill;
-          item.strokeColor = lastMove.fill;
-        } else {
-          item.fillColor = transparent;
-          item.strokeColor = transparent;
-        }
-
-        break;
-      default:
-        console.log('unknown case');
+          item.remove();
+          break;
+        case 'fillChange':
+          if (lastMove.transparent) {
+            item.fillColor = lastMove.fill;
+            item.strokeColor = lastMove.fill;
+          } else {
+            item.fillColor = transparent;
+            item.strokeColor = transparent;
+          }
+        case 'transform':
+          if (!!lastMove.position) {
+            item.position = lastMove.position
+          }
+          if (!!lastMove.rotation) {
+            item.rotation = lastMove.rotation;
+          }
+          // if (!!lastMove.scale) {
+          //   item.scale //???
+          // }
+          break;
+        default:
+          console.log('unknown case');
+      }
+    } else {
+      console.log('could not find matching item');
     }
+
     console.log(lastMove);
     // d3.selectAll('svg.main path:last-child').remove();
   }
