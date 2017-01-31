@@ -45,12 +45,12 @@ export function trueGroup(group) {
     } else {
       child.selected = true;
     }
-    console.log(child, i);
+    // console.log(child, i);
   })
 }
 
 export function truePath(path) {
-  console.log(group);
+  // console.log(group);
   // if (path && path.children && path.children.length > 0 && path._namedChildren['middle']) {
   //   let pathCopy = new Path();
   //   console.log(path._namedChildren['middle']);

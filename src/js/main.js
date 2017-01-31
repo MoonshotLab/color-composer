@@ -37,6 +37,13 @@ $(document).ready(function() {
   const runAnimations = true;
   const transparent = new Color(0, 0);
 
+  let viewWidth, viewHeight;
+
+  function initViewVars() {
+    viewWidth = paper.view.viewSize.width;
+    viewHeight = paper.view.viewSize.height;
+  }
+
   function initControlPanel() {
     initColorPalette();
     initCanvasDraw();
@@ -202,7 +209,6 @@ $(document).ready(function() {
     }
 
     function panEnd(event) {
-      elasticity = 1;
       if (pinching) return;
 
       const pointer = event.center;
@@ -290,8 +296,9 @@ $(document).ready(function() {
     let pinching;
     let pinchedGroup, lastScale, lastRotation;
     let originalPosition, originalRotation;
+
     function pinchStart(event) {
-      console.log('pinchstart', event);
+      console.log('pinchStart', event.center);
       hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
@@ -306,7 +313,9 @@ $(document).ready(function() {
         originalPosition = pinchedGroup.position;
         originalRotation = pinchedGroup.rotation;
 
-        console.log('pinchStart lastScale:', lastScale);
+        console.log(pinchedGroup.bounds);
+
+        // console.log('pinchStart lastScale:', lastScale);
         if (runAnimations) {
           pinchedGroup.animate({
             properties: {
@@ -319,12 +328,14 @@ $(document).ready(function() {
           });
         }
       } else {
+        pinchedGroup = null;
         console.log('hit no item');
       }
     }
 
     function pinchMove(event) {
-      if (pinchedGroup) {
+      console.log('pinchMove');
+      if (!!pinchedGroup) {
         // console.log('pinchmove', event);
         // console.log(pinchedGroup);
         let currentScale = event.scale;
@@ -346,10 +357,11 @@ $(document).ready(function() {
       }
     }
 
+    let lastEvent;
     function pinchEnd(event) {
-      console.log('pinchend', event);
       // wait 250 ms to prevent mistaken pan readings
-      if (pinchedGroup) {
+      lastEvent = event;
+      if (!!pinchedGroup) {
         let move = {
           id: pinchedGroup.id,
           type: 'transform'
@@ -360,22 +372,25 @@ $(document).ready(function() {
         if (pinchedGroup.rotation != originalRotation) {
           move.rotation = originalRotation;
         }
-        // if (pinchedGroup.scale != originalScale) {
-        //   move.scale = originalScale;
-        // }
-        console.log('pushing move:', move);
+
         MOVES.push(move);
-        if (runAnimations) {
-          pinchedGroup.animate({
-            properties: {
-              scale: 0.8
-            },
-            settings: {
-              duration: 100,
-              easing: "easeOut",
-            }
-          });
+
+        if (event.velocity > 1) {
+          // dispose of group offscreen
+          throwPinchedGroup();
         }
+
+        // if (runAnimations) {
+        //   pinchedGroup.animate({
+        //     properties: {
+        //       scale: 0.8
+        //     },
+        //     settings: {
+        //       duration: 100,
+        //       easing: "easeOut",
+        //     }
+        //   });
+        // }
       }
       pinching = false;
       setTimeout(function() {
@@ -422,38 +437,26 @@ $(document).ready(function() {
         }
 
       } else {
+        pinchedGroup = null;
         console.log('hit no item');
       }
     }
 
-    // var animationId;
-    let elasticity = 0;
-
-    function bounce(event) {
-
-      // console.log(paper.project.activeLayer.firstChild);
-      // paper.project.activeLayer.firstChild.rotate(3);
-      if (!!lastChild) {
-        if (elasticity > 0) {
-          // console.log(lastChild);
-          for (let i = 0; i < lastChild.segments.length; i++) {
-            const segment = lastChild.segments[i];
-            const timeConst = 16;
-            const divConst = 2;
-            const cos = Math.cos(event.time * timeConst + i);
-            const sin = Math.sin(event.time * timeConst + i);
-            segment.point.x += (cos / divConst) * elasticity;
-            segment.point.y += (sin / divConst) * elasticity;
-            // console.log(cos, sin, elasticity);
-            elasticity -= 0.001;
-          }
-        }
-      } else {
-        // console.log('no children yet');
+    const velocityMultiplier = 25;
+    function throwPinchedGroup() {
+      console.log(pinchedGroup.position);
+      if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
+          pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
+          pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||
+          pinchedGroup.position.y >= viewHeight + pinchedGroup.bounds.height) {
+            pinchedGroup.data.offScreen = true;
+            pinchedGroup.visible = false;
+        return;
       }
+      requestAnimationFrame(throwPinchedGroup);
+      pinchedGroup.position.x += lastEvent.velocityX * velocityMultiplier;
+      pinchedGroup.position.y += lastEvent.velocityY * velocityMultiplier;
     }
-
-    // paper.view.onFrame = jiggle;
 
     var hammerManager = new Hammer.Manager($canvas[0]);
 
@@ -529,7 +532,7 @@ $(document).ready(function() {
       console.log('could not find matching item');
     }
 
-    console.log(lastMove);
+    // console.log(lastMove);
     // d3.selectAll('svg.main path:last-child').remove();
   }
 
@@ -564,6 +567,7 @@ $(document).ready(function() {
 
   function main() {
     initControlPanel();
+    initViewVars();
   }
 
   main();
