@@ -260,9 +260,10 @@ $(document).ready(function() {
       }
 
       group.data.color = bounds.fillColor;
-      // console.log(group.rotation);
+      group.data.scale = 1; // init variable to track scale changes
+      group.data.rotation = 0; // init variable to track rotation changes
+
       lastChild = group;
-      // group.selected = true;
 
       MOVES.push({
         type: 'newGroup',
@@ -295,7 +296,7 @@ $(document).ready(function() {
 
     let pinching;
     let pinchedGroup, lastScale, lastRotation;
-    let originalPosition, originalRotation;
+    let originalPosition, originalRotation, originalScale;
 
     function pinchStart(event) {
       console.log('pinchStart', event.center);
@@ -308,14 +309,13 @@ $(document).ready(function() {
         pinching = true;
         pinchedGroup = hitResult.item.parent;
         lastScale = 1;
-        lastRotation = pinchedGroup.rotation;
+        lastRotation = event.rotation;
 
         originalPosition = pinchedGroup.position;
-        originalRotation = pinchedGroup.rotation;
+        // originalRotation = pinchedGroup.rotation;
+        originalRotation = pinchedGroup.data.rotation;
+        originalScale = pinchedGroup.data.scale;
 
-        console.log(pinchedGroup.bounds);
-
-        // console.log('pinchStart lastScale:', lastScale);
         if (runAnimations) {
           pinchedGroup.animate({
             properties: {
@@ -345,7 +345,7 @@ $(document).ready(function() {
 
         let currentRotation = event.rotation;
         let rotationDelta = currentRotation - lastRotation;
-        // console.log(lastRotation, currentRotation, rotationDelta);
+        console.log(lastRotation, currentRotation, rotationDelta);
         lastRotation = currentRotation;
 
         // console.log(`scaling by ${scaleDelta}`);
@@ -354,12 +354,14 @@ $(document).ready(function() {
         pinchedGroup.position = event.center;
         pinchedGroup.scale(scaleDelta);
         pinchedGroup.rotate(rotationDelta);
+
+        pinchedGroup.data.scale *= scaleDelta;
+        pinchedGroup.data.rotation += rotationDelta;
       }
     }
 
     let lastEvent;
     function pinchEnd(event) {
-      // wait 250 ms to prevent mistaken pan readings
       lastEvent = event;
       if (!!pinchedGroup) {
         let move = {
@@ -369,9 +371,17 @@ $(document).ready(function() {
         if (pinchedGroup.position != originalPosition) {
           move.position = originalPosition;
         }
-        if (pinchedGroup.rotation != originalRotation) {
-          move.rotation = originalRotation;
+
+        if (pinchedGroup.data.rotation != originalRotation) {
+          move.rotation = originalRotation - pinchedGroup.data.rotation;
         }
+
+        if (pinchedGroup.data.scale != originalScale) {
+          move.scale = originalScale / pinchedGroup.data.scale;
+        }
+
+        console.log('final scale', pinchedGroup.data.scale);
+        console.log(move);
 
         MOVES.push(move);
 
@@ -501,6 +511,7 @@ $(document).ready(function() {
     });
 
     if (item) {
+      item.visible = true; // make sure
       switch(lastMove.type) {
         case 'newGroup':
           console.log('removing group');
@@ -521,9 +532,9 @@ $(document).ready(function() {
           if (!!lastMove.rotation) {
             item.rotation = lastMove.rotation;
           }
-          // if (!!lastMove.scale) {
-          //   item.scale //???
-          // }
+          if (!!lastMove.scale) {
+            item.scale(lastMove.scale);
+          }
           break;
         default:
           console.log('unknown case');
@@ -531,9 +542,6 @@ $(document).ready(function() {
     } else {
       console.log('could not find matching item');
     }
-
-    // console.log(lastMove);
-    // d3.selectAll('svg.main path:last-child').remove();
   }
 
   function playPressed() {
