@@ -58,3 +58,15 @@ export function truePath(path) {
   //   console.log(pathCopy);
   // }
 }
+
+export function checkPops() {
+  let groups = paper.project.getItems({
+    className: 'Group',
+    match: function(el) {
+      return (!!el.data && el.data.update);
+    }
+  });
+  Base.each(groups, function(group, i) {
+    console.log(group);
+  });
+}

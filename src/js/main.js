@@ -211,6 +211,8 @@ $(document).ready(function() {
       const point = new Point(pointer.x, pointer.y);
 
       const group = new Group([bounds, middle]);
+      group.data.color = bounds.fillColor;
+      group.data.update = true;
 
       bounds.add(point);
       bounds.flatten(4);
@@ -254,11 +256,9 @@ $(document).ready(function() {
       } else {
         // console.log('no intersections');
       }
-
-      group.data.color = bounds.fillColor;
       // console.log(group.rotation);
       lastChild = group;
-      console.log(group);
+      // console.log(group);
 
       // let unitedGroupIds = [paper.project.activeLayer.id, group.id];
       // group.children.map(function(el) {
@@ -295,6 +295,8 @@ $(document).ready(function() {
       // let rect = new Path.Rectangle(group.strokeBounds);
       // rect.strokeColor = 'pink';
       // rect.strokeWidth = 2;
+
+      util.checkPops();
 
       MOVES.push({
         type: 'newGroup',
@@ -388,6 +390,8 @@ $(document).ready(function() {
       console.log('pinchend', event);
       // wait 250 ms to prevent mistaken pan readings
       if (pinchedGroup) {
+        pinchedGroup.data.update = true;
+
         let move = {
           id: pinchedGroup.id,
           type: 'transform'
@@ -611,12 +615,13 @@ $(document).ready(function() {
   }
 
   function drawCircle() {
-    new Path.Circle({
+    let circle = new Path.Circle({
       center: [400, 400],
       radius: 100,
       strokeColor: 'green',
       fillColor: 'green'
     });
+    let group = new Group(circle);
   }
 
   function main() {
