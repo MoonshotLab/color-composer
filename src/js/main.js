@@ -34,7 +34,7 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
-  const runAnimations = true;
+  const runAnimations = false;
   const transparent = new Color(0, 0);
 
   function initControlPanel() {
@@ -91,7 +91,8 @@ $(document).ready(function() {
     let lastChild;
 
     function panStart(event) {
-      // paper.project.activeLayer.removeChildren(); // REMOVE
+      paper.project.activeLayer.removeChildren(); // REMOVE
+      drawCircle();
 
       sizes = [];
 
@@ -114,6 +115,7 @@ $(document).ready(function() {
         strokeColor: window.kan.currentColor,
         name: 'middle',
         strokeWidth: 1,
+        visible: false
       });
 
       bounds.add(point);
@@ -250,13 +252,49 @@ $(document).ready(function() {
         }
         pathCopy.remove();
       } else {
-        console.log('no intersections');
+        // console.log('no intersections');
       }
 
       group.data.color = bounds.fillColor;
       // console.log(group.rotation);
       lastChild = group;
-      // group.selected = true;
+      console.log(group);
+
+      // let unitedGroupIds = [paper.project.activeLayer.id, group.id];
+      // group.children.map(function(el) {
+      //   unitedGroupIds.push(el.id);
+      // });
+      // console.log('unitedGroupIds', unitedGroupIds);
+
+
+      // let unitedGroup = group.children.reduce(function(a, b) {
+      //   return a.unite(b);
+      // }, new Path({
+      //   fillColor: 'pink',
+      //   strokeWidth: 1,
+      //   strokeColor: 'pink',
+      //   fillRule: 'evenodd'
+      // }));
+      // console.log('unitedGroup', unitedGroup);
+      //
+      // unitedGroup.selected = false;
+      // unitedGroup.visible = false;
+      // // group.selected = true;
+      //
+      // let neighbors = project.getItems({
+      //   overlapping: unitedGroup.strokeBounds,
+      //   match: function(el) {
+      //     return unitedGroupIds.includes(el.id);
+      //   }
+      // });
+      // if (neighbors.length > 0) {
+      //   console.log('neighbors', neighbors);
+      // } else {
+      //   console.log('no neighbors');
+      // }
+      // let rect = new Path.Rectangle(group.strokeBounds);
+      // rect.strokeColor = 'pink';
+      // rect.strokeWidth = 2;
 
       MOVES.push({
         type: 'newGroup',
@@ -390,6 +428,17 @@ $(document).ready(function() {
       tolerance: 5
     };
 
+    function singleTap(event) {
+      const pointer = event.center,
+          point = new Point(pointer.x, pointer.y),
+          hitResult = paper.project.hitTest(point, hitOptions);
+
+      if (hitResult) {
+        let item = hitResult.item;
+        item.selected = !item.selected;
+      }
+    }
+
     function doubleTap(event) {
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
@@ -466,7 +515,7 @@ $(document).ready(function() {
     hammerManager.get('singletap').requireFailure('doubletap');
     hammerManager.get('pan').requireFailure('pinch');
 
-    hammerManager.on('singletap', function() { console.log('singleTap');});
+    hammerManager.on('singletap', singleTap);
     hammerManager.on('doubletap', doubleTap);
 
     hammerManager.on('panstart', panStart);
@@ -529,7 +578,6 @@ $(document).ready(function() {
       console.log('could not find matching item');
     }
 
-    console.log(lastMove);
     // d3.selectAll('svg.main path:last-child').remove();
   }
 
@@ -562,8 +610,18 @@ $(document).ready(function() {
     $('.aux-controls .share').on('click', sharePressed);
   }
 
+  function drawCircle() {
+    new Path.Circle({
+      center: [400, 400],
+      radius: 100,
+      strokeColor: 'green',
+      fillColor: 'green'
+    });
+  }
+
   function main() {
     initControlPanel();
+    drawCircle();
   }
 
   main();
