@@ -66,7 +66,34 @@ export function checkPops() {
       return (!!el.data && el.data.update);
     }
   });
-  Base.each(groups, function(group, i) {
-    console.log(group);
-  });
 }
+
+// https://groups.google.com/forum/#!topic/paperjs/UD8L0MTyReQ
+export function overlaps(path, other) {
+  return !(path.getIntersections(other).length === 0);
+}
+
+// https://groups.google.com/forum/#!topic/paperjs/UD8L0MTyReQ
+export function mergeOnePath(path, others) {
+  let i, merged, other, union, _i, _len, _ref;
+  for (i = _i = 0, _len = others.length; _i < _len; i = ++_i) {
+    other = others[i];
+    if (overlaps(path, other)) {
+      union = path.unite(other);
+      merged = mergeOnePath(union, others.slice(i + 1));
+      return (_ref = others.slice(0, i)).concat.apply(_ref, merged);
+    }
+  }
+  return others.concat(path);
+};
+
+// https://groups.google.com/forum/#!topic/paperjs/UD8L0MTyReQ
+export function mergePaths(paths) {
+  var path, result, _i, _len;
+  result = [];
+  for (_i = 0, _len = paths.length; _i < _len; _i++) {
+    path = paths[_i];
+    result = mergeOnePath(path, result);
+  }
+  return result;
+};

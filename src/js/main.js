@@ -262,51 +262,47 @@ $(document).ready(function() {
       } else {
         // console.log('no intersections');
       }
-      // console.log(group.rotation);
-      lastChild = group;
-      // console.log(group);
-
-      // let unitedGroupIds = [paper.project.activeLayer.id, group.id];
-      // group.children.map(function(el) {
-      //   unitedGroupIds.push(el.id);
-      // });
-      // console.log('unitedGroupIds', unitedGroupIds);
-
-
-      // let unitedGroup = group.children.reduce(function(a, b) {
-      //   return a.unite(b);
-      // }, new Path({
-      //   fillColor: 'pink',
-      //   strokeWidth: 1,
-      //   strokeColor: 'pink',
-      //   fillRule: 'evenodd'
-      // }));
-      // console.log('unitedGroup', unitedGroup);
-      //
-      // unitedGroup.selected = false;
-      // unitedGroup.visible = false;
-      // // group.selected = true;
-      //
-      // let neighbors = project.getItems({
-      //   overlapping: unitedGroup.strokeBounds,
-      //   match: function(el) {
-      //     return unitedGroupIds.includes(el.id);
-      //   }
-      // });
-      // if (neighbors.length > 0) {
-      //   console.log('neighbors', neighbors);
-      // } else {
-      //   console.log('no neighbors');
-      // }
-      // let rect = new Path.Rectangle(group.strokeBounds);
-      // rect.strokeColor = 'pink';
-      // rect.strokeWidth = 2;
-
-      util.checkPops();
 
       group.data.color = bounds.fillColor;
       group.data.scale = 1; // init variable to track scale changes
       group.data.rotation = 0; // init variable to track rotation changes
+
+      let children = group.getItems({
+        match: function(item) {
+          return item.name !== 'middle'
+        }
+      });
+
+      // console.log('-----');
+      // console.log(group);
+      // console.log(children);
+      // group.selected = true;
+      let unitedPath = new Path();
+      if (children.length > 1) {
+        let accumulator = new Path();
+        accumulator.copyContent(children[0]);
+        accumulator.visible = false;
+
+        for (let i = 1; i < children.length; i++) {
+          let otherPath = new Path();
+          otherPath.copyContent(children[i]);
+          otherPath.visible = false;
+
+          unitedPath = accumulator.unite(otherPath);
+          otherPath.remove();
+          accumulator = unitedPath;
+        }
+
+      } else {
+        // children[0] is united group
+        unitedPath.copyContent(children[0]);
+      }
+
+      unitedPath.visible = false;
+      unitedPath.data.name = 'mask';
+
+      group.addChild(unitedPath);
+      unitedPath.sendToBack();
 
       lastChild = group;
 
@@ -463,6 +459,7 @@ $(document).ready(function() {
     };
 
     function singleTap(event) {
+      return;
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
           hitResult = paper.project.hitTest(point, hitOptions);
@@ -483,7 +480,7 @@ $(document).ready(function() {
         let parent = item.parent;
 
         if (item.data.interior) {
-          console.log('interior');
+          // console.log('interior');
           item.data.transparent = !item.data.transparent;
 
           if (item.data.transparent) {
