@@ -99,7 +99,7 @@ $(document).ready(function() {
 
     function panStart(event) {
       paper.project.activeLayer.removeChildren(); // REMOVE
-      drawCircle();
+      // drawCircle();
 
       sizes = [];
 
@@ -640,7 +640,7 @@ $(document).ready(function() {
 
   function main() {
     initControlPanel();
-    drawCircle();
+    // drawCircle();
     initViewVars();
   }
 
