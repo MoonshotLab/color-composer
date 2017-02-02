@@ -34,7 +34,7 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
-  const runAnimations = false;
+  const runAnimations = true;
   const transparent = new Color(0, 0);
 
   let viewWidth, viewHeight;
@@ -102,7 +102,7 @@ $(document).ready(function() {
     let lastChild;
 
     function panStart(event) {
-      paper.project.activeLayer.removeChildren(); // REMOVE
+      // paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
       sizes = [];
