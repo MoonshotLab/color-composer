@@ -97,3 +97,19 @@ export function mergePaths(paths) {
   }
   return result;
 };
+
+export function hitTest(point, children) {
+  // console.log('hitTest');
+  // console.log(children);
+  if (!point) return null;
+  for (let i = children.length - 1; i >= 0; i--) {
+    let child = children[i];
+    let bounds = child.strokeBounds;
+    if (point.isInside(child.strokeBounds)) {
+      console.log('hit', child);
+      return child;
+    }
+  }
+  console.log('no hit found');
+  return null;
+}

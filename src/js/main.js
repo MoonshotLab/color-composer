@@ -39,6 +39,10 @@ $(document).ready(function() {
 
   let viewWidth, viewHeight;
 
+  function hitTestBounds(point) {
+    return util.hitTestBounds(point, paper.project.activeLayer.children);
+  }
+
   function initViewVars() {
     viewWidth = paper.view.viewSize.width;
     viewHeight = paper.view.viewSize.height;
@@ -343,8 +347,8 @@ $(document).ready(function() {
       console.log('pinchStart', event.center);
       hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
-          point = new Point(pointer.x, pointer.y),
-          hitResult = paper.project.hitTest(point, hitOptions);
+          point = new Point(pointer.x, pointer.y);
+          hitResult = hitTestBounds(point);
 
       if (hitResult) {
         pinching = true;
@@ -459,7 +463,6 @@ $(document).ready(function() {
     };
 
     function singleTap(event) {
-      return;
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
           hitResult = paper.project.hitTest(point, hitOptions);
@@ -480,7 +483,6 @@ $(document).ready(function() {
         let parent = item.parent;
 
         if (item.data.interior) {
-          // console.log('interior');
           item.data.transparent = !item.data.transparent;
 
           if (item.data.transparent) {
