@@ -428,7 +428,7 @@ $(document).ready(function() {
 
         MOVES.push(move);
 
-        if (event.velocity > 1) {
+        if (Math.abs(event.velocity) > 1) {
           // dispose of group offscreen
           throwPinchedGroup();
         }
