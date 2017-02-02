@@ -43,6 +43,13 @@ $(document).ready(function() {
     return util.hitTestBounds(point, paper.project.activeLayer.children);
   }
 
+  function hitTestGroupBounds(point) {
+    let groups = paper.project.getItems({
+      className: 'Group'
+    });
+    return util.hitTestBounds(point, groups);
+  }
+
   function initViewVars() {
     viewWidth = paper.view.viewSize.width;
     viewHeight = paper.view.viewSize.height;
@@ -347,12 +354,13 @@ $(document).ready(function() {
       console.log('pinchStart', event.center);
       hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
-          point = new Point(pointer.x, pointer.y);
-          hitResult = hitTestBounds(point);
+          point = new Point(pointer.x, pointer.y),
+          hitResult = hitTestGroupBounds(point);
 
       if (hitResult) {
         pinching = true;
-        pinchedGroup = hitResult.item.parent;
+        // pinchedGroup = hitResult.item.parent;
+        pinchedGroup = hitResult;
         lastScale = 1;
         lastRotation = event.rotation;
 
@@ -463,14 +471,15 @@ $(document).ready(function() {
     };
 
     function singleTap(event) {
-      const pointer = event.center,
-          point = new Point(pointer.x, pointer.y),
-          hitResult = paper.project.hitTest(point, hitOptions);
-
-      if (hitResult) {
-        let item = hitResult.item;
-        item.selected = !item.selected;
-      }
+      return;
+      // const pointer = event.center,
+      //     point = new Point(pointer.x, pointer.y),
+      //     hitResult = paper.project.hitTest(point, hitOptions);
+      //
+      // if (hitResult) {
+      //   let item = hitResult.item;
+      //   item.selected = !item.selected;
+      // }
     }
 
     function doubleTap(event) {
