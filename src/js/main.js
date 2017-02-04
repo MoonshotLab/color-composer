@@ -34,7 +34,7 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
-  const runAnimations = true;
+  const runAnimations = false;
   const transparent = new Color(0, 0);
 
   let viewWidth, viewHeight;
@@ -109,7 +109,7 @@ $(document).ready(function() {
     let lastChild;
 
     function panStart(event) {
-      // paper.project.activeLayer.removeChildren(); // REMOVE
+      paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
       sizes = [];
@@ -127,20 +127,21 @@ $(document).ready(function() {
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor,
         name: 'bounds',
+        visible: false
       });
 
       middle = new Path({
         strokeColor: window.kan.currentColor,
         name: 'middle',
         strokeWidth: 1,
-        visible: false
+        visible: true
       });
 
       bounds.add(point);
       middle.add(point);
     }
 
-    const min = 0;
+    const min = 1;
     const max = 20;
     const alpha = 0.3;
     const memory = 10;
@@ -178,8 +179,8 @@ $(document).ready(function() {
         p0 = past;
         dist = util.delta(point, p0);
         size = dist * alpha;
-        if (size >= max) size = max;
-        // size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
+        // if (size >= max) size = max;
+        size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
         // size = max - size;
 
         cumSize = 0;
@@ -242,7 +243,8 @@ $(document).ready(function() {
       middle.smooth();
       middle.simplify();
 
-      // util.trueGroup(group);
+      group.replaceWith(util.trueGroup(group));
+      return;
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
@@ -471,15 +473,15 @@ $(document).ready(function() {
     };
 
     function singleTap(event) {
-      return;
-      // const pointer = event.center,
-      //     point = new Point(pointer.x, pointer.y),
-      //     hitResult = paper.project.hitTest(point, hitOptions);
-      //
-      // if (hitResult) {
-      //   let item = hitResult.item;
-      //   item.selected = !item.selected;
-      // }
+      const pointer = event.center,
+          point = new Point(pointer.x, pointer.y),
+          hitResult = paper.project.hitTest(point, hitOptions);
+
+      if (hitResult) {
+        let item = hitResult.item;
+        item.selected = !item.selected;
+        console.log(item);
+      }
     }
 
     function doubleTap(event) {
