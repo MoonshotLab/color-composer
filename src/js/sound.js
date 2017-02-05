@@ -4,14 +4,15 @@ export function initShapeSounds() {
   let returnSounds = {};
   const extensions = ['ogg', 'm4a', 'mp3', 'ac3'];
 
-  Base.each(config.shapes, (shape, i) => {
+  Base.each(config.shapes, (shape, shapeName) => {
+    console.log(shape, shapeName);
     if (shape.sprite) {
-      let shapeSoundJSONPath = `./audio/shapes/${shape.name}/${shape.name}.json`;
+      let shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
       $.getJSON(shapeSoundJSONPath)
         .then((resp) => {
-          let shapeSoundData = formatShapeSoundData(shape.name, resp);
+          let shapeSoundData = formatShapeSoundData(shapeName, resp);
           let sound = new Howl(shapeSoundData);
-          returnSounds[shape.name] = sound;
+          returnSounds[shapeName] = sound;
         });
     } else {
       // let sound = new Howl({
@@ -21,12 +22,13 @@ export function initShapeSounds() {
       //   src: extensions.map((extension) => `./audio/shapes/${shape.name}/${shape.name}.${extension}`),
       // })
       let sound = new Howl({
-        src: `./audio/shapes/${shape.name}/${shape.name}.mp3`
+        src: `./audio/shapes/${shapeName}/${shapeName}.mp3`
       });
-      returnSounds[shape.name] = sound;
+      returnSounds[shapeName] = sound;
     }
   });
 
+  console.log(returnSounds);
   return returnSounds;
 }
 

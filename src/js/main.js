@@ -1,3 +1,5 @@
+const config = require('./../../config');
+
 require('hammerjs');
 require('howler');
 
@@ -335,10 +337,17 @@ $(document).ready(function() {
       if (shapePrediction.score > 0.5) {
         shapePattern = shapePrediction.pattern;
       } else {
-        shapePattern = null;
+        shapePattern = "other";
       }
       const colorName = color.getColorName(window.kan.currentColor);
-      console.log(shapePattern);
+      console.log(config.shapes[shapePattern]);
+      console.log(sounds[shapePattern]);
+      if (config.shapes[shapePattern].sprite) {
+        sounds[shapePattern].play(colorName);
+      } else {
+        sounds[shapePattern].play();
+      }
+      console.log(`${shapePattern}-${colorName}`);
 
       lastChild = group;
 

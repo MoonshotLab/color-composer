@@ -6,32 +6,32 @@
     "square.ac3"
   ],
   "spritemap": {
-    "square-black": {
+    "black": {
       "start": 0,
       "end": 0.46439909297052157,
       "loop": false
     },
-    "square-blue": {
+    "blue": {
       "start": 2,
       "end": 2.461519274376417,
       "loop": false
     },
-    "square-red": {
+    "red": {
       "start": 4,
       "end": 4.463174603174603,
       "loop": false
     },
-    "square-orange": {
+    "orange": {
       "start": 6,
       "end": 6.461927437641723,
       "loop": false
     },
-    "square-brown": {
+    "brown": {
       "start": 8,
       "end": 8.46358276643991,
       "loop": false
     },
-    "square-green": {
+    "green": {
       "start": 10,
       "end": 10.462743764172336,
       "loop": false

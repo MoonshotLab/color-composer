@@ -19,25 +19,20 @@ exports.palette = {
   selectedColorSize: 30
 }
 
-exports.shapes = [
-  {
-    name: "line",
+exports.shapes = {
+  "line": {
     sprite: false,
   },
-  {
-    name: "circle",
+  "circle": {
     sprite: true,
   },
-  {
-    name: "square",
+  "square": {
     sprite: true,
   },
-  {
-    name: "triangle",
+  "triangle": {
     sprite: false,
   },
-  {
-    name: "other",
+  "other": {
     sprite: false,
-  },
-];
+  }
+};
