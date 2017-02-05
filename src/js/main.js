@@ -120,7 +120,18 @@ $(document).ready(function() {
     let touch = false;
     let lastChild;
 
-    const sounds = sound.initShapeSounds();
+    let sounds
+    sound.initShapeSounds()
+      .then((resp) => {
+        sounds = resp;
+      })
+      .then(() => {
+        let circle = sounds.circle;
+        console.log(circle);
+        circle.play('red');
+        debugger;
+      })
+
 
     function panStart(event) {
       paper.project.activeLayer.removeChildren(); // REMOVE
@@ -343,6 +354,7 @@ $(document).ready(function() {
       console.log(config.shapes[shapePattern]);
       console.log(sounds[shapePattern]);
       if (config.shapes[shapePattern].sprite) {
+        console.log(colorName);
         sounds[shapePattern].play(colorName);
       } else {
         sounds[shapePattern].play();
