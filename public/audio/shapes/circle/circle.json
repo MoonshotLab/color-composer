@@ -1,0 +1,40 @@
+{
+  "resources": [
+    "circle.ogg",
+    "circle.m4a",
+    "circle.mp3",
+    "circle.ac3"
+  ],
+  "spritemap": {
+    "circle-black": {
+      "start": 0,
+      "end": 0.4767573696145125,
+      "loop": false
+    },
+    "circle-blue": {
+      "start": 2,
+      "end": 2.477981859410431,
+      "loop": false
+    },
+    "circle-red": {
+      "start": 4,
+      "end": 4.477573696145125,
+      "loop": false
+    },
+    "circle-orange": {
+      "start": 6,
+      "end": 6.477573696145125,
+      "loop": false
+    },
+    "circle-brown": {
+      "start": 8,
+      "end": 8.478004535147392,
+      "loop": false
+    },
+    "circle-green": {
+      "start": 10,
+      "end": 10.477165532879818,
+      "loop": false
+    }
+  }
+}

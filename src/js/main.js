@@ -1,14 +1,22 @@
+require('hammerjs');
+require('howler');
+
+const ShapeDetector = require('./lib/shape-detector');
+
+const util = require('./util');
+const shape = require('./shape');
+const color = require('./color');
+const sound = require('./sound');
+
 window.kan = window.kan || {
-  palette: ["#20171C", "#1E2A43", "#28377D", "#352747", "#F285A5", "#CA2E26", "#B84526", "#DA6C26", "#453121", "#916A47", "#EEB641", "#F6EB16", "#7F7D31", "#6EAD79", "#2A4621", "#F4EAE0"],
+  palette: ["#20171C", "#1E2A43", "#28377D", "#352747", "#CA2E26", "#9A2A1F", "#DA6C26", "#453121", "#916A47", "#DAAD27", "#7F7D31","#2B5E2E"],
+  paletteNames: [],
   currentColor: '#20171C',
   numPaths: 10,
   paths: [],
 };
 
 paper.install(window);
-
-const util = require('./util');
-// require('paper-animate');
 
 $(document).ready(function() {
   let MOVES = []; // store global moves list
@@ -36,8 +44,10 @@ $(document).ready(function() {
   const $canvas = $('canvas#mainCanvas');
   const runAnimations = true;
   const transparent = new Color(0, 0);
+  const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
   let viewWidth, viewHeight;
+
 
   function hitTestBounds(point) {
     return util.hitTestBounds(point, paper.project.activeLayer.children);
@@ -108,8 +118,10 @@ $(document).ready(function() {
     let touch = false;
     let lastChild;
 
+    const sounds = sound.initShapeSounds();
+
     function panStart(event) {
-      // paper.project.activeLayer.removeChildren(); // REMOVE
+      paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
       sizes = [];
@@ -314,6 +326,19 @@ $(document).ready(function() {
 
       group.addChild(unitedPath);
       unitedPath.sendToBack();
+
+      // check shape
+      const shapeJSON = middle.exportJSON();
+      const pathData = shape.processShapeData(shapeJSON);
+      const shapePrediction = detector.spot(pathData);
+      let shapePattern;
+      if (shapePrediction.score > 0.5) {
+        shapePattern = shapePrediction.pattern;
+      } else {
+        shapePattern = null;
+      }
+      const colorName = color.getColorName(window.kan.currentColor);
+      console.log(shapePattern);
 
       lastChild = group;
 
