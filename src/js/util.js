@@ -51,9 +51,11 @@ export function trueGroup(group) {
         console.log('subtracting closed child');
         dividedPath = dividedPath.subtract(child);
       } else {
-        dividedPath = dividedPath.unite(child);
+        // dividedPath = dividedPath.unite(child);
       }
     });
+
+    console.log(dividedPath);
 
     if (!!dividedPath.children && dividedPath.children.length > 1) {
       // divided path is a compound path
@@ -80,6 +82,8 @@ export function trueGroup(group) {
       let firstSegment = dividedPath;
       let lastSegment;
 
+      // firstSegment.strokeColor = 'pink';
+
       // let circleOne = new Path.Circle({
       //   center: firstIntersection.point,
       //   radius: 5,
@@ -89,7 +93,7 @@ export function trueGroup(group) {
       // console.log(intersections);
       if (intersections.length > 1) {
         // console.log('foo');
-        rest.reverse(); // start from end
+        // rest.reverse(); // start from end
         let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
         // let circleTwo = new Path.Circle({
         //   center: lastIntersection.point,
@@ -100,19 +104,21 @@ export function trueGroup(group) {
         if (!lastSegment || !lastSegment.length) lastSegment = rest;
         rest.reverse();
       } else {
-        // console.log('bar');
         lastSegment = rest;
       }
+      // lastSegment.strokeColor = 'green';
 
       if (firstSegment.length <= 0.1 * totalLength) {
-        middleCopy = middleCopy.subtract(firstSegment);
+        middleCopy.subtract(firstSegment);
       }
 
       if (lastSegment.length <= 0.1 * totalLength) {
-        middleCopy = middleCopy.subtract(lastSegment);
+        middleCopy.subtract(lastSegment);
       }
     }
-    middleCopy.selected = true;
+    // middleCopy.fullySelected = true;
+    // middleCopy.strokeColor = 'pink';
+    // middleCopy.visible = true;
     // group._namedChildren.middle[0].replaceWith(middleCopy);
     return group;
   } catch (e) {
