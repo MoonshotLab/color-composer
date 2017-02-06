@@ -4,3 +4,8 @@ exports.palette = {
   colorSize: 20,
   selectedColorSize: 30
 }
+
+exports.shape = {
+  extendingThreshold: 0.1,
+  trimmingThreshold: 0.75,
+}

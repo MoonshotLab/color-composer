@@ -1,3 +1,5 @@
+const config = require('./../../config');
+
 // Converts from degrees to radians.
 export function rad(degrees) {
   return degrees * Math.PI / 180;
@@ -34,108 +36,151 @@ export function trueGroup(group) {
   let bounds = group._namedChildren.bounds[0],
       middle = group._namedChildren.middle[0];
 
-  // let groupCopy = new Group();
-  // groupCopy.copyContent(group);
+  let intersections = middle.getIntersections();
 
-  try {
-    let middleCopy = new Path();
-    middleCopy.copyContent(middle);
-    let totalLength = middleCopy.length;
+  let middleCopy = new Path();
+  middleCopy.copyContent(middle);
 
+  if (intersections.length > 0) {
+    // see if we can trim the path while maintaining intersections
+    middleCopy = trimPath(middleCopy);
+  } else {
+    // extend first and last segment by threshold, see if intersection
+    middleCopy = extendPath(middleCopy);
     let intersections = middleCopy.getIntersections();
-    let dividedPath = middleCopy.resolveCrossings();
+    if (intersections.length > 0) {
+      middleCopy = trimPath(middleCopy);
+    } else {
+      console.log('nope');
+      middleCopy = removePathExtensions(middleCopy);
+    }
+  }
 
-    // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
+  // middleCopy.fullySelected = true;
+  // middleCopy.strokeColor = 'pink';
+  middleCopy.visible = true;
+  middleCopy.selected = true;
+  // group._namedChildren.middle[0].replaceWith(middleCopy);
+  return group;
+}
+
+export function extendPath(path) {
+  if (path.length > 0) {
+    const lengthTolerance = config.shape.trimmingThreshold * path.length / 2;
+
+    let firstSegment = path.firstSegment;
+    let nextSegment = firstSegment.next;
+    let startAngle = Math.atan2(nextSegment.point.y - firstSegment.point.y, nextSegment.point.x - firstSegment.point.x); // rad
+    let inverseStartAngle = startAngle + Math.PI;
+    let extendedStartPoint = new Point(firstSegment.point.x + (Math.cos(inverseStartAngle) * lengthTolerance), firstSegment.point.y + (Math.sin(inverseStartAngle) * lengthTolerance));
+    path.insert(0, extendedStartPoint);
+
+    let lastSegment = path.lastSegment;
+    let penSegment = lastSegment.previous; // penultimate
+    let endAngle = Math.atan2(lastSegment.point.y - penSegment.point.y, lastSegment.point.x - penSegment.point.x); // rad
+    let extendedEndPoint = new Point(lastSegment.point.x + (Math.cos(endAngle) * lengthTolerance), lastSegment.point.y + (Math.sin(endAngle) * lengthTolerance));
+    path.add(extendedEndPoint);
+  }
+  return path;
+}
+
+export function trimPath(path) {
+  let intersections = path.getIntersections();
+  let dividedPath = path.resolveCrossings();
+
+  const extendingThreshold = config.shape.extendingThreshold;
+  const totalLength = path.length;
+
+  // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
+  Base.each(dividedPath.children, (child, i) => {
+    if (child.closed) {
+      console.log('subtracting closed child');
+      dividedPath = dividedPath.subtract(child);
+    } else {
+      // dividedPath = dividedPath.unite(child);
+    }
+  });
+
+  // console.log(dividedPath);
+
+  if (!!dividedPath.children && dividedPath.children.length > 1) {
+    // divided path is a compound path
+    let unitedDividedPath = new Path();
+    // unitedDividedPath.copyAttributes(dividedPath);
+    console.log('before', unitedDividedPath);
     Base.each(dividedPath.children, (child, i) => {
-      if (child.closed) {
-        console.log('subtracting closed child');
-        dividedPath = dividedPath.subtract(child);
-      } else {
-        // dividedPath = dividedPath.unite(child);
+      if (!child.closed) {
+        unitedDividedPath = unitedDividedPath.unite(child);
       }
     });
-
-    console.log(dividedPath);
-
-    if (!!dividedPath.children && dividedPath.children.length > 1) {
-      // divided path is a compound path
-      let unitedDividedPath = new Path();
-      // unitedDividedPath.copyAttributes(dividedPath);
-      console.log('before', unitedDividedPath);
-      Base.each(dividedPath.children, (child, i) => {
-        if (!child.closed) {
-          unitedDividedPath = unitedDividedPath.unite(child);
-        }
-      });
-      dividedPath = unitedDividedPath;
-      // console.log('after', unitedDividedPath);
-      // return;
-    } else {
-      // console.log('dividedPath has one child');
-    }
-
-    if (intersections.length > 0) {
-      // we have to get the nearest location because the exact intersection point has already been removed as a part of resolveCrossings()
-      let firstIntersection = dividedPath.getNearestLocation(intersections[0].point);
-      // console.log(dividedPath);
-      let rest = dividedPath.splitAt(firstIntersection); // dividedPath is now the first segment
-      let firstSegment = dividedPath;
-      let lastSegment;
-
-      // firstSegment.strokeColor = 'pink';
-
-      // let circleOne = new Path.Circle({
-      //   center: firstIntersection.point,
-      //   radius: 5,
-      //   strokeColor: 'red'
-      // });
-
-      // console.log(intersections);
-      if (intersections.length > 1) {
-        // console.log('foo');
-        // rest.reverse(); // start from end
-        let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
-        // let circleTwo = new Path.Circle({
-        //   center: lastIntersection.point,
-        //   radius: 5,
-        //   strokeColor: 'green'
-        // });
-        lastSegment = rest.splitAt(lastIntersection); // rest is now everything BUT the first and last segments
-        if (!lastSegment || !lastSegment.length) lastSegment = rest;
-        rest.reverse();
-      } else {
-        lastSegment = rest;
-      }
-      // lastSegment.strokeColor = 'green';
-
-      if (firstSegment.length <= 0.1 * totalLength) {
-        middleCopy.subtract(firstSegment);
-      }
-
-      if (lastSegment.length <= 0.1 * totalLength) {
-        middleCopy.subtract(lastSegment);
-      }
-    }
-    // middleCopy.fullySelected = true;
-    // middleCopy.strokeColor = 'pink';
-    // middleCopy.visible = true;
-    // group._namedChildren.middle[0].replaceWith(middleCopy);
-    return group;
-  } catch (e) {
-    console.log('error trueing groups', e);
-    return group;
+    dividedPath = unitedDividedPath;
+    // console.log('after', unitedDividedPath);
+    // return;
+  } else {
+    // console.log('dividedPath has one child');
   }
+
+  if (intersections.length > 0) {
+    // we have to get the nearest location because the exact intersection point has already been removed as a part of resolveCrossings()
+    let firstIntersection = dividedPath.getNearestLocation(intersections[0].point);
+    // console.log(dividedPath);
+    let rest = dividedPath.splitAt(firstIntersection); // dividedPath is now the first segment
+    let firstSegment = dividedPath;
+    let lastSegment;
+
+    // firstSegment.strokeColor = 'pink';
+
+    // let circleOne = new Path.Circle({
+    //   center: firstIntersection.point,
+    //   radius: 5,
+    //   strokeColor: 'red'
+    // });
+
+    // console.log(intersections);
+    if (intersections.length > 1) {
+      // console.log('foo');
+      // rest.reverse(); // start from end
+      let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
+      // let circleTwo = new Path.Circle({
+      //   center: lastIntersection.point,
+      //   radius: 5,
+      //   strokeColor: 'green'
+      // });
+      lastSegment = rest.splitAt(lastIntersection); // rest is now everything BUT the first and last segments
+      if (!lastSegment || !lastSegment.length) lastSegment = rest;
+      rest.reverse();
+    } else {
+      lastSegment = rest;
+    }
+    // lastSegment.strokeColor = 'green';
+
+    if (firstSegment.length <= extendingThreshold * totalLength) {
+      path.subtract(firstSegment);
+    }
+
+    if (lastSegment.length <= extendingThreshold * totalLength) {
+      path.subtract(lastSegment);
+    }
+  }
+
+  return path;
 }
 
-export function truePath(path) {
-  // console.log(group);
-  // if (path && path.children && path.children.length > 0 && path._namedChildren['middle']) {
-  //   let pathCopy = new Path();
-  //   console.log(path._namedChildren['middle']);
-  //   pathCopy.copyContent(path._namedChildren['middle']);
-  //   console.log(pathCopy);
-  // }
+export function removePathExtensions(path) {
+  path.removeSegment(0);
+  path.removeSegment(path.segments.length - 1);
+  return path;
 }
+
+// export function truePath(path) {
+//   // console.log(group);
+//   // if (path && path.children && path.children.length > 0 && path._namedChildren['middle']) {
+//   //   let pathCopy = new Path();
+//   //   console.log(path._namedChildren['middle']);
+//   //   pathCopy.copyContent(path._namedChildren['middle']);
+//   //   console.log(pathCopy);
+//   // }
+// }
 
 export function checkPops() {
   let groups = paper.project.getItems({
