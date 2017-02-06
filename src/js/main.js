@@ -44,11 +44,19 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
-  const runAnimations = true;
+  const runAnimations = false;
   const transparent = new Color(0, 0);
   const detector = new ShapeDetector(ShapeDetector.defaultShapes);
+  let composition = [];
+  let compositionInterval;
 
   let viewWidth, viewHeight;
+
+  let playing = false;
+
+  function quantizePosition(position) {
+    return sound.quantizePosition(position, viewWidth);
+  }
 
 
   function hitTestBounds(point) {
@@ -120,21 +128,13 @@ $(document).ready(function() {
     let touch = false;
     let lastChild;
 
-    let sounds
-    sound.initShapeSounds()
-      .then((resp) => {
-        sounds = resp;
-      })
-      .then(() => {
-        let circle = sounds.circle;
-        console.log(circle);
-        circle.play('red');
-        debugger;
-      })
-
+    const sounds = sound.initShapeSounds();
+    const beatLength = (60 / config.sound.bpm);
+    const measureLength = beatLength * 4;
+    const compositionLength = measureLength * config.sound.measures;
 
     function panStart(event) {
-      paper.project.activeLayer.removeChildren(); // REMOVE
+      // paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
       sizes = [];
@@ -351,14 +351,37 @@ $(document).ready(function() {
         shapePattern = "other";
       }
       const colorName = color.getColorName(window.kan.currentColor);
-      console.log(config.shapes[shapePattern]);
-      console.log(sounds[shapePattern]);
+
+      // get size
+      const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength) * 1000; // ms
+      const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength) * 1000; // ms
+
+      // console.log(config.shapes[shapePattern]);
+      // console.log(sounds[shapePattern]);
+      const playSounds = true;
+      let compositionObj = {};
+      compositionObj.sound = sounds[shapePattern];
+      compositionObj.startTime = quantizedSoundStartTime;
+      compositionObj.duration = quantizedSoundDuration;
+      compositionObj.groupId = group.id;
       if (config.shapes[shapePattern].sprite) {
-        console.log(colorName);
-        sounds[shapePattern].play(colorName);
+        compositionObj.sprite = true;
+        compositionObj.spriteName = colorName;
+
+        if (playSounds) {
+          sounds[shapePattern].play(colorName);
+        }
       } else {
-        sounds[shapePattern].play();
+        compositionObj.sprite = false;
+
+        if (playSounds) {
+          sounds[shapePattern].play();
+        }
       }
+
+      composition.push(compositionObj);
+
+      // set sound to loop again
       console.log(`${shapePattern}-${colorName}`);
 
       lastChild = group;
@@ -657,6 +680,13 @@ $(document).ready(function() {
   }
 
   function playPressed() {
+    playing = !playing;
+
+    if (playing) {
+      compositionInterval = sound.startComposition(composition);
+    } else {
+      sound.stopComposition(compositionInterval);
+    }
     console.log('play pressed');
   }
 

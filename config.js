@@ -36,3 +36,8 @@ exports.shapes = {
     sprite: false,
   }
 };
+
+exports.sound = {
+  bpm: 140,
+  measures: 4
+}
