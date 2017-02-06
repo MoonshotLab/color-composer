@@ -40,33 +40,43 @@ export function trueGroup(group) {
 
   let middleCopy = new Path();
   middleCopy.copyContent(middle);
+  // debugger;
 
   if (intersections.length > 0) {
     // see if we can trim the path while maintaining intersections
+    console.log('intersections!');
+    // middleCopy.strokeColor = 'yellow';
     middleCopy = trimPath(middleCopy);
+    // middleCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
+    console.log('no intersections, extending first!');
+    // middleCopy.strokeColor = 'yellow';
     middleCopy = extendPath(middleCopy);
+    // middleCopy.strokeColor = 'orange';
     let intersections = middleCopy.getIntersections();
     if (intersections.length > 0) {
+      // middleCopy.strokeColor = 'pink';
       middleCopy = trimPath(middleCopy);
+      // middleCopy.strokeColor = 'green';
     } else {
-      console.log('nope');
+      // middleCopy.strokeColor = 'red';
       middleCopy = removePathExtensions(middleCopy);
+      // middleCopy.strokeColor = 'blue';
     }
   }
 
-  // middleCopy.fullySelected = true;
-  // middleCopy.strokeColor = 'pink';
-  middleCopy.visible = true;
-  middleCopy.selected = true;
-  // group._namedChildren.middle[0].replaceWith(middleCopy);
+  middleCopy.name = 'middle'; // make sure
+
+  // group.addChild(middleCopy);
+  // group._namedChildren.middle[0] = middleCopy;
+  group._namedChildren.middle[0].replaceWith(middleCopy);;
   return group;
 }
 
 export function extendPath(path) {
   if (path.length > 0) {
-    const lengthTolerance = config.shape.trimmingThreshold * path.length / 2;
+    const lengthTolerance = config.shape.trimmingThreshold * path.length;
 
     let firstSegment = path.firstSegment;
     let nextSegment = firstSegment.next;
@@ -85,85 +95,155 @@ export function extendPath(path) {
 }
 
 export function trimPath(path) {
-  let intersections = path.getIntersections();
-  let dividedPath = path.resolveCrossings();
+  let originalPath = path.clone();
+  // originalPath.strokeColor = 'pink';
+  try {
+    let intersections = path.getIntersections();
+    let dividedPath = path.resolveCrossings();
 
-  const extendingThreshold = config.shape.extendingThreshold;
-  const totalLength = path.length;
+    const extendingThreshold = config.shape.extendingThreshold;
+    const totalLength = path.length;
 
-  // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
-  Base.each(dividedPath.children, (child, i) => {
-    if (child.closed) {
-      console.log('subtracting closed child');
-      dividedPath = dividedPath.subtract(child);
-    } else {
-      // dividedPath = dividedPath.unite(child);
-    }
-  });
+    console.log(totalLength);
 
-  // console.log(dividedPath);
-
-  if (!!dividedPath.children && dividedPath.children.length > 1) {
-    // divided path is a compound path
-    let unitedDividedPath = new Path();
-    // unitedDividedPath.copyAttributes(dividedPath);
-    console.log('before', unitedDividedPath);
+    // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
     Base.each(dividedPath.children, (child, i) => {
-      if (!child.closed) {
-        unitedDividedPath = unitedDividedPath.unite(child);
+      if (child.closed) {
+        console.log('subtracting closed child');
+        dividedPath = dividedPath.subtract(child);
+      } else {
+        // dividedPath = dividedPath.unite(child);
       }
     });
-    dividedPath = unitedDividedPath;
-    // console.log('after', unitedDividedPath);
-    // return;
-  } else {
-    // console.log('dividedPath has one child');
-  }
 
-  if (intersections.length > 0) {
-    // we have to get the nearest location because the exact intersection point has already been removed as a part of resolveCrossings()
-    let firstIntersection = dividedPath.getNearestLocation(intersections[0].point);
     // console.log(dividedPath);
-    let rest = dividedPath.splitAt(firstIntersection); // dividedPath is now the first segment
-    let firstSegment = dividedPath;
-    let lastSegment;
 
-    // firstSegment.strokeColor = 'pink';
-
-    // let circleOne = new Path.Circle({
-    //   center: firstIntersection.point,
-    //   radius: 5,
-    //   strokeColor: 'red'
-    // });
-
-    // console.log(intersections);
-    if (intersections.length > 1) {
-      // console.log('foo');
-      // rest.reverse(); // start from end
-      let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
-      // let circleTwo = new Path.Circle({
-      //   center: lastIntersection.point,
-      //   radius: 5,
-      //   strokeColor: 'green'
-      // });
-      lastSegment = rest.splitAt(lastIntersection); // rest is now everything BUT the first and last segments
-      if (!lastSegment || !lastSegment.length) lastSegment = rest;
-      rest.reverse();
+    if (!!dividedPath.children && dividedPath.children.length > 1) {
+      // divided path is a compound path
+      let unitedDividedPath = new Path();
+      // unitedDividedPath.copyAttributes(dividedPath);
+      console.log('before', unitedDividedPath);
+      Base.each(dividedPath.children, (child, i) => {
+        if (!child.closed) {
+          unitedDividedPath = unitedDividedPath.unite(child);
+        }
+      });
+      dividedPath = unitedDividedPath;
+      // console.log('after', unitedDividedPath);
+      // return;
     } else {
-      lastSegment = rest;
-    }
-    // lastSegment.strokeColor = 'green';
-
-    if (firstSegment.length <= extendingThreshold * totalLength) {
-      path.subtract(firstSegment);
+      // console.log('dividedPath has one child');
     }
 
-    if (lastSegment.length <= extendingThreshold * totalLength) {
-      path.subtract(lastSegment);
+    if (intersections.length > 0) {
+      // we have to get the nearest location because the exact intersection point has already been removed as a part of resolveCrossings()
+      let firstIntersection = dividedPath.getNearestLocation(intersections[0].point);
+      // console.log(dividedPath);
+      let rest = dividedPath.splitAt(firstIntersection); // dividedPath is now the first segment
+      let firstSegment = dividedPath;
+      let lastSegment;
+
+      // firstSegment.strokeColor = 'pink';
+
+      // let circleOne = new Path.Circle({
+      //   center: firstIntersection.point,
+      //   radius: 5,
+      //   strokeColor: 'red'
+      // });
+
+      // console.log(intersections);
+      if (intersections.length > 1) {
+        // console.log('foo');
+        // rest.reverse(); // start from end
+        let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
+        // let circleTwo = new Path.Circle({
+        //   center: lastIntersection.point,
+        //   radius: 5,
+        //   strokeColor: 'green'
+        // });
+        lastSegment = rest.splitAt(lastIntersection); // rest is now everything BUT the first and last segments
+        if (!lastSegment || !lastSegment.length) lastSegment = rest;
+        rest.reverse();
+      } else {
+        lastSegment = rest;
+      }
+
+      if (!!firstSegment && firstSegment.length <= extendingThreshold * totalLength) {
+        path = path.subtract(firstSegment);
+        console.log(path);
+        if (path.className === 'CompoundPath') {
+          Base.each(path.children, (child, i) => {
+            if (!child.closed) {
+              child.remove();
+            }
+          });
+        }
+      }
+
+      if (!!lastSegment && lastSegment.length <= extendingThreshold * totalLength) {
+        path = path.subtract(lastSegment);
+        if (path.className === 'CompoundPath') {
+          Base.each(path.children, (child, i) => {
+            if (!child.closed) {
+              child.remove();
+            }
+          });
+        }
+      }
     }
+
+    // this is hacky but I'm not sure how to get around it
+    // sometimes path.subtract() returns a compound path, with children consisting of the closed path I want and another extraneous closed path
+    // it appears that the correct path always has a higher version, though I'm not 100% sure that this is always the case
+
+    if (path.className === 'CompoundPath' && path.children.length > 0) {
+      if (path.children.length > 1) {
+        let largestChild;
+        let largestChildArea = 0;
+
+        Base.each(path.children, (child, i) => {
+          if (child.area > largestChildArea) {
+            largestChildArea = child.area;
+            largestChild = child;
+          }
+        });
+
+        if (largestChild) {
+          path = largestChild;
+        } else {
+          path = path.children[0];
+        }
+      } else {
+        path = path.children[0];
+      }
+      // console.log(path);
+      // console.log(path.lastChild);
+      // path.firstChild.strokeColor = 'pink';
+      // path.lastChild.strokeColor = 'green';
+      // path = path.lastChild; // return last child?
+      // find highest version
+      //
+      // console.log(realPathVersion);
+      //
+      // Base.each(path.children, (child, i) => {
+      //   if (child.version == realPathVersion) {
+      //     console.log('returning child');
+      //     return child;
+      //   }
+      // })
+    }
+    console.log('original length:', totalLength);
+    console.log('edited length:', path.length);
+    if (path.length / totalLength <= 0.75) {
+      console.log('returning original');
+      return originalPath;
+    } else {
+      return path;
+    }
+  } catch(e) {
+    console.error(e);
+    return originalPath;
   }
-
-  return path;
 }
 
 export function removePathExtensions(path) {

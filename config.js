@@ -7,5 +7,5 @@ exports.palette = {
 
 exports.shape = {
   extendingThreshold: 0.1,
-  trimmingThreshold: 0.75,
+  trimmingThreshold: 0.075,
 }

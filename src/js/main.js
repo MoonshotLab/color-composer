@@ -127,7 +127,7 @@ $(document).ready(function() {
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor,
         name: 'bounds',
-        visible: false
+        visible: true
       });
 
       middle = new Path({
@@ -228,23 +228,38 @@ $(document).ready(function() {
       const pointer = event.center;
       const point = new Point(pointer.x, pointer.y);
 
-      const group = new Group([bounds, middle]);
+      let group = new Group([bounds, middle]);
       group.data.color = bounds.fillColor;
       group.data.update = true;
 
       bounds.add(point);
-      bounds.flatten(4);
-      bounds.smooth();
-      bounds.simplify();
       bounds.closed = true;
+      bounds.simplify();
+
 
       middle.add(point);
-      middle.flatten(4);
-      middle.smooth();
       middle.simplify();
 
       group.replaceWith(util.trueGroup(group));
-      return;
+      middle = group._namedChildren.middle[0];
+
+      bounds.flatten(4);
+      bounds.smooth();
+
+      // bounds.interpolate(bounds.clone(), middle, 0.5);
+
+      // middle.flatten(4);
+      // middle.smooth({
+      //   type: 'geometric'
+      // });
+      // middle.flatten(10);
+      // middle.simplify();
+      // middle.flatten(20);
+      // middle.simplify();
+      // middle.flatten();
+      // middle.simplify();
+
+      middle.selected = true;
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
