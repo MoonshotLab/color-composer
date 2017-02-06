@@ -139,6 +139,7 @@ $(document).ready(function() {
 
       sizes = [];
 
+      stopPlaying();
       if (pinching) return;
       if (!(event.changedPointers && event.changedPointers.length > 0)) return;
       if (event.changedPointers.length > 1) {
@@ -421,6 +422,7 @@ $(document).ready(function() {
 
     function pinchStart(event) {
       console.log('pinchStart', event.center);
+      stopPlaying();
       hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
@@ -679,13 +681,26 @@ $(document).ready(function() {
     }
   }
 
-  function playPressed() {
-    playing = !playing;
+  function stopPlaying(mute = false) {
+    if (!!mute) {
+      Howler.mute(true);
+    }
 
+    playing = false;
+    sound.stopComposition(compositionInterval);
+  }
+
+  function startPlaying() {
+    Howler.mute(false);
+    playing = true;
+    compositionInterval = sound.startComposition(composition);
+  }
+
+  function playPressed() {
     if (playing) {
-      compositionInterval = sound.startComposition(composition);
+      stopPlaying(true);
     } else {
-      sound.stopComposition(compositionInterval);
+      startPlaying();
     }
     console.log('play pressed');
   }

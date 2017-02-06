@@ -97,6 +97,5 @@ export function startComposition(composition) {
 }
 
 export function stopComposition(interval) {
-  console.log('stopping');
   clearInterval(interval);
 }
