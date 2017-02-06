@@ -632,6 +632,7 @@ $(document).ready(function() {
   function newPressed() {
     console.log('new pressed');
 
+    composition = [];
     paper.project.activeLayer.removeChildren();
   }
 
