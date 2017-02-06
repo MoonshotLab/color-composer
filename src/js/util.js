@@ -44,13 +44,13 @@ export function trueGroup(group) {
 
   if (intersections.length > 0) {
     // see if we can trim the path while maintaining intersections
-    console.log('intersections!');
+    // console.log('intersections!');
     // middleCopy.strokeColor = 'yellow';
     middleCopy = trimPath(middleCopy);
     // middleCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
-    console.log('no intersections, extending first!');
+    // console.log('no intersections, extending first!');
     // middleCopy.strokeColor = 'yellow';
     middleCopy = extendPath(middleCopy);
     // middleCopy.strokeColor = 'orange';
@@ -104,12 +104,10 @@ export function trimPath(path) {
     const extendingThreshold = config.shape.extendingThreshold;
     const totalLength = path.length;
 
-    console.log(totalLength);
-
     // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
     Base.each(dividedPath.children, (child, i) => {
       if (child.closed) {
-        console.log('subtracting closed child');
+        // console.log('subtracting closed child');
         dividedPath = dividedPath.subtract(child);
       } else {
         // dividedPath = dividedPath.unite(child);
@@ -122,7 +120,7 @@ export function trimPath(path) {
       // divided path is a compound path
       let unitedDividedPath = new Path();
       // unitedDividedPath.copyAttributes(dividedPath);
-      console.log('before', unitedDividedPath);
+      // console.log('before', unitedDividedPath);
       Base.each(dividedPath.children, (child, i) => {
         if (!child.closed) {
           unitedDividedPath = unitedDividedPath.unite(child);
@@ -170,7 +168,6 @@ export function trimPath(path) {
 
       if (!!firstSegment && firstSegment.length <= extendingThreshold * totalLength) {
         path = path.subtract(firstSegment);
-        console.log(path);
         if (path.className === 'CompoundPath') {
           Base.each(path.children, (child, i) => {
             if (!child.closed) {
@@ -232,8 +229,8 @@ export function trimPath(path) {
       //   }
       // })
     }
-    console.log('original length:', totalLength);
-    console.log('edited length:', path.length);
+    // console.log('original length:', totalLength);
+    // console.log('edited length:', path.length);
     if (path.length / totalLength <= 0.75) {
       console.log('returning original');
       return originalPath;

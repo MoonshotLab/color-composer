@@ -107,6 +107,7 @@ $(document).ready(function() {
     // let paths = getFreshPaths(window.kan.numPaths);
     let touch = false;
     let lastChild;
+    let pathData = [];
 
     function panStart(event) {
       paper.project.activeLayer.removeChildren(); // REMOVE
@@ -127,14 +128,15 @@ $(document).ready(function() {
         strokeColor: window.kan.currentColor,
         fillColor: window.kan.currentColor,
         name: 'bounds',
-        visible: true
+        visible: false
       });
 
       middle = new Path({
         strokeColor: window.kan.currentColor,
         name: 'middle',
-        strokeWidth: 1,
-        visible: true
+        strokeWidth: 5,
+        visible: true,
+        strokeCap: 'round'
       });
 
       bounds.add(point);
@@ -142,7 +144,7 @@ $(document).ready(function() {
     }
 
     const min = 1;
-    const max = 20;
+    const max = 15;
     const alpha = 0.3;
     const memory = 10;
     var cumDistance = 0;
@@ -163,7 +165,7 @@ $(document).ready(function() {
       // }
 
       const pointer = event.center;
-      const point = new Point(pointer.x, pointer.y);
+      let point = new Point(pointer.x, pointer.y);
 
       while (sizes.length > memory) {
         sizes.shift();
@@ -236,19 +238,31 @@ $(document).ready(function() {
       bounds.closed = true;
       bounds.simplify();
 
-
       middle.add(point);
       middle.simplify();
 
       group.replaceWith(util.trueGroup(group));
       middle = group._namedChildren.middle[0];
+      middle.strokeColor = group.strokeColor;
 
       bounds.flatten(4);
       bounds.smooth();
 
+      // Base.each(middle, (middlePoint) => {
+      //   console.log(middlePoint);
+      // });
+
       // bounds.interpolate(bounds.clone(), middle, 0.5);
 
-      // middle.flatten(4);
+      middle.flatten(4);
+      middle.reduce();
+
+      let ideal = middle.clone();
+      ideal.strokeColor = 'pink';
+      ideal.strokeWidth = 5;
+      ideal.strokeCap = 'round';
+
+
       // middle.smooth({
       //   type: 'geometric'
       // });
@@ -259,7 +273,10 @@ $(document).ready(function() {
       // middle.flatten();
       // middle.simplify();
 
-      middle.selected = true;
+      // middle.selected = true;
+      // middle.visible = true;
+      // middle.strokeColor = 'pink';
+
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
@@ -331,6 +348,10 @@ $(document).ready(function() {
 
       group.addChild(unitedPath);
       unitedPath.sendToBack();
+
+      // middle.selected = true;
+      // middle.visible = true;
+      // middle.strokeColor = 'pink';
 
       lastChild = group;
 
