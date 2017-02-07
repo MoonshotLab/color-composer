@@ -1,5 +1,11 @@
 const config = require('./../../config');
 
+export function log(...thing) {
+  if (config.log) {
+    console.log(...thing);
+  }
+}
+
 // Converts from degrees to radians.
 export function rad(degrees) {
   return degrees * Math.PI / 180;
@@ -44,13 +50,13 @@ export function trueGroup(group) {
 
   if (intersections.length > 0) {
     // see if we can trim the path while maintaining intersections
-    // console.log('intersections!');
+    // log('intersections!');
     // middleCopy.strokeColor = 'yellow';
     middleCopy = trimPath(middleCopy, middle);
     // middleCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
-    // console.log('no intersections, extending first!');
+    // log('no intersections, extending first!');
     // middleCopy.strokeColor = 'yellow';
     middleCopy = extendPath(middleCopy);
     // middleCopy.strokeColor = 'orange';
@@ -106,36 +112,36 @@ export function trimPath(path, original) {
     // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
     Base.each(dividedPath.children, (child, i) => {
       if (child.closed) {
-        // console.log('subtracting closed child');
+        // log('subtracting closed child');
         dividedPath = dividedPath.subtract(child);
       } else {
         // dividedPath = dividedPath.unite(child);
       }
     });
 
-    // console.log(dividedPath);
+    // log(dividedPath);
 
     if (!!dividedPath.children && dividedPath.children.length > 1) {
       // divided path is a compound path
       let unitedDividedPath = new Path();
       // unitedDividedPath.copyAttributes(dividedPath);
-      // console.log('before', unitedDividedPath);
+      // log('before', unitedDividedPath);
       Base.each(dividedPath.children, (child, i) => {
         if (!child.closed) {
           unitedDividedPath = unitedDividedPath.unite(child);
         }
       });
       dividedPath = unitedDividedPath;
-      // console.log('after', unitedDividedPath);
+      // log('after', unitedDividedPath);
       // return;
     } else {
-      // console.log('dividedPath has one child');
+      // log('dividedPath has one child');
     }
 
     if (intersections.length > 0) {
       // we have to get the nearest location because the exact intersection point has already been removed as a part of resolveCrossings()
       let firstIntersection = dividedPath.getNearestLocation(intersections[0].point);
-      // console.log(dividedPath);
+      // log(dividedPath);
       let rest = dividedPath.splitAt(firstIntersection); // dividedPath is now the first segment
       let firstSegment = dividedPath;
       let lastSegment;
@@ -148,9 +154,9 @@ export function trimPath(path, original) {
       //   strokeColor: 'red'
       // });
 
-      // console.log(intersections);
+      // log(intersections);
       if (intersections.length > 1) {
-        // console.log('foo');
+        // log('foo');
         // rest.reverse(); // start from end
         let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
         // let circleTwo = new Path.Circle({
@@ -212,26 +218,26 @@ export function trimPath(path, original) {
       } else {
         path = path.children[0];
       }
-      // console.log(path);
-      // console.log(path.lastChild);
+      // log(path);
+      // log(path.lastChild);
       // path.firstChild.strokeColor = 'pink';
       // path.lastChild.strokeColor = 'green';
       // path = path.lastChild; // return last child?
       // find highest version
       //
-      // console.log(realPathVersion);
+      // log(realPathVersion);
       //
       // Base.each(path.children, (child, i) => {
       //   if (child.version == realPathVersion) {
-      //     console.log('returning child');
+      //     log('returning child');
       //     return child;
       //   }
       // })
     }
-    console.log('original length:', totalLength);
-    console.log('edited length:', path.length);
+    log('original length:', totalLength);
+    log('edited length:', path.length);
     if (path.length / totalLength <= 0.75) {
-      console.log('returning original');
+      log('returning original');
       return original;
     } else {
       return path;
@@ -249,12 +255,12 @@ export function removePathExtensions(path) {
 }
 
 // export function truePath(path) {
-//   // console.log(group);
+//   // log(group);
 //   // if (path && path.children && path.children.length > 0 && path._namedChildren['middle']) {
 //   //   let pathCopy = new Path();
-//   //   console.log(path._namedChildren['middle']);
+//   //   log(path._namedChildren['middle']);
 //   //   pathCopy.copyContent(path._namedChildren['middle']);
-//   //   console.log(pathCopy);
+//   //   log(pathCopy);
 //   // }
 // }
 
@@ -309,8 +315,4 @@ export function hitTestBounds(point, children) {
   }
 
   return null;
-}
-
-export function stringifyPoint(point) {
-  return `${point.x},${point.y}`;
 }

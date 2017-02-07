@@ -11,6 +11,10 @@ const util = require('./util');
 const shape = require('./shape');
 // require('paper-animate');
 
+function log(thing) {
+  util.log(thing);
+}
+
 $(document).ready(function() {
   let MOVES = []; // store global moves list
   // moves = [
@@ -109,17 +113,23 @@ $(document).ready(function() {
     let touch = false;
     let lastChild;
     let pathData = {};
+    let prevAngle;
+
+    let sides;
+    let side;
 
     function panStart(event) {
+      console.log('-----------');
       paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
       sizes = [];
+      prevAngle = Math.atan2(event.velocityY, event.velocityX);
 
       if (pinching) return;
       if (!(event.changedPointers && event.changedPointers.length > 0)) return;
       if (event.changedPointers.length > 1) {
-        console.log('event.changedPointers > 1');
+        log('event.changedPointers > 1');
       }
 
       const pointer = event.center;
@@ -142,7 +152,11 @@ $(document).ready(function() {
 
       bounds.add(point);
       middle.add(point);
-      pathData[util.stringifyPoint(point)] = {
+
+      sides = [];
+      side = [point];
+
+      pathData[shape.stringifyPoint(point)] = {
         point: point,
         first: true
       };
@@ -157,20 +171,55 @@ $(document).ready(function() {
     function panMove(event) {
       event.preventDefault();
       if (pinching) return;
-      // console.log(event.overallVelocity);
+      // log(event.overallVelocity);
       // let thisDist = parseInt(event.distance);
       // cumDistance += thisDist;
       //
       // if (cumDistance < 100) {
-      //   console.log('ignoring');
+      //   log('ignoring');
       //   return;
       // } else {
       //   cumDistance = 0;
-      //   console.log('not ignoring');
+      //   log('not ignoring');
       // }
 
       const pointer = event.center;
       let point = new Point(pointer.x, pointer.y);
+
+      // angle = -1 * event.angle; // make up positive rather than negative
+      // angle = angle += 180;
+      // console.log(event.velocityX, event.velocityY);
+      angle = Math.atan2(event.velocityY, event.velocityX);
+      let angleDelta = Math.atan2(Math.sin(angle - prevAngle), Math.cos(angle - prevAngle));
+      prevAngle = angle;
+      const thresholdAngleDeg = 45;
+      if (Math.abs(util.deg(angleDelta)) > thresholdAngleDeg) {
+        if (side.length > 0) {
+          console.log('corner');
+          sides.push(side);
+          side = [];
+          console.log(sides);
+        }
+      }
+      side.push(point);
+      // let angleDeg = -1 * event.angle;
+      // if (angleDeg < 0) angleDeg += 360; // normalize to [0, 360)
+      // angle = util.rad(angleDeg);
+      //
+      // // let angleDelta = Math.atan2(Math.sin(angle), Math.cos(angle)) - Math.atan2(Math.sin(prevAngle), Math.cos(prevAngle));
+      // console.log(angle, prevAngle);
+      // // console.log(angleDelta);
+
+      // console.log(angle);
+
+      // let angleDelta = Math.abs(prevAngle - angle);
+      // if (angleDelta > 360) angleDelta = angleDelta - 360;
+      // if (angleDelta > 90) {
+      //   console.log(angle, prevAngle, angleDelta);
+      //   console.error('corner!');
+      // } else {
+      //   // console.log(angleDelta);
+      // }
 
       while (sizes.length > memory) {
         sizes.shift();
@@ -195,7 +244,7 @@ $(document).ready(function() {
           cumSize += sizes[j];
         }
         avgSize = Math.round(((cumSize / sizes.length) + size) / 2);
-        // console.log(avgSize);
+        // log(avgSize);
 
         angle = Math.atan2(point.y - p0.y, point.x - p0.x); // rad
 
@@ -213,11 +262,15 @@ $(document).ready(function() {
         // bounds.smooth();
 
         middle.add(point);
-        pathData[util.stringifyPoint(point)] = {
+        pathData[shape.stringifyPoint(point)] = {
           point: point,
           size: avgSize,
           speed: Math.abs(event.overallVelocity)
         };
+        // if (shape.stringifyPoint(point) in pathData) {
+        //   log('duplicate!');
+        // } else {
+        // }
         // middle.smooth();
       } else {
         // don't have anything to compare to
@@ -226,6 +279,10 @@ $(document).ready(function() {
 
         size = dist * alpha;
         size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
+        pathData[shape.stringifyPoint(point)] = {
+          point: point,
+          speed: Math.abs(event.overallVelocity)
+        };
       }
 
       paper.view.draw();
@@ -251,12 +308,16 @@ $(document).ready(function() {
       middle.add(point);
       // middle.simplify();
 
-      pathData[util.stringifyPoint(point)] = {
+      side.push(point);
+      sides.push(side);
+      console.log(sides);
+
+      pathData[shape.stringifyPoint(point)] = {
         point: point,
         last: true
       };
 
-      middle.simplify();
+      middle.simplify(10);
       group.replaceWith(util.trueGroup(group));
       middle = group._namedChildren.middle[0];
       middle.strokeColor = group.strokeColor;
@@ -271,8 +332,8 @@ $(document).ready(function() {
 
       // middle.simplify();
 
-      let idealGeometry = shape.getIdealGeometry(pathData, middle);
-      console.log(idealGeometry);
+      let idealGeometry = shape.getIdealGeometry(pathData, sides);
+      log(idealGeometry);
       // middle.smooth({
       //   type: 'geometric'
       // });
@@ -315,7 +376,7 @@ $(document).ready(function() {
         }
         pathCopy.remove();
       } else {
-        // console.log('no intersections');
+        // log('no intersections');
       }
 
       group.data.color = bounds.fillColor;
@@ -328,9 +389,9 @@ $(document).ready(function() {
         }
       });
 
-      // console.log('-----');
-      // console.log(group);
-      // console.log(children);
+      // log('-----');
+      // log(group);
+      // log(children);
       // group.selected = true;
       let unitedPath = new Path();
       if (children.length > 1) {
@@ -399,7 +460,7 @@ $(document).ready(function() {
     let originalPosition, originalRotation, originalScale;
 
     function pinchStart(event) {
-      console.log('pinchStart', event.center);
+      log('pinchStart', event.center);
       hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
@@ -430,27 +491,27 @@ $(document).ready(function() {
         }
       } else {
         pinchedGroup = null;
-        console.log('hit no item');
+        log('hit no item');
       }
     }
 
     function pinchMove(event) {
-      console.log('pinchMove');
+      log('pinchMove');
       if (!!pinchedGroup) {
-        // console.log('pinchmove', event);
-        // console.log(pinchedGroup);
+        // log('pinchmove', event);
+        // log(pinchedGroup);
         let currentScale = event.scale;
         let scaleDelta = currentScale / lastScale;
-        // console.log(lastScale, currentScale, scaleDelta);
+        // log(lastScale, currentScale, scaleDelta);
         lastScale = currentScale;
 
         let currentRotation = event.rotation;
         let rotationDelta = currentRotation - lastRotation;
-        console.log(lastRotation, currentRotation, rotationDelta);
+        log(lastRotation, currentRotation, rotationDelta);
         lastRotation = currentRotation;
 
-        // console.log(`scaling by ${scaleDelta}`);
-        // console.log(`rotating by ${rotationDelta}`);
+        // log(`scaling by ${scaleDelta}`);
+        // log(`rotating by ${rotationDelta}`);
 
         pinchedGroup.position = event.center;
         pinchedGroup.scale(scaleDelta);
@@ -483,8 +544,8 @@ $(document).ready(function() {
           move.scale = originalScale / pinchedGroup.data.scale;
         }
 
-        console.log('final scale', pinchedGroup.data.scale);
-        console.log(move);
+        log('final scale', pinchedGroup.data.scale);
+        log(move);
 
         MOVES.push(move);
 
@@ -526,7 +587,7 @@ $(document).ready(function() {
       if (hitResult) {
         let item = hitResult.item;
         item.selected = !item.selected;
-        console.log(item);
+        log(item);
       }
     }
 
@@ -557,18 +618,18 @@ $(document).ready(function() {
             transparent: item.data.transparent
           });
         } else {
-          console.log('not interior')
+          log('not interior')
         }
 
       } else {
         pinchedGroup = null;
-        console.log('hit no item');
+        log('hit no item');
       }
     }
 
     const velocityMultiplier = 25;
     function throwPinchedGroup() {
-      console.log(pinchedGroup.position);
+      log(pinchedGroup.position);
       if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
           pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
           pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||
@@ -607,15 +668,15 @@ $(document).ready(function() {
   }
 
   function newPressed() {
-    console.log('new pressed');
+    log('new pressed');
 
     paper.project.activeLayer.removeChildren();
   }
 
   function undoPressed() {
-    console.log('undo pressed');
+    log('undo pressed');
     if (!(MOVES.length > 0)) {
-      console.log('no moves yet');
+      log('no moves yet');
       return;
     }
 
@@ -628,7 +689,7 @@ $(document).ready(function() {
       item.visible = true; // make sure
       switch(lastMove.type) {
         case 'newGroup':
-          console.log('removing group');
+          log('removing group');
           item.remove();
           break;
         case 'fillChange':
@@ -651,23 +712,23 @@ $(document).ready(function() {
           }
           break;
         default:
-          console.log('unknown case');
+          log('unknown case');
       }
     } else {
-      console.log('could not find matching item');
+      log('could not find matching item');
     }
   }
 
   function playPressed() {
-    console.log('play pressed');
+    log('play pressed');
   }
 
   function tipsPressed() {
-    console.log('tips pressed');
+    log('tips pressed');
   }
 
   function sharePressed() {
-    console.log('share pressed');
+    log('share pressed');
   }
 
   function initNew() {

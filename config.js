@@ -9,3 +9,5 @@ exports.shape = {
   extendingThreshold: 0.1,
   trimmingThreshold: 0.075,
 }
+
+exports.log = true;
