@@ -1,23 +1,12 @@
-export function getIdealGeometry(pathData) {
-  return null;
-  
-  let pathClone = pathData.clone();
-  pathClone.strokeColor = 'pink';
-  pathClone.strokeWidth = 5;
-  pathClone.strokeCap = 'round';
-  pathClone.selected = true;
+const util = require('./util');
 
-  let sides = [];
-  let side = [];
-  let prev;
-
-  Base.each(pathClone.segments, (segment, i) => {
-    if (!prev) {
-      side.push({
-        point: segment.point,
-
-      })
+export function getIdealGeometry(pathData, path) {
+  Base.each(path.segments, (segment, i) => {
+    let pointStr = util.stringifyPoint(segment.point);
+    if (pointStr in pathData) {
+      let pointData = pathData[pointStr];
     }
   });
+
   return null;
 }

@@ -46,7 +46,7 @@ export function trueGroup(group) {
     // see if we can trim the path while maintaining intersections
     // console.log('intersections!');
     // middleCopy.strokeColor = 'yellow';
-    middleCopy = trimPath(middleCopy);
+    middleCopy = trimPath(middleCopy, middle);
     // middleCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
@@ -57,7 +57,7 @@ export function trueGroup(group) {
     let intersections = middleCopy.getIntersections();
     if (intersections.length > 0) {
       // middleCopy.strokeColor = 'pink';
-      middleCopy = trimPath(middleCopy);
+      middleCopy = trimPath(middleCopy, middle);
       // middleCopy.strokeColor = 'green';
     } else {
       // middleCopy.strokeColor = 'red';
@@ -94,8 +94,7 @@ export function extendPath(path) {
   return path;
 }
 
-export function trimPath(path) {
-  let originalPath = path.clone();
+export function trimPath(path, original) {
   // originalPath.strokeColor = 'pink';
   try {
     let intersections = path.getIntersections();
@@ -229,17 +228,17 @@ export function trimPath(path) {
       //   }
       // })
     }
-    // console.log('original length:', totalLength);
-    // console.log('edited length:', path.length);
+    console.log('original length:', totalLength);
+    console.log('edited length:', path.length);
     if (path.length / totalLength <= 0.75) {
       console.log('returning original');
-      return originalPath;
+      return original;
     } else {
       return path;
     }
   } catch(e) {
     console.error(e);
-    return originalPath;
+    return original;
   }
 }
 
@@ -310,4 +309,8 @@ export function hitTestBounds(point, children) {
   }
 
   return null;
+}
+
+export function stringifyPoint(point) {
+  return `${point.x},${point.y}`;
 }

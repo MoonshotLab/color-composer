@@ -8,6 +8,7 @@ window.kan = window.kan || {
 paper.install(window);
 
 const util = require('./util');
+const shape = require('./shape');
 // require('paper-animate');
 
 $(document).ready(function() {
@@ -107,7 +108,7 @@ $(document).ready(function() {
     // let paths = getFreshPaths(window.kan.numPaths);
     let touch = false;
     let lastChild;
-    let pathData = [];
+    let pathData = {};
 
     function panStart(event) {
       paper.project.activeLayer.removeChildren(); // REMOVE
@@ -141,6 +142,10 @@ $(document).ready(function() {
 
       bounds.add(point);
       middle.add(point);
+      pathData[util.stringifyPoint(point)] = {
+        point: point,
+        first: true
+      };
     }
 
     const min = 1;
@@ -208,6 +213,11 @@ $(document).ready(function() {
         // bounds.smooth();
 
         middle.add(point);
+        pathData[util.stringifyPoint(point)] = {
+          point: point,
+          size: avgSize,
+          speed: Math.abs(event.overallVelocity)
+        };
         // middle.smooth();
       } else {
         // don't have anything to compare to
@@ -236,33 +246,33 @@ $(document).ready(function() {
 
       bounds.add(point);
       bounds.closed = true;
-      bounds.simplify();
+      // bounds.simplify();
 
       middle.add(point);
-      middle.simplify();
+      // middle.simplify();
 
+      pathData[util.stringifyPoint(point)] = {
+        point: point,
+        last: true
+      };
+
+      middle.simplify();
       group.replaceWith(util.trueGroup(group));
       middle = group._namedChildren.middle[0];
       middle.strokeColor = group.strokeColor;
+      middle.selected = true;
 
-      bounds.flatten(4);
-      bounds.smooth();
+      // bounds.flatten(4);
+      // bounds.smooth();
 
-      // Base.each(middle, (middlePoint) => {
-      //   console.log(middlePoint);
-      // });
-
-      // bounds.interpolate(bounds.clone(), middle, 0.5);
-
-      middle.flatten(4);
-      middle.reduce();
-
-      let ideal = middle.clone();
-      ideal.strokeColor = 'pink';
-      ideal.strokeWidth = 5;
-      ideal.strokeCap = 'round';
+      // middle.flatten(4);
+      // middle.reduce();
 
 
+      // middle.simplify();
+
+      let idealGeometry = shape.getIdealGeometry(pathData, middle);
+      console.log(idealGeometry);
       // middle.smooth({
       //   type: 'geometric'
       // });
