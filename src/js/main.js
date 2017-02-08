@@ -9,6 +9,7 @@ paper.install(window);
 
 const util = require('./util');
 const shape = require('./shape');
+const config = require('./../../config');
 // require('paper-animate');
 
 function log(thing) {
@@ -41,6 +42,7 @@ $(document).ready(function() {
   const $canvas = $('canvas#mainCanvas');
   const runAnimations = false;
   const transparent = new Color(0, 0);
+  const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
 
   let viewWidth, viewHeight;
 
@@ -107,19 +109,19 @@ $(document).ready(function() {
     paper.setup($canvas[0]);
 
     let middle, bounds;
-    let past;
     let sizes;
     // let paths = getFreshPaths(window.kan.numPaths);
     let touch = false;
     let lastChild;
     let pathData = {};
-    let prevAngle;
+    let prevAngle, prevPoint;
 
     let sides;
     let side;
 
+    let corners;
+
     function panStart(event) {
-      console.log('-----------');
       paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
@@ -152,6 +154,9 @@ $(document).ready(function() {
 
       bounds.add(point);
       middle.add(point);
+
+      prevPoint = point;
+      corners = [point];
 
       sides = [];
       side = [point];
@@ -190,15 +195,21 @@ $(document).ready(function() {
       // angle = angle += 180;
       // console.log(event.velocityX, event.velocityY);
       angle = Math.atan2(event.velocityY, event.velocityX);
-      let angleDelta = Math.atan2(Math.sin(angle - prevAngle), Math.cos(angle - prevAngle));
+      let angleDelta = util.angleDelta(angle, prevAngle);
       prevAngle = angle;
-      const thresholdAngleDeg = 45;
-      if (Math.abs(util.deg(angleDelta)) > thresholdAngleDeg) {
+
+      if (angleDelta > thresholdAngle) {
         if (side.length > 0) {
-          console.log('corner');
+          // console.log('corner');
+          let cornerPoint = point;
+          new Path.Circle({
+            center: cornerPoint,
+            radius: 15,
+            strokeColor: 'black'
+          });
+          corners.push(cornerPoint);
           sides.push(side);
           side = [];
-          console.log(sides);
         }
       }
       side.push(point);
@@ -232,7 +243,7 @@ $(document).ready(function() {
 
       if (sizes.length > 0) {
         // not the first point, so we have others to compare to
-        p0 = past;
+        p0 = prevPoint;
         dist = util.delta(point, p0);
         size = dist * alpha;
         // if (size >= max) size = max;
@@ -287,7 +298,7 @@ $(document).ready(function() {
 
       paper.view.draw();
 
-      past = point;
+      prevPoint = point;
       sizes.push(size);
     }
 
@@ -310,15 +321,18 @@ $(document).ready(function() {
 
       side.push(point);
       sides.push(side);
-      console.log(sides);
 
       pathData[shape.stringifyPoint(point)] = {
         point: point,
         last: true
       };
 
-      middle.simplify(10);
-      group.replaceWith(util.trueGroup(group));
+      corners.push(point);
+
+      // middle.simplify();
+      middle.reduce();
+      let [truedGroup, trueWasNecessary] = util.trueGroup(group, corners);
+      group.replaceWith(truedGroup);
       middle = group._namedChildren.middle[0];
       middle.strokeColor = group.strokeColor;
       middle.selected = true;
@@ -331,9 +345,41 @@ $(document).ready(function() {
 
 
       // middle.simplify();
+      if (trueWasNecessary) {
+        let computedCorners = shape.getSides(middle);
+        // let cornersPath = new Path({
+        //   strokeWidth: 5,
+        //   strokeColor: 'red',
+        //   segments: corners
+        // });
+        let computedCornersPath = new Path({
+          strokeWidth: 5,
+          strokeColor: 'blue',
+          segments: computedCorners
+        });
+        // computedCorners.visible = false;
+        // computedCornersPath.visible = false;
+        // let mergedCornersPath = cornersPath.unite(computedCornersPath);
+        // mergedCornersPath.strokeColor = 'purple';
+        // let mergedCorners = corners.concat(computedCorners);
+        // Base.each(mergedCorners, (corner, i) => {
+        //   cornersPath.add(corner);
+        // });
+        // cornersPath.flatten();
+      }
 
-      let idealGeometry = shape.getIdealGeometry(pathData, sides);
-      log(idealGeometry);
+      // if (trueWasNecessary) {
+      //   let idealGeometry = shape.getIdealGeometry(pathData, sides, middle);
+      //   log(idealGeometry);
+      //   Base.each(corners, (corner, i) => {
+      //     idealGeometry.add(corner);
+      //   });
+      //   idealGeometry.reduce();
+      //
+      //   idealGeometry.strokeColor = 'red';
+      // } else {
+      //   log('no trueing necessary');
+      // }
       // middle.smooth({
       //   type: 'geometric'
       // });

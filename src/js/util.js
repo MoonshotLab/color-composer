@@ -16,6 +16,11 @@ export function deg(radians) {
   return radians * 180 / Math.PI;
 };
 
+// returns absolute value of the delta of two angles in radians
+export function angleDelta(x, y) {
+  return Math.abs(Math.atan2(Math.sin(y - x), Math.cos(y - x)));;
+}
+
 // distance between two points
 export function delta(p1, p2) {
   return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)); // pythagorean!
@@ -38,11 +43,11 @@ export function findInteriorCurves(path) {
   return interiorCurves;
 }
 
-export function trueGroup(group) {
-  let bounds = group._namedChildren.bounds[0],
-      middle = group._namedChildren.middle[0];
+export function trueGroup(group, corners) {
+  let middle = group._namedChildren.middle[0];
 
   let intersections = middle.getIntersections();
+  let trueNecessary = false;
 
   let middleCopy = new Path();
   middleCopy.copyContent(middle);
@@ -52,7 +57,7 @@ export function trueGroup(group) {
     // see if we can trim the path while maintaining intersections
     // log('intersections!');
     // middleCopy.strokeColor = 'yellow';
-    middleCopy = trimPath(middleCopy, middle);
+    [middleCopy, trueNecessary] = trimPath(middleCopy, middle);
     // middleCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
@@ -63,7 +68,7 @@ export function trueGroup(group) {
     let intersections = middleCopy.getIntersections();
     if (intersections.length > 0) {
       // middleCopy.strokeColor = 'pink';
-      middleCopy = trimPath(middleCopy, middle);
+      [middleCopy, trueNecessary] = trimPath(middleCopy, middle);
       // middleCopy.strokeColor = 'green';
     } else {
       // middleCopy.strokeColor = 'red';
@@ -77,7 +82,8 @@ export function trueGroup(group) {
   // group.addChild(middleCopy);
   // group._namedChildren.middle[0] = middleCopy;
   group._namedChildren.middle[0].replaceWith(middleCopy);;
-  return group;
+
+  return [group, trueNecessary];
 }
 
 export function extendPath(path) {
@@ -105,6 +111,10 @@ export function trimPath(path, original) {
   try {
     let intersections = path.getIntersections();
     let dividedPath = path.resolveCrossings();
+
+    if (intersections.length > 1) {
+      return [original, false]; // more than one intersection, don't worry about trimming
+    }
 
     const extendingThreshold = config.shape.extendingThreshold;
     const totalLength = path.length;
@@ -238,13 +248,13 @@ export function trimPath(path, original) {
     log('edited length:', path.length);
     if (path.length / totalLength <= 0.75) {
       log('returning original');
-      return original;
+      return [original, false];
     } else {
-      return path;
+      return [path, true];
     }
   } catch(e) {
     console.error(e);
-    return original;
+    return [original, false];
   }
 }
 
