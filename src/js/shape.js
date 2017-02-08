@@ -346,11 +346,18 @@ export function processShapeData(json) {
   if ('segments' in jsonObj) {
     let segments = jsonObj.segments;
     Base.each(segments, (segment, i) => {
-      let positionInfo = segment[0]; // indexes 1 and 2 are superfluous matrix details
-      returnShape.push({
-        x: positionInfo[0],
-        y: positionInfo[1]
-      })
+      if (segment.length === 3) {
+        let positionInfo = segment[0]; // indexes 1 and 2 are superfluous matrix details
+        returnShape.push({
+          x: positionInfo[0],
+          y: positionInfo[1]
+        })
+      } else {
+        returnShape.push({
+          x: segment[0],
+          y: segment[1]
+        });
+      };
     });
   }
   return returnShape;

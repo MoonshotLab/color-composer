@@ -374,6 +374,8 @@ $(document).ready(function() {
         computedCornersPath.visible = false;
         let computedCornersPathLength = computedCornersPath.length;
         if (Math.abs(computedCornersPathLength - middle.length) / middle.length <= 0.1) {
+          middle.removeSegments();
+          // console.log(computedCorners);
           middle.segments = computedCorners;
           // middle.reduce();
         }
@@ -536,10 +538,13 @@ $(document).ready(function() {
       group.addChild(unitedPath);
       unitedPath.sendToBack();
 
+      middle.selected = true
+
       // check shape
       const shapeJSON = middle.exportJSON();
       console.log(shapeJSON);
       const shapeData = shape.processShapeData(shapeJSON);
+      console.log(shapeData);
       const shapePrediction = detector.spot(shapeData);
       let shapePattern;
       if (shapePrediction.score > 0.5) {
