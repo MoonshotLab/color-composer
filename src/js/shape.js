@@ -218,57 +218,54 @@ export function getClosestPointFromPathData(pathData, point) {
   return closestPoint || point;
 }
 
-export function getSides(path) {
+export function getComputedCorners(path) {
   const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
-
-  if (!path.length > 0) return [];
-
   let corners = [];
 
-  let point, prev;
-  let angle, prevAngle, angleDelta;
+  if (path.length > 0) {
+    let point, prev;
+    let angle, prevAngle, angleDelta;
 
-  Base.each(path.segments, (segment, i) => {
-    let point = segment.point;
-    // log(point);
-    if (!!prev) {
-      let angle = Math.atan2(point.y - prev.y, point.x - prev.x);
-      if (angle < 0) angle += (2 * Math.PI); // normalize to [0, 2π)
-
-      if (!!prevAngle) {
-        angleDelta = util.angleDelta(angle, prevAngle);
-        if (angleDelta >= thresholdAngle) {
-          console.log('corner');
-          new Path.Circle({
-            center: prev,
-            radius: 10,
-            fillColor: 'pink'
-          });
-          corners.push(prev);
-        } else {
-          console.log(angleDelta);
+    Base.each(path.segments, (segment, i) => {
+      let point = segment.point;
+      if (!!prev) {
+        let angle = Math.atan2(point.y - prev.y, point.x - prev.x);
+        if (angle < 0) angle += (2 * Math.PI); // normalize to [0, 2π)
+        if (!!prevAngle) {
+          angleDelta = util.angleDelta(angle, prevAngle);
+          if (angleDelta >= thresholdAngle) {
+            console.log('corner');
+            new Path.Circle({
+              center: prev,
+              radius: 10,
+              fillColor: 'pink'
+            });
+            corners.push(prev);
+          } else {
+            console.log(angleDelta);
+          }
         }
+
+        prevAngle = angle;
+      } else {
+        // first point
+        corners.push(point);
+        new Path.Circle({
+          center: point,
+          radius: 10,
+          fillColor: 'pink'
+        })
       }
+      prev = point;
+    });
 
-      prevAngle = angle;
-    } else {
-      // first point
-      corners.push(point);
-      new Path.Circle({
-        center: point,
-        radius: 10,
-        fillColor: 'pink'
-      })
-    }
-    prev = point;
-  });
-
-  corners.push(path.lastSegment.point);
-  new Path.Circle({
-    center: path.lastSegment.point,
-    radius: 10,
-    fillColor: 'pink'
-  });
+    corners.push(path.lastSegment.point);
+    new Path.Circle({
+      center: path.lastSegment.point,
+      radius: 10,
+      fillColor: 'pink'
+    });
+  }
 
   return corners;
 }

@@ -346,7 +346,7 @@ $(document).ready(function() {
 
       // middle.simplify();
       if (trueWasNecessary) {
-        let computedCorners = shape.getSides(middle);
+        let computedCorners = shape.getComputedCorners(middle);
         // let cornersPath = new Path({
         //   strokeWidth: 5,
         //   strokeColor: 'red',
