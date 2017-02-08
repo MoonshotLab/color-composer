@@ -343,7 +343,6 @@ $(document).ready(function() {
       // middle.flatten(4);
       // middle.reduce();
 
-
       // middle.simplify();
       if (trueWasNecessary) {
         let computedCorners = shape.getComputedCorners(middle);
@@ -354,6 +353,9 @@ $(document).ready(function() {
           middle.segments = computedCorners;
           // middle.reduce();
         }
+      }
+
+      middle.reduce();
 
         // middle.selected = false;
         // middle.visible = true;
@@ -401,7 +403,7 @@ $(document).ready(function() {
         // let mergedCornersPath = cornersPath.unite(computedCornersPath);
         // mergedCornersPath.strokeColor = 'purple';
         // cornersPath.flatten();
-      }
+      // }
 
       // if (trueWasNecessary) {
       //   let idealGeometry = shape.getIdealGeometry(pathData, sides, middle);
