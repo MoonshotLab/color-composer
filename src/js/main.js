@@ -216,7 +216,7 @@ $(document).ready(function() {
 
       const pointer = event.center;
       let point = new Point(pointer.x, pointer.y);
-      console.log(Math.abs(event.overallVelocity));
+      // console.log(Math.abs(event.overallVelocity));
 
       // angle = -1 * event.angle; // make up positive rather than negative
       // angle = angle += 180;
@@ -402,8 +402,8 @@ $(document).ready(function() {
       //   middle.simplify();
       // }
 
-      let strokes = shape.getStrokes(middle, pathData);
-      middle.replaceWith(strokes);
+      // let strokes = shape.getStrokes(middle, pathData);
+      // middle.replaceWith(strokes);
 
       // middle.reduce();
 

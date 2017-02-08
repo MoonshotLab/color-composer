@@ -45,7 +45,7 @@ exports.shapes = {
 
 exports.log = true;
 
-exports.runAnimations = true;
+exports.runAnimations = false;
 
 exports.sound = {
   bpm: 140,

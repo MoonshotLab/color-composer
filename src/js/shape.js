@@ -9,6 +9,15 @@ export function getStrokes(path, pathData) {
   let pathClone = path.clone();
   let strokes = new Path();
 
+  const minSize = 1;
+  const maxSize = 5;
+
+  let prev;
+  let firstPoint, lastPoint;
+
+  let cumSpeed = 0;
+  let totalPoints = 0;
+
   Base.each(pathClone.segments, (segment, i) => {
     let point = segment.point;
     let pointStr = stringifyPoint(point);
@@ -26,11 +35,106 @@ export function getStrokes(path, pathData) {
     }
 
     if (pointData) {
-      // console.log(pointData);
+      console.log(pointData);
       let top, bottom;
       let bottomX, bottomY, topX, topY;
+      if (pointData.speed) {
+        cumSpeed += parseInt(pointData.speed * 10);
+        totalPoints++;
+      }
     }
+
+    prev = point;
   });
+
+  let avgSpeed = cumSpeed / totalPoints;
+  console.log(avgSpeed);
+
+  let size = avgSpeed;
+  size = maxSize - size;
+  size = Math.max(Math.min(size, maxSize), minSize); // clamp size to [min, max)
+
+  let bigClone = path.clone();
+  let smallClone = path.clone();
+  bigClone.scale(1.5);
+  smallClone.scale(0.5);
+
+  let overlap = bigClone.subtract(smallClone);
+  overlap.strokeColor = 'pink';
+
+  console.log(size);
+
+
+  // strokes.closed = true;
+  // strokes.fillColor = 'pink';
+  // strokes.selected = true;
+  // strokes.reduce();
+
+  return pathClone;
+}
+
+export function oldgetStrokes(path, pathData) {
+  let pathClone = path.clone();
+  let strokes = new Path();
+
+  const minSize = 2;
+  const maxSize = 8;
+
+  let prev;
+  let firstPoint, lastPoint;
+  Base.each(pathClone.segments, (segment, i) => {
+    let point = segment.point;
+    let pointStr = stringifyPoint(point);
+    let pointData;
+    if (pointStr in pathData) {
+      pointData = pathData[pointStr];
+    } else {
+      let nearestPoint = getClosestPointFromPathData(point, pathData);
+      pointStr = stringifyPoint(nearestPoint);
+      if (pointStr in pathData) {
+        pointData = pathData[pointStr];
+      } else {
+        log('could not find close point');
+      }
+    }
+
+    if (pointData) {
+      console.log(pointData);
+      let top, bottom;
+      let bottomX, bottomY, topX, topY;
+      if (pointData.first) {
+        firstPoint = pointData.point;
+        strokes.add(point);
+      } else if (pointData.last) {
+        lastPoint = pointData.point;
+        strokes.add(point);
+      } else {
+        let angle = pointData.angle;
+        let size = pointData.speed * 10;
+        size = maxSize - size;
+        size = Math.max(Math.min(size, maxSize), minSize); // clamp size to [min, max)
+        console.log(size);
+
+        let bottomX = point.x + Math.cos(angle + Math.PI/2) * size;
+        let bottomY = point.y + Math.sin(angle + Math.PI/2) * size;
+        let bottom = new Point(bottomX, bottomY);
+
+        let topX = point.x + Math.cos(angle - Math.PI/2) * size;
+        let topY = point.y + Math.sin(angle - Math.PI/2) * size;
+        let top = new Point(topX, topY);
+
+        strokes.add(top);
+        strokes.insert(0, bottom);
+      }
+    }
+
+    prev = point;
+  });
+
+  strokes.closed = true;
+  strokes.fillColor = 'pink';
+  strokes.selected = true;
+  strokes.reduce();
 
   return pathClone;
 }
