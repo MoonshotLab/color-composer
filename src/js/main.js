@@ -98,28 +98,30 @@ $(document).ready(function() {
     const paletteSelectedClass = 'palette-selected';
 
     // hook up click
-      $paletteColors.on('click tap touch', function() {
-          let $svg = $(this).find('svg.palette-color');
+    $paletteColors.on('click tap touch', function() {
+      if (!$body.hasClass(playingClass)) {
+        let $svg = $(this).find('svg.palette-color');
 
-          if (!$svg.hasClass(paletteSelectedClass)) {
-            $('.' + paletteSelectedClass)
-              .removeClass(paletteSelectedClass)
-              .attr('width', paletteColorSize)
-              .attr('height', paletteColorSize)
-              .find('rect')
-              .attr('rx', 0)
-              .attr('ry', 0);
+        if (!$svg.hasClass(paletteSelectedClass)) {
+          $('.' + paletteSelectedClass)
+            .removeClass(paletteSelectedClass)
+            .attr('width', paletteColorSize)
+            .attr('height', paletteColorSize)
+            .find('rect')
+            .attr('rx', 0)
+            .attr('ry', 0);
 
-            $svg.addClass(paletteSelectedClass)
-              .attr('width', paletteSelectedColorSize)
-              .attr('height', paletteSelectedColorSize)
-              .find('rect')
-              .attr('rx', paletteSelectedColorSize / 2)
-              .attr('ry', paletteSelectedColorSize / 2)
+          $svg.addClass(paletteSelectedClass)
+            .attr('width', paletteSelectedColorSize)
+            .attr('height', paletteSelectedColorSize)
+            .find('rect')
+            .attr('rx', paletteSelectedColorSize / 2)
+            .attr('ry', paletteSelectedColorSize / 2)
 
-            window.kan.currentColor = $svg.find('rect').attr('fill');
-          }
-        });
+          window.kan.currentColor = $svg.find('rect').attr('fill');
+        }
+      };
+    });
   }
 
   function initCanvasDraw() {
@@ -851,9 +853,9 @@ $(document).ready(function() {
     hammerManager.on('pinchcancel', function() { hammerManager.get('pan').set({enable: true}); }); // make sure it's reenabled
   }
 
+  const playingClass = 'playing';
   function newPressed() {
     log('new pressed');
-
     composition = [];
     paper.project.activeLayer.removeChildren();
   }
@@ -908,14 +910,14 @@ $(document).ready(function() {
     if (!!mute) {
       Howler.mute(true);
     }
-    $body.removeClass('playing');
+    $body.removeClass(playingClass);
 
     playing = false;
     sound.stopComposition(compositionInterval);
   }
 
   function startPlaying() {
-    $body.addClass('playing');
+    $body.addClass(playingClass);
     Howler.mute(false);
     playing = true;
     compositionInterval = sound.startComposition(composition);
@@ -940,20 +942,39 @@ $(document).ready(function() {
   }
 
   function initNew() {
-    $('.main-controls .new').on('click tap touch', newPressed);
+    $('.main-controls .new').on('click tap touch', function() {
+      if (!$body.hasClass(playingClass)) {
+        newPressed();
+      }
+    });
   }
 
   function initUndo() {
-    $('.main-controls .undo').on('click', undoPressed);
+    $('.main-controls .undo').on('click', function() {
+      if (!$body.hasClass(playingClass)) {
+        undoPressed()
+      }
+    });
   }
+
   function initPlay() {
     $('.main-controls .play-stop').on('click', playPressed);
   }
+
   function initTips() {
-    $('.aux-controls .tips').on('click', tipsPressed);
+    $('.aux-controls .tips').on('click', function() {
+      if (!$body.hasClass(playingClass)) {
+        tipsPressed();
+      }
+    });
   }
+
   function initShare() {
-    $('.aux-controls .share').on('click', sharePressed);
+    $('.aux-controls .share').on('click', function() {
+      if (!$body.hasClass(playingClass)) {
+        sharePressed();
+      }
+    });
   }
 
   function drawCircle() {

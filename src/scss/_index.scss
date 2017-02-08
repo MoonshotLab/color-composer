@@ -72,7 +72,7 @@ canvas.main {
 
   .playing & {
     li {
-      img {
+      img, svg {
         opacity: 0.25;
         filter: blur(1px);
       }
@@ -92,6 +92,11 @@ canvas.main {
         filter: none;
       }
     }
+  }
+
+  .palette {
+    height: 5rem;
+    padding: 0 2rem;
   }
 }
 
@@ -129,7 +134,7 @@ canvas.main {
   }
 
   svg {
-    transition: 400ms all;
+    transition: 400ms border-radius, 400ms padding, 400ms width, 400ms height;
     border: 3px solid #fff;
   }
 }
