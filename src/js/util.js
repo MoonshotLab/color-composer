@@ -49,8 +49,8 @@ export function trueGroup(group, corners) {
   let intersections = middle.getIntersections();
   let trueNecessary = false;
 
-  let middleCopy = new Path();
-  middleCopy.copyContent(middle);
+  let middleCopy = middle.clone();
+  middleCopy.visible = false;
   // debugger;
 
   if (intersections.length > 0) {
@@ -78,10 +78,12 @@ export function trueGroup(group, corners) {
   }
 
   middleCopy.name = 'middle'; // make sure
+  middleCopy.visible = true;
 
   // group.addChild(middleCopy);
   // group._namedChildren.middle[0] = middleCopy;
-  group._namedChildren.middle[0].replaceWith(middleCopy);;
+  group._namedChildren.middle[0].replaceWith(middleCopy);
+
 
   return [group, trueNecessary];
 }
