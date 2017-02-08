@@ -1,16 +1,24 @@
+const config = require('./../../config');
+
+require('hammerjs');
+require('howler');
+
+const ShapeDetector = require('./lib/shape-detector');
+
+const util = require('./util');
+const shape = require('./shape');
+const color = require('./color');
+const sound = require('./sound');
+
 window.kan = window.kan || {
-  palette: ["#20171C", "#1E2A43", "#28377D", "#352747", "#F285A5", "#CA2E26", "#B84526", "#DA6C26", "#453121", "#916A47", "#EEB641", "#F6EB16", "#7F7D31", "#6EAD79", "#2A4621", "#F4EAE0"],
+  palette: ["#20171C", "#1E2A43", "#28377D", "#352747", "#CA2E26", "#9A2A1F", "#DA6C26", "#453121", "#916A47", "#DAAD27", "#7F7D31","#2B5E2E"],
+  paletteNames: [],
   currentColor: '#20171C',
   numPaths: 10,
   paths: [],
 };
 
 paper.install(window);
-
-const util = require('./util');
-const shape = require('./shape');
-const config = require('./../../config');
-// require('paper-animate');
 
 function log(thing) {
   util.log(thing);
@@ -43,8 +51,18 @@ $(document).ready(function() {
   const runAnimations = config.runAnimations;
   const transparent = new Color(0, 0);
   const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
+  const detector = new ShapeDetector(ShapeDetector.defaultShapes);
+  let composition = [];
+  let compositionInterval;
 
   let viewWidth, viewHeight;
+
+  let playing = false;
+
+  function quantizePosition(position) {
+    return sound.quantizePosition(position, viewWidth);
+  }
+
 
   function hitTestBounds(point) {
     return util.hitTestBounds(point, paper.project.activeLayer.children);
@@ -121,6 +139,11 @@ $(document).ready(function() {
 
     let corners;
 
+    const sounds = sound.initShapeSounds();
+    const beatLength = (60 / config.sound.bpm);
+    const measureLength = beatLength * 4;
+    const compositionLength = measureLength * config.sound.measures;
+
     function panStart(event) {
       paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
@@ -128,6 +151,7 @@ $(document).ready(function() {
       sizes = [];
       prevAngle = Math.atan2(event.velocityY, event.velocityX);
 
+      stopPlaying();
       if (pinching) return;
       if (!(event.changedPointers && event.changedPointers.length > 0)) return;
       if (event.changedPointers.length > 1) {
@@ -512,9 +536,50 @@ $(document).ready(function() {
       group.addChild(unitedPath);
       unitedPath.sendToBack();
 
-      // middle.selected = true;
-      // middle.visible = true;
-      // middle.strokeColor = 'pink';
+      // check shape
+      const shapeJSON = middle.exportJSON();
+      console.log(shapeJSON);
+      const shapeData = shape.processShapeData(shapeJSON);
+      const shapePrediction = detector.spot(shapeData);
+      let shapePattern;
+      if (shapePrediction.score > 0.5) {
+        shapePattern = shapePrediction.pattern;
+      } else {
+        shapePattern = "other";
+      }
+      const colorName = color.getColorName(window.kan.currentColor);
+
+      // get size
+      const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength) * 1000; // ms
+      const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength) * 1000; // ms
+
+      // console.log(config.shapes[shapePattern]);
+      // console.log(sounds[shapePattern]);
+      const playSounds = false;
+      let compositionObj = {};
+      compositionObj.sound = sounds[shapePattern];
+      compositionObj.startTime = quantizedSoundStartTime;
+      compositionObj.duration = quantizedSoundDuration;
+      compositionObj.groupId = group.id;
+      if (config.shapes[shapePattern].sprite) {
+        compositionObj.sprite = true;
+        compositionObj.spriteName = colorName;
+
+        if (playSounds) {
+          sounds[shapePattern].play(colorName);
+        }
+      } else {
+        compositionObj.sprite = false;
+
+        if (playSounds) {
+          sounds[shapePattern].play();
+        }
+      }
+
+      composition.push(compositionObj);
+
+      // set sound to loop again
+      console.log(`${shapePattern}-${colorName}`);
 
       lastChild = group;
 
@@ -552,7 +617,9 @@ $(document).ready(function() {
     let originalPosition, originalRotation, originalScale;
 
     function pinchStart(event) {
-      log('pinchStart', event.center);
+      console.log('pinchStart', event.center);
+      stopPlaying();
+
       hammerManager.get('pan').set({enable: false});
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
@@ -762,6 +829,7 @@ $(document).ready(function() {
   function newPressed() {
     log('new pressed');
 
+    composition = [];
     paper.project.activeLayer.removeChildren();
   }
 
@@ -811,8 +879,29 @@ $(document).ready(function() {
     }
   }
 
+  function stopPlaying(mute = false) {
+    if (!!mute) {
+      Howler.mute(true);
+    }
+
+    playing = false;
+    sound.stopComposition(compositionInterval);
+  }
+
+  function startPlaying() {
+    Howler.mute(false);
+    playing = true;
+    compositionInterval = sound.startComposition(composition);
+  }
+
   function playPressed() {
     log('play pressed');
+    if (playing) {
+      stopPlaying(true);
+    } else {
+      startPlaying();
+    }
+    console.log('play pressed');
   }
 
   function tipsPressed() {
