@@ -15,7 +15,7 @@ html
         //- div.logo-wrap.controls-wrap
         //-   img.main-logo(src='img/logo.svg' alt='The Color of Sound')
         div.main-controls-wrap.controls-wrap
-          ul.main-controls
+          ul.main-controls.controls
             li.new
               img(src='img/new.svg' alt='New Canvas')
             li.undo
@@ -30,12 +30,13 @@ html
                     else
                       svg.palette-color(width=palette.colorSize, height=palette.colorSize)
                         rect(width='100%', height='100%', fill=color)
-            li.play
-              img(src='img/play.svg' alt='Play')
+            li.play-stop
+              img.play(src='img/play.svg' alt='Play')
+              img.stop(src='img/play.svg' alt='Stop')
             li.share(style="visibility:hidden;")
               img(src='img/share.svg' alt='Share')
         //- div.aux-controls-wrap.controls-wrap
-        //-   ul.aux-controls
+        //-   ul.aux-controls.controls
         //-     li.tips
         //-       img(src='img/tips.svg' alt='Tips')
       canvas#mainCanvas(style='width:100%;height:100%')

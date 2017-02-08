@@ -218,7 +218,7 @@ $(document).ready(function() {
       // angle = -1 * event.angle; // make up positive rather than negative
       // angle = angle += 180;
       // console.log(event.velocityX, event.velocityY);
-      angle = Math.atan2(event.velocityY, event.velocityX);
+      let angle = Math.atan2(event.velocityY, event.velocityX);
       let angleDelta = util.angleDelta(angle, prevAngle);
       prevAngle = angle;
 
@@ -256,74 +256,75 @@ $(document).ready(function() {
       //   // console.log(angleDelta);
       // }
 
-      while (sizes.length > memory) {
-        sizes.shift();
-      }
+      // while (sizes.length > memory) {
+      //   sizes.shift();
+      // }
 
-      let bottomX, bottomY, bottom,
-        topX, topY, top,
-        p0, p1,
-        step, angle, dist, size;
+      // let bottomX, bottomY, bottom,
+      //   topX, topY, top,
+      //   p0, p1,
+      //   step, angle, dist, size;
 
-      if (sizes.length > 0) {
-        // not the first point, so we have others to compare to
-        p0 = prevPoint;
-        dist = util.delta(point, p0);
-        size = dist * alpha;
-        // if (size >= max) size = max;
-        size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
-        // size = max - size;
+      // if (sizes.length > 0) {
+      //   // not the first point, so we have others to compare to
+      //   p0 = prevPoint;
+      //   dist = util.delta(point, p0);
+      //   size = dist * alpha;
+      //   // if (size >= max) size = max;
+      //   size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
+      //   // size = max - size;
+      //
+      //   cumSize = 0;
+      //   for (let j = 0; j < sizes.length; j++) {
+      //     cumSize += sizes[j];
+      //   }
+      //   avgSize = Math.round(((cumSize / sizes.length) + size) / 2);
+      //   // log(avgSize);
+      //
+      //   angle = Math.atan2(point.y - p0.y, point.x - p0.x); // rad
+      //
+      //   // Point(bottomX, bottomY) is bottom, Point(topX, topY) is top
+      //   bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
+      //   bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
+      //   bottom = new Point(bottomX, bottomY);
+      //
+      //   topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
+      //   topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
+      //   top = new Point(topX, topY);
+      //
+      //   // bounds.add(top);
+      //   // bounds.insert(0, bottom);
+      //   // bounds.smooth();
+      //
+      //   // pathData[shape.stringifyPoint(point)] = {
+      //   //   point: point,
+      //   //   speed: Math.abs(event.overallVelocity)
+      //   // };
+      //   // if (shape.stringifyPoint(point) in pathData) {
+      //   //   log('duplicate!');
+      //   // } else {
+      //   // }
+      //   // middle.smooth();
+      // } else {
+      //   // don't have anything to compare to
+      //   dist = 1;
+      //   angle = 0;
+      //
+      //   size = dist * alpha;
+      //   size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
+      // }
 
-        cumSize = 0;
-        for (let j = 0; j < sizes.length; j++) {
-          cumSize += sizes[j];
-        }
-        avgSize = Math.round(((cumSize / sizes.length) + size) / 2);
-        // log(avgSize);
-
-        angle = Math.atan2(point.y - p0.y, point.x - p0.x); // rad
-
-        // Point(bottomX, bottomY) is bottom, Point(topX, topY) is top
-        bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
-        bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
-        bottom = new Point(bottomX, bottomY);
-
-        topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
-        topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
-        top = new Point(topX, topY);
-
-        bounds.add(top);
-        bounds.insert(0, bottom);
-        // bounds.smooth();
-
-        middle.add(point);
-        pathData[shape.stringifyPoint(point)] = {
-          point: point,
-          size: avgSize,
-          speed: Math.abs(event.overallVelocity)
-        };
-        // if (shape.stringifyPoint(point) in pathData) {
-        //   log('duplicate!');
-        // } else {
-        // }
-        // middle.smooth();
-      } else {
-        // don't have anything to compare to
-        dist = 1;
-        angle = 0;
-
-        size = dist * alpha;
-        size = Math.max(Math.min(size, max), min); // clamp size to [min, max]
-        pathData[shape.stringifyPoint(point)] = {
-          point: point,
-          speed: Math.abs(event.overallVelocity)
-        };
-      }
+      pathData[shape.stringifyPoint(point)] = {
+        point: point,
+        speed: Math.abs(event.overallVelocity),
+        angle: angle
+      };
+      middle.add(point);
 
       paper.view.draw();
 
       prevPoint = point;
-      sizes.push(size);
+      // sizes.push(size);
     }
 
     function panEnd(event) {
@@ -354,6 +355,19 @@ $(document).ready(function() {
       corners.push(point);
 
       middle.simplify();
+
+      let shapeJSON = middle.exportJSON();
+      let shapeData = shape.processShapeData(shapeJSON);
+      console.log(shapeData);
+      let shapePrediction = detector.spot(shapeData);
+      let shapePattern;
+      if (shapePrediction.score > 0.5) {
+        shapePattern = shapePrediction.pattern;
+      } else {
+        shapePattern = "other";
+      }
+
+      console.log('shape before', shapePattern, shapePrediction.score);;
       // middle.reduce();
       let [truedGroup, trueWasNecessary] = util.trueGroup(group, corners);
       group.replaceWith(truedGroup);
@@ -381,7 +395,12 @@ $(document).ready(function() {
         }
       }
 
-      // let strokes = shape.getStrokes(middle, pathData);
+      // if (['circle'].includes(shapePattern)) {
+      //   middle.simplify();
+      // }
+
+      let strokes = shape.getStrokes(middle, pathData);
+      middle.replaceWith(strokes);
 
       // middle.reduce();
 
@@ -461,12 +480,10 @@ $(document).ready(function() {
       // middleClone.strokeColor = 'pink';
 
       // check shape
-      const shapeJSON = middle.exportJSON();
-      const shapeData = shape.processShapeData(shapeJSON);
-      console.log(JSON.stringify(shapeData));
-      const shapePrediction = detector.spot(shapeData);
-      let shapePattern;
-      if (shapePrediction.score > 0.5) {
+      shapeJSON = middle.exportJSON();
+      shapeData = shape.processShapeData(shapeJSON);
+      shapePrediction = detector.spot(shapeData);
+      if (shapePrediction.score > 0.6) {
         shapePattern = shapePrediction.pattern;
       } else {
         shapePattern = "other";
@@ -504,10 +521,6 @@ $(document).ready(function() {
 
       // set sound to loop again
       console.log(`${shapePattern}-${colorName}`);
-
-      if (['circle', 'line'].includes(shapePattern)) {
-        middle.simplify();
-      }
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
@@ -665,6 +678,7 @@ $(document).ready(function() {
 
     function pinchMove(event) {
       log('pinchMove');
+      event.preventDefault();
       if (!!pinchedGroup) {
         // log('pinchmove', event);
         // log(pinchedGroup);
@@ -892,12 +906,14 @@ $(document).ready(function() {
     if (!!mute) {
       Howler.mute(true);
     }
+    $body.removeClass('playing');
 
     playing = false;
     sound.stopComposition(compositionInterval);
   }
 
   function startPlaying() {
+    $body.addClass('playing');
     Howler.mute(false);
     playing = true;
     compositionInterval = sound.startComposition(composition);
@@ -929,7 +945,7 @@ $(document).ready(function() {
     $('.main-controls .undo').on('click', undoPressed);
   }
   function initPlay() {
-    $('.main-controls .play').on('click', playPressed);
+    $('.main-controls .play-stop').on('click', playPressed);
   }
   function initTips() {
     $('.aux-controls .tips').on('click', tipsPressed);

@@ -7,8 +7,27 @@ function log(...thing) {
 
 export function getStrokes(path, pathData) {
   let pathClone = path.clone();
+  let strokes = new Path();
   Base.each(pathClone.segments, (segment, i) => {
+    console.log(segment);
+    let point = segment.point;
+    let pointStr = stringifyPoint(point);
+    let pointData;
+    if (pointStr in pathData) {
+      pointData = pathData[pointStr];
+    } else {
+      let nearestPoint = getClosestPointFromPathData(point, pathData);
+      pointStr = stringifyPoint(nearestPoint);
+      if (pointStr in pathData) {
+        pointData = pathData[pointStr];
+      } else {
+        log('could not find close point');
+      }
+    }
 
+    if (pointData) {
+      console.log(pointData);
+    }
   });
   return pathClone;
 }
@@ -212,7 +231,7 @@ export function parsePoint(pointStr) {
   return null;
 }
 
-export function getClosestPointFromPathData(pathData, point) {
+export function getClosestPointFromPathData(point, pathData) {
   let leastDistance, closestPoint;
 
   Base.each(pathData, (datum, i) => {

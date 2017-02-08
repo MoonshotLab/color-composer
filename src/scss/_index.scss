@@ -63,6 +63,38 @@ canvas.main {
   }
 }
 
+.controls {
+  .play-stop {
+    .stop {
+      display: none;
+    }
+  }
+
+  .playing & {
+    li {
+      img {
+        opacity: 0.25;
+        filter: blur(1px);
+      }
+    }
+
+    .play-stop {
+      .play {
+        display: none;
+      }
+
+      .stop {
+        display: inherit;
+      }
+
+      img {
+        opacity: 1;
+        filter: none;
+      }
+    }
+  }
+}
+
 .logo-wrap {
   .main-logo {
     display: block;

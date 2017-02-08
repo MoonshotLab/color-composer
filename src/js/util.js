@@ -45,6 +45,7 @@ export function findInteriorCurves(path) {
 
 export function trueGroup(group, corners) {
   let middle = group._namedChildren.middle[0];
+  console.log('num corners', corners.length);
 
   let intersections = middle.getIntersections();
   let trueNecessary = false;
@@ -76,6 +77,9 @@ export function trueGroup(group, corners) {
       // middleCopy.strokeColor = 'blue';
     }
   }
+
+  console.log('original length:', middle.length);
+  console.log('trued length:', middleCopy.length);
 
   middleCopy.name = 'middle'; // make sure
   middleCopy.visible = true;
@@ -248,7 +252,7 @@ export function trimPath(path, original) {
     }
     log('original length:', totalLength);
     log('edited length:', path.length);
-    if (path.length / totalLength <= 0.75) {
+    if (Math.abs(path.length - totalLength) / totalLength <= 0.01) {
       log('returning original');
       return [original, false];
     } else {

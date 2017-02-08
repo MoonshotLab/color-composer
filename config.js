@@ -22,7 +22,7 @@ exports.palette = {
 exports.shape = {
   extendingThreshold: 0.1,
   trimmingThreshold: 0.075,
-  cornerThresholdDeg: 10
+  cornerThresholdDeg: 30
 }
 
 exports.shapes = {
