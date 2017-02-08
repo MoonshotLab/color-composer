@@ -5,6 +5,14 @@ function log(...thing) {
   util.log(...thing);
 }
 
+export function getStrokes(path, pathData) {
+  let pathClone = path.clone();
+  Base.each(pathClone.segments, (segment, i) => {
+
+  });
+  return pathClone;
+}
+
 export function getIdealGeometry(pathData, sides, simplifiedPath) {
   const thresholdDist = 0.05 * simplifiedPath.length;
 

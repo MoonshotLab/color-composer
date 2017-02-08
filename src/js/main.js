@@ -145,7 +145,7 @@ $(document).ready(function() {
     const compositionLength = measureLength * config.sound.measures;
 
     function panStart(event) {
-      paper.project.activeLayer.removeChildren(); // REMOVE
+      // paper.project.activeLayer.removeChildren(); // REMOVE
       // drawCircle();
 
       sizes = [];
@@ -381,7 +381,9 @@ $(document).ready(function() {
         }
       }
 
-      middle.reduce();
+      // let strokes = shape.getStrokes(middle, pathData);
+
+      // middle.reduce();
 
         // middle.selected = false;
         // middle.visible = true;
@@ -458,6 +460,54 @@ $(document).ready(function() {
       // middleClone.visible = true;
       // middleClone.strokeColor = 'pink';
 
+      // check shape
+      const shapeJSON = middle.exportJSON();
+      const shapeData = shape.processShapeData(shapeJSON);
+      console.log(JSON.stringify(shapeData));
+      const shapePrediction = detector.spot(shapeData);
+      let shapePattern;
+      if (shapePrediction.score > 0.5) {
+        shapePattern = shapePrediction.pattern;
+      } else {
+        shapePattern = "other";
+      }
+      const colorName = color.getColorName(window.kan.currentColor);
+
+      // get size
+      const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength) * 1000; // ms
+      const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength) * 1000; // ms
+
+      // console.log(config.shapes[shapePattern]);
+      // console.log(sounds[shapePattern]);
+      const playSounds = false;
+      let compositionObj = {};
+      compositionObj.sound = sounds[shapePattern];
+      compositionObj.startTime = quantizedSoundStartTime;
+      compositionObj.duration = quantizedSoundDuration;
+      compositionObj.groupId = group.id;
+      if (config.shapes[shapePattern].sprite) {
+        compositionObj.sprite = true;
+        compositionObj.spriteName = colorName;
+
+        if (playSounds) {
+          sounds[shapePattern].play(colorName);
+        }
+      } else {
+        compositionObj.sprite = false;
+
+        if (playSounds) {
+          sounds[shapePattern].play();
+        }
+      }
+
+      composition.push(compositionObj);
+
+      // set sound to loop again
+      console.log(`${shapePattern}-${colorName}`);
+
+      if (['circle', 'line'].includes(shapePattern)) {
+        middle.simplify();
+      }
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {
@@ -476,9 +526,9 @@ $(document).ready(function() {
           for (let i = 0; i < enclosedLoops.length; i++) {
             enclosedLoops[i].visible = true;
             enclosedLoops[i].closed = true;
-            enclosedLoops[i].fillColor = new Color(0, 0); // transparent
+            enclosedLoops[i].fillColor = group.strokeColor;
             enclosedLoops[i].data.interior = true;
-            enclosedLoops[i].data.transparent = true;
+            enclosedLoops[i].data.transparent = false;
             // enclosedLoops[i].blendMode = 'multiply';
             group.addChild(enclosedLoops[i]);
             enclosedLoops[i].sendToBack();
@@ -489,9 +539,9 @@ $(document).ready(function() {
         if (middle.closed) {
           let enclosedLoop = middle.clone();
           enclosedLoop.visible = true;
-          enclosedLoop.fillColor = new Color(0, 0); // transparent
+          enclosedLoop.fillColor = group.strokeColor;
           enclosedLoop.data.interior = true;
-          enclosedLoop.data.transparent = true;
+          enclosedLoop.data.transparent = false;
           group.addChild(enclosedLoop);
           enclosedLoop.sendToBack();
         }
@@ -538,53 +588,7 @@ $(document).ready(function() {
       group.addChild(unitedPath);
       unitedPath.sendToBack();
 
-      middle.selected = true
-
-      // check shape
-      const shapeJSON = middle.exportJSON();
-      console.log(shapeJSON);
-      const shapeData = shape.processShapeData(shapeJSON);
-      console.log(shapeData);
-      const shapePrediction = detector.spot(shapeData);
-      let shapePattern;
-      if (shapePrediction.score > 0.5) {
-        shapePattern = shapePrediction.pattern;
-      } else {
-        shapePattern = "other";
-      }
-      const colorName = color.getColorName(window.kan.currentColor);
-
-      // get size
-      const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength) * 1000; // ms
-      const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength) * 1000; // ms
-
-      // console.log(config.shapes[shapePattern]);
-      // console.log(sounds[shapePattern]);
-      const playSounds = false;
-      let compositionObj = {};
-      compositionObj.sound = sounds[shapePattern];
-      compositionObj.startTime = quantizedSoundStartTime;
-      compositionObj.duration = quantizedSoundDuration;
-      compositionObj.groupId = group.id;
-      if (config.shapes[shapePattern].sprite) {
-        compositionObj.sprite = true;
-        compositionObj.spriteName = colorName;
-
-        if (playSounds) {
-          sounds[shapePattern].play(colorName);
-        }
-      } else {
-        compositionObj.sprite = false;
-
-        if (playSounds) {
-          sounds[shapePattern].play();
-        }
-      }
-
-      composition.push(compositionObj);
-
-      // set sound to loop again
-      console.log(`${shapePattern}-${colorName}`);
+      // middle.selected = true
 
       lastChild = group;
 
@@ -610,7 +614,7 @@ $(document).ready(function() {
             },
             settings: {
               duration: 100,
-              easing: "easeIn"
+              easing: "easeIn",
             }
           }]
         );
