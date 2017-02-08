@@ -252,11 +252,15 @@ export function trimPath(path, original) {
     }
     log('original length:', totalLength);
     log('edited length:', path.length);
-    if (Math.abs(path.length - totalLength) / totalLength <= 0.01) {
-      log('returning original');
-      return [original, false];
+    if (path.length > 0) {
+      if (Math.abs(path.length - totalLength) / totalLength <= 0.01) {
+        log('returning original');
+        return [original, false];
+      } else {
+        return [path, true];
+      }
     } else {
-      return [path, true];
+      return [original, false];
     }
   } catch(e) {
     console.error(e);

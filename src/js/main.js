@@ -216,6 +216,7 @@ $(document).ready(function() {
 
       const pointer = event.center;
       let point = new Point(pointer.x, pointer.y);
+      console.log(Math.abs(event.overallVelocity));
 
       // angle = -1 * event.angle; // make up positive rather than negative
       // angle = angle += 180;
@@ -523,6 +524,10 @@ $(document).ready(function() {
 
       // set sound to loop again
       console.log(`${shapePattern}-${colorName}`);
+
+      // if (['circle', 'line'].includes(shapePattern)) {
+      //   middle.smooth();
+      // }
 
       let intersections = middle.getCrossings();
       if (intersections.length > 0) {

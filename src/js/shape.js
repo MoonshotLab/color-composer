@@ -8,8 +8,8 @@ function log(...thing) {
 export function getStrokes(path, pathData) {
   let pathClone = path.clone();
   let strokes = new Path();
+
   Base.each(pathClone.segments, (segment, i) => {
-    console.log(segment);
     let point = segment.point;
     let pointStr = stringifyPoint(point);
     let pointData;
@@ -26,9 +26,12 @@ export function getStrokes(path, pathData) {
     }
 
     if (pointData) {
-      console.log(pointData);
+      // console.log(pointData);
+      let top, bottom;
+      let bottomX, bottomY, topX, topY;
     }
   });
+
   return pathClone;
 }
 
@@ -333,34 +336,7 @@ export function getComputedCorners(path) {
       prev = point;
     }
 
-    // Base.each(corners, (corner, i) => {
-    //   let point = corner;
-    //
-    //   if (i !== 0) {
-    //     let dist = point.getDistance(prev);
-    //     let closestPoints = [];
-    //     let index = i;
-    //     while (dist < thresholdDistance) {
-    //       closestPoints.push({
-    //         point: point,
-    //         index: index
-    //       });
-    //     }
-    //     console.log(dist, thresholdDistance);
-    //     while (dist < thresholdDistance) {
-    //
-    //     }
-    //   } else {
-    //     returnCorners.push(corner);
-    //   }
-    //
-    //   prev = point;
-    // });
-    // new Path.Circle({
-    //   center: lastSegmentPoint,
-    //   radius: 10,
-    //   fillColor: 'pink'
-    // });
+    return returnCorners;
   }
 
   return corners;
