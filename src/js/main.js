@@ -427,7 +427,7 @@ $(document).ready(function() {
       // middle.flatten();
       // middle.simplify();
 
-      middle.selected = true;
+      // middle.selected = true;
       // let middleClone = middle.clone();
       // middleClone.visible = true;
       // middleClone.strokeColor = 'pink';
@@ -460,7 +460,15 @@ $(document).ready(function() {
         }
         pathCopy.remove();
       } else {
-        // log('no intersections');
+        if (middle.closed) {
+          let enclosedLoop = middle.clone();
+          enclosedLoop.visible = true;
+          enclosedLoop.fillColor = new Color(0, 0); // transparent
+          enclosedLoop.data.interior = true;
+          enclosedLoop.data.transparent = true;
+          group.addChild(enclosedLoop);
+          enclosedLoop.sendToBack();
+        }
       }
 
       group.data.color = bounds.fillColor;
