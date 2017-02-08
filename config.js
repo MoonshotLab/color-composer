@@ -12,3 +12,5 @@ exports.shape = {
 }
 
 exports.log = true;
+
+exports.runAnimations = true;

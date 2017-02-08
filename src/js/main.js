@@ -40,7 +40,7 @@ $(document).ready(function() {
   const $window = $(window);
   const $body = $('body');
   const $canvas = $('canvas#mainCanvas');
-  const runAnimations = false;
+  const runAnimations = config.runAnimations;
   const transparent = new Color(0, 0);
   const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
 
@@ -329,8 +329,8 @@ $(document).ready(function() {
 
       corners.push(point);
 
-      // middle.simplify();
-      middle.reduce();
+      middle.simplify();
+      // middle.reduce();
       let [truedGroup, trueWasNecessary] = util.trueGroup(group, corners);
       group.replaceWith(truedGroup);
       middle = group._namedChildren.middle[0];
