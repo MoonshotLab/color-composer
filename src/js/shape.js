@@ -220,6 +220,8 @@ export function getClosestPointFromPathData(pathData, point) {
 
 export function getComputedCorners(path) {
   const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
+  const thresholdDistance = 0.1 * path.length;
+
   let corners = [];
 
   if (path.length > 0) {
@@ -227,22 +229,22 @@ export function getComputedCorners(path) {
     let angle, prevAngle, angleDelta;
 
     Base.each(path.segments, (segment, i) => {
-      let point = segment.point;
+      let point = getIntegerPoint(segment.point);
       if (!!prev) {
         let angle = Math.atan2(point.y - prev.y, point.x - prev.x);
         if (angle < 0) angle += (2 * Math.PI); // normalize to [0, 2π)
         if (!!prevAngle) {
           angleDelta = util.angleDelta(angle, prevAngle);
           if (angleDelta >= thresholdAngle) {
-            console.log('corner');
-            new Path.Circle({
-              center: prev,
-              radius: 10,
-              fillColor: 'pink'
-            });
+            // console.log('corner');
+            // new Path.Circle({
+            //   center: prev,
+            //   radius: 10,
+            //   fillColor: 'pink'
+            // });
             corners.push(prev);
           } else {
-            console.log(angleDelta);
+            // console.log(angleDelta);
           }
         }
 
@@ -250,21 +252,88 @@ export function getComputedCorners(path) {
       } else {
         // first point
         corners.push(point);
-        new Path.Circle({
-          center: point,
-          radius: 10,
-          fillColor: 'pink'
-        })
+        // new Path.Circle({
+        //   center: point,
+        //   radius: 10,
+        //   fillColor: 'pink'
+        // })
       }
       prev = point;
     });
 
-    corners.push(path.lastSegment.point);
-    new Path.Circle({
-      center: path.lastSegment.point,
-      radius: 10,
-      fillColor: 'pink'
-    });
+    let lastSegmentPoint = getIntegerPoint(path.lastSegment.point);
+    corners.push(lastSegmentPoint);
+
+    let returnCorners = [];
+    let skippedIds = [];
+    for (let i = 0; i < corners.length; i++) {
+      let point = corners[i];
+
+      if (i !== 0) {
+        let dist = point.getDistance(prev);
+        let closestPoints = [];
+        while (dist < thresholdDistance) {
+          closestPoints.push({
+            point: point,
+            index: i
+          });
+
+          if (i < corners.length - 1) {
+            i++;
+            prev = point;
+            point = corners[i];
+            dist = point.getDistance(prev);
+          } else {
+            break;
+          }
+        }
+        if (closestPoints.length > 0) {
+          let [sumX, sumY] = [0, 0];
+
+          Base.each(closestPoints, (pointObj) => {
+            sumX += pointObj.point.x;
+            sumY += pointObj.point.y;
+          });
+
+
+          let [avgX, avgY] = [sumX / closestPoints.length, sumY / closestPoints.length];
+          returnCorners.push(new Point(avgX, avgY));
+        }
+      } else {
+        returnCorners.push(point);
+      }
+
+      prev = point;
+    }
+
+    // Base.each(corners, (corner, i) => {
+    //   let point = corner;
+    //
+    //   if (i !== 0) {
+    //     let dist = point.getDistance(prev);
+    //     let closestPoints = [];
+    //     let index = i;
+    //     while (dist < thresholdDistance) {
+    //       closestPoints.push({
+    //         point: point,
+    //         index: index
+    //       });
+    //     }
+    //     console.log(dist, thresholdDistance);
+    //     while (dist < thresholdDistance) {
+    //
+    //     }
+    //   } else {
+    //     returnCorners.push(corner);
+    //   }
+    //
+    //   prev = point;
+    // });
+    // new Path.Circle({
+    //   center: lastSegmentPoint,
+    //   radius: 10,
+    //   fillColor: 'pink'
+    // });
   }
 
   return corners;

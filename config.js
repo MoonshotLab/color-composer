@@ -8,7 +8,7 @@ exports.palette = {
 exports.shape = {
   extendingThreshold: 0.1,
   trimmingThreshold: 0.075,
-  cornerThresholdDeg: 30
+  cornerThresholdDeg: 10
 }
 
 exports.log = true;

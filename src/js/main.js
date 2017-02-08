@@ -202,11 +202,11 @@ $(document).ready(function() {
         if (side.length > 0) {
           // console.log('corner');
           let cornerPoint = point;
-          new Path.Circle({
-            center: cornerPoint,
-            radius: 15,
-            strokeColor: 'black'
-          });
+          // new Path.Circle({
+          //   center: cornerPoint,
+          //   radius: 15,
+          //   strokeColor: 'black'
+          // });
           corners.push(cornerPoint);
           sides.push(side);
           side = [];
@@ -335,7 +335,7 @@ $(document).ready(function() {
       group.replaceWith(truedGroup);
       middle = group._namedChildren.middle[0];
       middle.strokeColor = group.strokeColor;
-      middle.selected = true;
+      // middle.selected = true;
 
       // bounds.flatten(4);
       // bounds.smooth();
@@ -347,24 +347,59 @@ $(document).ready(function() {
       // middle.simplify();
       if (trueWasNecessary) {
         let computedCorners = shape.getComputedCorners(middle);
+        let computedCornersPath = new Path(computedCorners);
+        computedCornersPath.visible = false;
+        let computedCornersPathLength = computedCornersPath.length;
+        if (Math.abs(computedCornersPathLength - middle.length) / middle.length <= 0.1) {
+          middle.segments = computedCorners;
+          // middle.reduce();
+        }
+
+        // middle.selected = false;
+        // middle.visible = true;
+        // middle.strokeColor = 'pink';
+        // middle.strokeWeight = 50;
+
+
+        // let mergedCorners = corners.concat(computedCorners);
+        // let foo = new Path(mergedCorners);
+        // foo.strokeWidth = 5;
+        // foo.strokeColor = 'blue';
+        // let cornersPath = new Path({
+        //   strokeWidth: 5,
+        //   strokeColor: 'red'
+        // });
+        // Base.each(mergedCorners, (corner, i) => {
+        //   cornersPath.add(corner);
+        //   // if (i < 2) {
+        //   //   cornersPath.add(corner);
+        //   // } else {
+        //   //   let closestPoint = cornersPath.getNearestPoint(corner);
+        //   //   cornersPath.insert(corner, closestPoint.index + 1);
+        //   // }
+        // });
         // let cornersPath = new Path({
         //   strokeWidth: 5,
         //   strokeColor: 'red',
         //   segments: corners
         // });
-        let computedCornersPath = new Path({
-          strokeWidth: 5,
-          strokeColor: 'blue',
-          segments: computedCorners
-        });
+        // let computedCornersPath = new Path({
+        //   strokeWidth: 5,
+        //   strokeColor: 'blue',
+        //   segments: computedCorners,
+        //   closed: true
+        // });
+
+        // let thresholdDist = 0.05 * computedCornersPath.length;
+        //
+        // Base.each(corners, (corner, i) => {
+        //   let integerPoint = shape.getIntegerPoint(corner);
+        //   let closestPoint = computedCornersPath.getNearestPoint(corner);
+        // });
         // computedCorners.visible = false;
         // computedCornersPath.visible = false;
         // let mergedCornersPath = cornersPath.unite(computedCornersPath);
         // mergedCornersPath.strokeColor = 'purple';
-        // let mergedCorners = corners.concat(computedCorners);
-        // Base.each(mergedCorners, (corner, i) => {
-        //   cornersPath.add(corner);
-        // });
         // cornersPath.flatten();
       }
 
@@ -390,9 +425,10 @@ $(document).ready(function() {
       // middle.flatten();
       // middle.simplify();
 
-      // middle.selected = true;
-      // middle.visible = true;
-      // middle.strokeColor = 'pink';
+      middle.selected = true;
+      // let middleClone = middle.clone();
+      // middleClone.visible = true;
+      // middleClone.strokeColor = 'pink';
 
 
       let intersections = middle.getCrossings();
