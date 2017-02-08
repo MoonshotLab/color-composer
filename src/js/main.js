@@ -762,6 +762,8 @@ $(document).ready(function() {
     };
 
     function singleTap(event) {
+      stopPlaying();
+
       const pointer = event.center,
           point = new Point(pointer.x, pointer.y),
           hitResult = paper.project.hitTest(point, hitOptions);
