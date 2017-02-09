@@ -536,25 +536,26 @@ $(document).ready(function() {
         pathCopy.copyContent(middle);
         pathCopy.visible = false;
 
-        let dividedPath = pathCopy.resolveCrossings();
-        dividedPath.visible = false;
+        let enclosedLoops = util.findInteriorCurves(pathCopy);
 
-
-        let enclosedLoops = util.findInteriorCurves(dividedPath);
-
-        if (enclosedLoops) {
+        if (enclosedLoops.length > 0) {
           for (let i = 0; i < enclosedLoops.length; i++) {
+            if (middle.closed) {
+              enclosedLoops[i].fillColor = middle.strokeColor;
+              enclosedLoops[i].data.interior = true;
+              enclosedLoops[i].data.transparent = false;
+            } else {
+              enclosedLoops[i].fillColor = transparent;
+              enclosedLoops[i].data.transparent = true;
+            }
+            enclosedLoops[i].data.interior = true;
             enclosedLoops[i].visible = true;
             enclosedLoops[i].closed = true;
-            enclosedLoops[i].fillColor = group.strokeColor;
-            enclosedLoops[i].data.interior = true;
-            enclosedLoops[i].data.transparent = false;
-            // enclosedLoops[i].blendMode = 'multiply';
             group.addChild(enclosedLoops[i]);
             enclosedLoops[i].sendToBack();
           }
         }
-        pathCopy.remove();
+        // pathCopy.remove();
       } else {
         if (middle.closed) {
           let enclosedLoop = middle.clone();
@@ -777,7 +778,7 @@ $(document).ready(function() {
 
       if (hitResult) {
         let item = hitResult.item;
-        item.selected = !item.selected;
+        // item.selected = !item.selected;
         log(item);
       }
     }

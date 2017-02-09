@@ -29,17 +29,22 @@ export function delta(p1, p2) {
 // returns an array of the interior curves of a given compound path
 export function findInteriorCurves(path) {
   let interiorCurves = [];
-  if (!path || !path.children || !path.children.length) return;
+  let pathClone = path.clone();
+  let dividedPath = pathClone.resolveCrossings();
+  console.log(dividedPath);
 
-  for (let i = 0; i < path.children.length; i++) {
-    let child = path.children[i];
+  if (dividedPath.children.length > 0) {
+    for (let i = 0; i < dividedPath.children.length; i++) {
+      let child = dividedPath.children[i];
 
-    if (child.closed){
-      interiorCurves.push(new Path(child.segments));
+      if (child.closed){
+        interiorCurves.push(child);
+      }
     }
   }
 
-  path.remove();
+  console.log('interior', interiorCurves);
+
   return interiorCurves;
 }
 
