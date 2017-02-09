@@ -1,9 +1,28 @@
-const util = require('./util');
-const config = require('./../../config');
+const ShapeDetector = require('./lib/shape-detector');
 
-function log(...thing) {
-  util.log(...thing);
-}
+const util = require('./util');
+
+export const cornerThresholdDeg = 30;
+
+export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
+
+export const shapeNames = {
+  "line": {
+    sprite: false,
+  },
+  "circle": {
+    sprite: true,
+  },
+  "square": {
+    sprite: true,
+  },
+  "triangle": {
+    sprite: false,
+  },
+  "other": {
+    sprite: false,
+  }
+};
 
 export function getStrokes(path, pathData) {
   let pathClone = path.clone();
@@ -30,7 +49,7 @@ export function getStrokes(path, pathData) {
       if (pointStr in pathData) {
         pointData = pathData[pointStr];
       } else {
-        log('could not find close point');
+        console.log('could not find close point');
       }
     }
 
@@ -94,7 +113,7 @@ export function oldgetStrokes(path, pathData) {
       if (pointStr in pathData) {
         pointData = pathData[pointStr];
       } else {
-        log('could not find close point');
+        console.log('could not find close point');
       }
     }
 
@@ -231,7 +250,7 @@ export function getIdealGeometry(pathData, sides, simplifiedPath) {
 export function OldgetIdealGeometry(pathData, path) {
   const thresholdAngle = Math.PI / 2;
   const thresholdDist = 0.1 * path.length;
-  // log(path);
+  // console.log(path);
 
   let count = 0;
 
@@ -240,7 +259,7 @@ export function OldgetIdealGeometry(pathData, path) {
   let prev;
   let prevAngle;
 
-  // log('thresholdAngle', thresholdAngle);
+  // console.log('thresholdAngle', thresholdAngle);
 
   let returnPath = new Path();
 
@@ -257,7 +276,7 @@ export function OldgetIdealGeometry(pathData, path) {
       if (pointStr in pathData) {
         pointData = pathData[pointStr];
       } else {
-        log('could not find close point');
+        console.log('could not find close point');
       }
     }
 
@@ -268,35 +287,35 @@ export function OldgetIdealGeometry(pathData, path) {
         radius: 5,
         strokeColor: new Color(i / path.segments.length, i / path.segments.length, i / path.segments.length)
       });
-      log(pointData.point);
+      console.log(pointData.point);
       if (!prev) {
         // first point
-        // log('pushing first point to side');
+        // console.log('pushing first point to side');
         side.push(pointData);
       } else {
         // let angleFoo = integerPoint.getDirectedAngle(prev);
         let angle = Math.atan2(integerPoint.y, integerPoint.x) - Math.atan2(prev.y, prev.x);
         if (angle < 0) angle += (2 * Math.PI); // normalize to [0, 2π)
-        // log(angleFoo, angleBar);
+        // console.log(angleFoo, angleBar);
         // let angle = Math.atan2(integerPoint.y - prev.y, integerPoint.x - prev.x);
         // let line = new Path.Line(prev, integerPoint);
         // line.strokeWidth = 5;
         // line.strokeColor = 'pink';
         // line.rotate(util.deg(Math.cos(angle) * Math.PI * 2));
-        // log('angle', angle);
+        // console.log('angle', angle);
         if (typeof prevAngle === 'undefined') {
           // second point
           side.push(pointData)
         } else {
           let angleDifference = Math.pow(angle - prevAngle, 2);
-          log('angleDifference', angleDifference);
+          console.log('angleDifference', angleDifference);
           if (angleDifference <= thresholdAngle) {
             // same side
-            // log('pushing point to same side');
+            // console.log('pushing point to same side');
             side.push(pointData);
           } else {
             // new side
-            // log('new side');
+            // console.log('new side');
             sides.push(side);
             side = [pointData];
 
@@ -309,11 +328,11 @@ export function OldgetIdealGeometry(pathData, path) {
       prev = integerPoint;
       count++;
     } else {
-      log('no data');
+      console.log('no data');
     }
   });
 
-  // log(count);
+  // console.log(count);
 
   sides.push(side);
 
@@ -354,7 +373,7 @@ export function getClosestPointFromPathData(point, pathData) {
 }
 
 export function getComputedCorners(path) {
-  const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
+  const thresholdAngle = util.rad(cornerThresholdDeg);
   const thresholdDistance = 0.1 * path.length;
 
   let corners = [];
@@ -506,13 +525,13 @@ export function trueGroup(group, corners) {
 
   if (intersections.length > 0) {
     // see if we can trim the path while maintaining intersections
-    // log('intersections!');
+    // console.log('intersections!');
     // pathCopy.strokeColor = 'yellow';
     [pathCopy, trueNecessary] = trimPath(pathCopy, shapePath);
     // pathCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
-    // log('no intersections, extending first!');
+    // console.log('no intersections, extending first!');
     // pathCopy.strokeColor = 'yellow';
     pathCopy = extendPath(pathCopy);
     // pathCopy.strokeColor = 'orange';
@@ -544,7 +563,8 @@ export function trueGroup(group, corners) {
 
 export function extendPath(path) {
   if (path.length > 0) {
-    const lengthTolerance = config.shape.trimmingThreshold * path.length;
+    const trimmingThreshold = 0.075;
+    const lengthTolerance = trimmingThreshold * path.length;
 
     let firstSegment = path.firstSegment;
     let nextSegment = firstSegment.next;
@@ -572,42 +592,42 @@ export function trimPath(path, original) {
       return [original, false]; // more than one intersection, don't worry about trimming
     }
 
-    const extendingThreshold = config.shape.extendingThreshold;
+    const extendingThreshold = 0.1;
     const totalLength = path.length;
 
     // we want to remove all closed loops from the path, since these are necessarily interior and not first or last
     Base.each(dividedPath.children, (child, i) => {
       if (child.closed) {
-        // log('subtracting closed child');
+        // console.log('subtracting closed child');
         dividedPath = dividedPath.subtract(child);
       } else {
         // dividedPath = dividedPath.unite(child);
       }
     });
 
-    // log(dividedPath);
+    // console.log(dividedPath);
 
     if (!!dividedPath.children && dividedPath.children.length > 1) {
       // divided path is a compound path
       let unitedDividedPath = new Path();
       // unitedDividedPath.copyAttributes(dividedPath);
-      // log('before', unitedDividedPath);
+      // console.log('before', unitedDividedPath);
       Base.each(dividedPath.children, (child, i) => {
         if (!child.closed) {
           unitedDividedPath = unitedDividedPath.unite(child);
         }
       });
       dividedPath = unitedDividedPath;
-      // log('after', unitedDividedPath);
+      // console.log('after', unitedDividedPath);
       // return;
     } else {
-      // log('dividedPath has one child');
+      // console.log('dividedPath has one child');
     }
 
     if (intersections.length > 0) {
       // we have to get the nearest location because the exact intersection point has already been removed as a part of resolveCrossings()
       let firstIntersection = dividedPath.getNearestLocation(intersections[0].point);
-      // log(dividedPath);
+      // console.log(dividedPath);
       let rest = dividedPath.splitAt(firstIntersection); // dividedPath is now the first segment
       let firstSegment = dividedPath;
       let lastSegment;
@@ -620,9 +640,9 @@ export function trimPath(path, original) {
       //   strokeColor: 'red'
       // });
 
-      // log(intersections);
+      // console.log(intersections);
       if (intersections.length > 1) {
-        // log('foo');
+        // console.log('foo');
         // rest.reverse(); // start from end
         let lastIntersection = rest.getNearestLocation(intersections[intersections.length - 1].point);
         // let circleTwo = new Path.Circle({
@@ -684,27 +704,27 @@ export function trimPath(path, original) {
       } else {
         path = path.children[0];
       }
-      // log(path);
-      // log(path.lastChild);
+      // console.log(path);
+      // console.log(path.lastChild);
       // path.firstChild.strokeColor = 'pink';
       // path.lastChild.strokeColor = 'green';
       // path = path.lastChild; // return last child?
       // find highest version
       //
-      // log(realPathVersion);
+      // console.log(realPathVersion);
       //
       // Base.each(path.children, (child, i) => {
       //   if (child.version == realPathVersion) {
-      //     log('returning child');
+      //     console.log('returning child');
       //     return child;
       //   }
       // })
     }
-    log('original length:', totalLength);
-    log('edited length:', path.length);
+    console.log('original length:', totalLength);
+    console.log('edited length:', path.length);
     if (path.length > 0) {
       if (Math.abs(path.length - totalLength) / totalLength <= 0.01) {
-        log('returning original');
+        console.log('returning original');
         return [original, false];
       } else {
         return [path, true];

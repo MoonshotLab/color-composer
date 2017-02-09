@@ -1,11 +1,5 @@
 const config = require('./../../config');
 
-export function log(...thing) {
-  if (config.log) {
-    console.log(...thing);
-  }
-}
-
 // Converts from degrees to radians.
 export function rad(degrees) {
   return degrees * Math.PI / 180;

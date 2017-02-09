@@ -19,7 +19,7 @@ app.listen(port, function() {
 
 app.get('/', function (req, res) {
   res.render('index', {
-    palette: config.palette
+    config: config
   });
 });
 

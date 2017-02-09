@@ -1,10 +1,40 @@
-const config = require('./../../config');
+require('howler');
+
+const ui = require('./ui');
+const shape = require('./shape');
+
+const measures = 4;
+const bpm = 140;
+const beatLength = (60 / bpm);
+const measureLength = beatLength * 4;
+const compositionLength = measureLength * measures;
+
+export function startPlaying() {
+  $('body').addClass(ui.playingClass);
+
+  Howler.mute(false);
+
+  window.kan.playing = true;
+  window.kan.compositionInterval = startComposition(window.kan.composition);
+}
+
+export function stopPlaying(mute = false) {
+  if (!!mute) {
+    Howler.mute(true);
+  }
+
+  $('body').removeClass(ui.playingClass);
+
+  window.kan.playing = false;
+  stopComposition(window.kan.compositionInterval);
+}
 
 export function initShapeSounds() {
   let returnSounds = {};
   const extensions = ['ogg', 'm4a', 'mp3', 'ac3'];
 
-  Base.each(config.shapes, (shape, shapeName) => {
+  const shapeNames = shape.shapeNames;
+  Base.each(shapeNames, (shape, shapeName) => {
     // console.log(shape, shapeName);
     if (shape.sprite) {
       let shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
@@ -41,7 +71,7 @@ export function formatShapeSoundData(shapeName, data) {
 }
 
 export function quantizeLength(duration) {
-  const smallestDuration = (60 / config.sound.bpm);
+  const smallestDuration = (60 / bpm);
   const returnDuration = Math.floor(duration / smallestDuration) * smallestDuration;
 
   if (returnDuration > 0) {
@@ -53,14 +83,14 @@ export function quantizeLength(duration) {
 }
 
 export function quantizePosition(position, viewWidth) {
-  const smallestInterval = viewWidth / (4 * config.sound.measures);
+  const smallestInterval = viewWidth / (4 * measures);
   return returnPosition = Math.floor(position / smallestInterval) * smallestInterval;
 }
 
 export function startComposition(composition) {
-  const beatLength = (60 / config.sound.bpm) * 1000;
+  const beatLength = (60 / bpm) * 1000;
   const measureLength = beatLength * 4;
-  const compositionLength = measureLength * config.sound.measures - 250; // adjust for time to set up
+  const compositionLength = measureLength * measures - 250; // adjust for time to set up
 
   function playCompositionOnce() {
     console.log('repeat');
