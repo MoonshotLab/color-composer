@@ -49,49 +49,49 @@ export function findInteriorCurves(path) {
 }
 
 export function trueGroup(group, corners) {
-  let middle = group._namedChildren.middle[0];
+  let shapePath = group._namedChildren.shapePath[0];
   console.log('num corners', corners.length);
 
-  let intersections = middle.getIntersections();
+  let intersections = shapePath.getIntersections();
   let trueNecessary = false;
 
-  let middleCopy = middle.clone();
-  middleCopy.visible = false;
+  let pathCopy = shapePath.clone();
+  pathCopy.visible = false;
   // debugger;
 
   if (intersections.length > 0) {
     // see if we can trim the path while maintaining intersections
     // log('intersections!');
-    // middleCopy.strokeColor = 'yellow';
-    [middleCopy, trueNecessary] = trimPath(middleCopy, middle);
-    // middleCopy.strokeColor = 'orange';
+    // pathCopy.strokeColor = 'yellow';
+    [pathCopy, trueNecessary] = trimPath(pathCopy, shapePath);
+    // pathCopy.strokeColor = 'orange';
   } else {
     // extend first and last segment by threshold, see if intersection
     // log('no intersections, extending first!');
-    // middleCopy.strokeColor = 'yellow';
-    middleCopy = extendPath(middleCopy);
-    // middleCopy.strokeColor = 'orange';
-    let intersections = middleCopy.getIntersections();
+    // pathCopy.strokeColor = 'yellow';
+    pathCopy = extendPath(pathCopy);
+    // pathCopy.strokeColor = 'orange';
+    let intersections = pathCopy.getIntersections();
     if (intersections.length > 0) {
-      // middleCopy.strokeColor = 'pink';
-      [middleCopy, trueNecessary] = trimPath(middleCopy, middle);
-      // middleCopy.strokeColor = 'green';
+      // pathCopy.strokeColor = 'pink';
+      [pathCopy, trueNecessary] = trimPath(pathCopy, shapePath);
+      // pathCopy.strokeColor = 'green';
     } else {
-      // middleCopy.strokeColor = 'red';
-      middleCopy = removePathExtensions(middleCopy);
-      // middleCopy.strokeColor = 'blue';
+      // pathCopy.strokeColor = 'red';
+      pathCopy = removePathExtensions(pathCopy);
+      // pathCopy.strokeColor = 'blue';
     }
   }
 
-  console.log('original length:', middle.length);
-  console.log('trued length:', middleCopy.length);
+  console.log('original length:', shapePath.length);
+  console.log('trued length:', pathCopy.length);
 
-  middleCopy.name = 'middle'; // make sure
-  middleCopy.visible = true;
+  pathCopy.name = 'shapePath'; // make sure
+  pathCopy.visible = true;
 
-  // group.addChild(middleCopy);
-  // group._namedChildren.middle[0] = middleCopy;
-  group._namedChildren.middle[0].replaceWith(middleCopy);
+  // group.addChild(pathCopy);
+  // group._namedChildren.shapePath[0] = pathCopy;
+  group._namedChildren.shapePath[0].replaceWith(pathCopy);
 
 
   return [group, trueNecessary];
@@ -278,16 +278,6 @@ export function removePathExtensions(path) {
   path.removeSegment(path.segments.length - 1);
   return path;
 }
-
-// export function truePath(path) {
-//   // log(group);
-//   // if (path && path.children && path.children.length > 0 && path._namedChildren['middle']) {
-//   //   let pathCopy = new Path();
-//   //   log(path._namedChildren['middle']);
-//   //   pathCopy.copyContent(path._namedChildren['middle']);
-//   //   log(pathCopy);
-//   // }
-// }
 
 export function checkPops() {
   let groups = paper.project.getItems({
