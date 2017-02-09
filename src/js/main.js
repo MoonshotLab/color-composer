@@ -1,17 +1,15 @@
-const config = require('./../../config');
-
 require('hammerjs');
 require('howler');
-
 const ShapeDetector = require('./lib/shape-detector');
 
+const config = require('./../../config');
 const util = require('./util');
 const shape = require('./shape');
 const color = require('./color');
 const sound = require('./sound');
 
 window.kan = window.kan || {
-  palette: ["#20171C", "#1E2A43", "#28377D", "#352747", "#CA2E26", "#9A2A1F", "#DA6C26", "#453121", "#916A47", "#DAAD27", "#7F7D31","#2B5E2E"],
+  palette: config.palette.colors,
   currentColor: '#20171C',
 };
 
@@ -23,24 +21,6 @@ function log(thing) {
 
 $(document).ready(function() {
   let MOVES = []; // store global moves list
-  // moves = [
-  //   {
-  //     'type': 'colorChange',
-  //     'old': '#20171C',
-  //     'new': '#F285A5'
-  //   },
-  //   {
-  //     'type': 'newPath',
-  //     'ref': '???' // uuid? dom reference?
-  //   },
-  //   {
-  //     'type': 'pathTransform',
-  //     'ref': '???', // uuid? dom reference?
-  //     'old': 'rotate(90deg)scale(1.5)', // ???
-  //     'new': 'rotate(120deg)scale(-0.5)' // ???
-  //   },
-  //   // others?
-  // ]
 
   const $window = $(window);
   const $body = $('body');
@@ -50,10 +30,23 @@ $(document).ready(function() {
   const transparent = new Color(0, 0);
   const thresholdAngle = util.rad(config.shape.cornerThresholdDeg);
 
+  const hitOptions = {
+    segments: false,
+    stroke: true,
+    fill: true,
+    tolerance: 5
+  };
+
   const detector = new ShapeDetector(ShapeDetector.defaultShapes);
+
+  const playingClass = 'playing';
+  const velocityMultiplier = 25;
+
+  // all sorts of global state :/
 
   let composition = [];
   let compositionInterval;
+  let lastEvent;
 
   let viewWidth, viewHeight;
 
@@ -124,9 +117,6 @@ $(document).ready(function() {
   }
 
   function initCanvasDraw() {
-
-    paper.setup($canvas[0]);
-
     let shapePath;
     let touch = false;
     let pathData = {};
@@ -141,6 +131,42 @@ $(document).ready(function() {
     const beatLength = (60 / config.sound.bpm);
     const measureLength = beatLength * 4;
     const compositionLength = measureLength * config.sound.measures;
+
+    const min = 1;
+    const max = 15;
+    const alpha = 0.3;
+    const memory = 10;
+    var cumDistance = 0;
+    let cumSize, avgSize;
+
+    let pinching;
+    let pinchedGroup, lastScale, lastRotation;
+    let originalPosition, originalRotation, originalScale;
+
+    paper.setup($canvas[0]);
+
+    const hammerManager = new Hammer.Manager($canvas[0]);
+
+    hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
+    hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
+    hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
+    hammerManager.add(new Hammer.Pinch());
+
+    hammerManager.get('doubletap').recognizeWith('singletap');
+    hammerManager.get('singletap').requireFailure('doubletap');
+    hammerManager.get('pan').requireFailure('pinch');
+
+    hammerManager.on('singletap', singleTap);
+    hammerManager.on('doubletap', doubleTap);
+
+    hammerManager.on('panstart', panStart);
+    hammerManager.on('panmove', panMove);
+    hammerManager.on('panend', panEnd);
+
+    hammerManager.on('pinchstart', pinchStart);
+    hammerManager.on('pinchmove', pinchMove);
+    hammerManager.on('pinchend', pinchEnd);
+    hammerManager.on('pinchcancel', function() { hammerManager.get('pan').set({enable: true}); }); // make sure it's reenabled
 
     function panStart(event) {
       // paper.project.activeLayer.removeChildren(); // REMOVE
@@ -181,12 +207,6 @@ $(document).ready(function() {
       };
     }
 
-    const min = 1;
-    const max = 15;
-    const alpha = 0.3;
-    const memory = 10;
-    var cumDistance = 0;
-    let cumSize, avgSize;
     function panMove(event) {
       event.preventDefault();
       if (pinching) return;
@@ -409,8 +429,7 @@ $(document).ready(function() {
           accumulator = unitedPath;
         }
 
-      } else {
-        // children[0] is united group
+      } else if (children.length > 0) {
         unitedPath.copyContent(children[0]);
       }
 
@@ -450,10 +469,6 @@ $(document).ready(function() {
         );
       }
     }
-
-    let pinching;
-    let pinchedGroup, lastScale, lastRotation;
-    let originalPosition, originalRotation, originalScale;
 
     function pinchStart(event) {
       console.log('pinchStart', event.center);
@@ -521,7 +536,6 @@ $(document).ready(function() {
       }
     }
 
-    let lastEvent;
     function pinchEnd(event) {
       // wait 250 ms to prevent mistaken pan readings
       lastEvent = event;
@@ -570,13 +584,6 @@ $(document).ready(function() {
         hammerManager.get('pan').set({enable: true});
       }, 250);
     }
-
-    const hitOptions = {
-      segments: false,
-      stroke: true,
-      fill: true,
-      tolerance: 5
-    };
 
     function singleTap(event) {
       stopPlaying();
@@ -628,7 +635,6 @@ $(document).ready(function() {
       }
     }
 
-    const velocityMultiplier = 25;
     function throwPinchedGroup() {
       log(pinchedGroup.position);
       if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
@@ -643,32 +649,8 @@ $(document).ready(function() {
       pinchedGroup.position.x += lastEvent.velocityX * velocityMultiplier;
       pinchedGroup.position.y += lastEvent.velocityY * velocityMultiplier;
     }
-
-    var hammerManager = new Hammer.Manager($canvas[0]);
-
-    hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
-    hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
-    hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
-    hammerManager.add(new Hammer.Pinch());
-
-    hammerManager.get('doubletap').recognizeWith('singletap');
-    hammerManager.get('singletap').requireFailure('doubletap');
-    hammerManager.get('pan').requireFailure('pinch');
-
-    hammerManager.on('singletap', singleTap);
-    hammerManager.on('doubletap', doubleTap);
-
-    hammerManager.on('panstart', panStart);
-    hammerManager.on('panmove', panMove);
-    hammerManager.on('panend', panEnd);
-
-    hammerManager.on('pinchstart', pinchStart);
-    hammerManager.on('pinchmove', pinchMove);
-    hammerManager.on('pinchend', pinchEnd);
-    hammerManager.on('pinchcancel', function() { hammerManager.get('pan').set({enable: true}); }); // make sure it's reenabled
   }
 
-  const playingClass = 'playing';
   function newPressed() {
     log('new pressed');
     composition = [];
