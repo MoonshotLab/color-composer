@@ -11,6 +11,7 @@ export function init() {
   initPlayButton();
   initTipsButton();
   initShareButton();
+  setupCanvas();
 }
 
 function newPressed() {
@@ -153,4 +154,10 @@ function initShareButton() {
       sharePressed();
     }
   });
+}
+
+function setupCanvas() {
+  const canvasBg = new Raster('canvas-bg');
+  canvasBg.position = paper.view.center;
+  let layer = new Layer(); // init new layer that all other shapes will be drawn upon
 }
