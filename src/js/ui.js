@@ -74,8 +74,6 @@ function playPressed() {
   } else {
     sound.startPlaying();
   }
-
-  console.log('play pressed');
 }
 
 function tipsPressed() {
@@ -157,7 +155,17 @@ function initShareButton() {
 }
 
 function setupCanvas() {
+  paper.project.activeLayer.name = 'background';
   const canvasBg = new Raster('canvas-bg');
+  canvasBg.name = 'canvasBg';
   canvasBg.position = paper.view.center;
+
+  const scaleFactorHorizontal = paper.view.viewSize.width / canvasBg.size.width;
+  const scaleFactorVertical = paper.view.viewSize.height / canvasBg.size.height;
+  if (scaleFactorHorizontal < 1 || scaleFactorVertical < 1) {
+    canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
+  }
   let layer = new Layer(); // init new layer that all other shapes will be drawn upon
+  paper.project.activeLayer.name = 'canvas';
+  console.log(paper.project);
 }

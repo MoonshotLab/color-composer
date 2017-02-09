@@ -10,12 +10,14 @@ const measureLength = beatLength * 4;
 const compositionLength = measureLength * measures;
 
 export function startPlaying() {
-  $('body').addClass(ui.playingClass);
+  if (paper.project.activeLayer.children.length > 0) {
+    $('body').addClass(ui.playingClass);
 
-  Howler.mute(false);
+    Howler.mute(false);
 
-  window.kan.playing = true;
-  window.kan.compositionInterval = startComposition(window.kan.composition);
+    window.kan.playing = true;
+    window.kan.compositionInterval = startComposition(window.kan.composition);
+  }
 }
 
 export function stopPlaying(mute = false) {
