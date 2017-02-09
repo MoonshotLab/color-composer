@@ -64,14 +64,14 @@ $(document).ready(function() {
   }
 
   function hitTestBounds(point) {
-    return util.hitTestBounds(point, paper.project.activeLayer.children);
+    return shape.hitTestBounds(point, paper.project.activeLayer.children);
   }
 
   function hitTestGroupBounds(point) {
     let groups = paper.project.getItems({
       className: 'Group'
     });
-    return util.hitTestBounds(point, groups);
+    return shape.hitTestBounds(point, groups);
   }
 
   function initViewVars() {
@@ -278,7 +278,7 @@ $(document).ready(function() {
 
       console.log('shape before', shapePattern, shapePrediction.score);;
       // shapePath.reduce();
-      let [truedGroup, trueWasNecessary] = util.trueGroup(group, corners);
+      let [truedGroup, trueWasNecessary] = shape.trueGroup(group, corners);
       group.replaceWith(truedGroup);
       shapePath = group._namedChildren.shapePath[0];
       shapePath.strokeColor = group.strokeColor;
@@ -351,7 +351,7 @@ $(document).ready(function() {
         pathCopy.copyContent(shapePath);
         pathCopy.visible = false;
 
-        let enclosedLoops = util.findInteriorCurves(pathCopy);
+        let enclosedLoops = shape.findInteriorCurves(pathCopy);
 
         if (enclosedLoops.length > 0) {
           for (let i = 0; i < enclosedLoops.length; i++) {
