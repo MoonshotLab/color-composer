@@ -417,7 +417,7 @@ function pinchStart(event) {
       hitResult = hitTestGroupBounds(point);
 
   if (hitResult) {
-    pinching = true;
+    window.kan.pinching = true;
     window.kan.pinchedGroup = hitResult;
     window.kan.lastScale = 1;
     window.kan.lastRotation = event.rotation;
@@ -518,7 +518,7 @@ function pinchEnd(event) {
     //   });
     // }
   }
-  pinching = false;
+  window.kan.pinching = false;
   setTimeout(function() {
     hammerManager.get('pan').set({enable: true});
   }, 250);
