@@ -8,7 +8,7 @@ export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
 export const shapeNames = {
   "line": {
-    sprite: false,
+    sprite: true,
   },
   "circle": {
     sprite: true,
@@ -17,10 +17,10 @@ export const shapeNames = {
     sprite: true,
   },
   "triangle": {
-    sprite: false,
+    sprite: true,
   },
   "other": {
-    sprite: false,
+    sprite: true,
   }
 };
 

@@ -4,7 +4,7 @@ const ui = require('./ui');
 const shape = require('./shape');
 
 const measures = 4;
-const bpm = 140;
+const bpm = 120;
 const beatLength = (60 / bpm) * 1000; // ms
 const measureLength = beatLength * 4;
 export const compositionLength = measureLength * measures;
