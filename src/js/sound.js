@@ -90,6 +90,50 @@ export function quantizePosition(position, viewWidth) {
   return returnPosition = Math.floor(position / smallestInterval) * smallestInterval;
 }
 
+function animateNote(shape) {
+  const item = paper.project.getItems({
+    className: 'Group',
+    match: function(el) {
+      return (el.id === shape.groupId);
+    }
+  });
+  item[0].animate([
+    {
+      properties: {
+        scale: 1.15,
+        translate: new paper.Point(20, 0),
+        rotate: -10,
+      },
+      settings: {
+        duration: 100,
+        easing: "easeInOut",
+      }
+    },
+    {
+      properties: {
+        scale: 1.25,
+        translate: new paper.Point(10, 0),
+        rotate: 10,
+      },
+      settings: {
+        duration: 100,
+        easing: "easeInOut",
+      }
+    },
+    {
+      properties: {
+        scale: 1,
+        translate: new paper.Point(0, 0),
+        rotate: 0,
+      },
+      settings: {
+        duration: 100,
+        easing: "easeInOut",
+      }
+    },
+  ]);
+}
+
 export function startComposition(composition) {
   function playCompositionOnce() {
     console.log('repeat');
@@ -97,13 +141,15 @@ export function startComposition(composition) {
       console.log(shape);
       if (shape.sprite) {
         setTimeout(() => {
-          console.log(`playing shape ${shape.groupId}`);
+          console.log(`1 playing shape ${shape.groupId}`);
           shape.sound.play(shape.spriteName);
+          animateNote(shape);
         }, shape.startTime);
       } else {
         setTimeout(() => {
-          console.log(`playing shape ${shape.groupId}`);
+          console.log(`2 playing shape ${shape.groupId}`);
           shape.sound.play();
+          animateNote(shape);
         }, shape.startTime);
       }
     });
