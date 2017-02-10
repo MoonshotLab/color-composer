@@ -5,9 +5,9 @@ const shape = require('./shape');
 
 const measures = 4;
 const bpm = 140;
-const beatLength = (60 / bpm);
+const beatLength = (60 / bpm) * 1000; // ms
 const measureLength = beatLength * 4;
-const compositionLength = measureLength * measures;
+export const compositionLength = measureLength * measures;
 
 export function startPlaying() {
   if (paper.project.activeLayer.children.length > 0) {
@@ -68,6 +68,7 @@ export function formatShapeSoundData(shapeName, data) {
 
   returnData.src = data.urls.map((url) => `./audio/shapes/${shapeName}/${url}`);
   returnData.sprite = data.sprite;
+  returnData.loop = false;
 
   return returnData;
 }
@@ -90,10 +91,6 @@ export function quantizePosition(position, viewWidth) {
 }
 
 export function startComposition(composition) {
-  const beatLength = (60 / bpm) * 1000;
-  const measureLength = beatLength * 4;
-  const compositionLength = measureLength * measures - 250; // adjust for time to set up
-
   function playCompositionOnce() {
     console.log('repeat');
     Base.each(composition, (shape, i) => {
@@ -101,25 +98,13 @@ export function startComposition(composition) {
       if (shape.sprite) {
         setTimeout(() => {
           console.log(`playing shape ${shape.groupId}`);
-          shape.sound.loop(true);
           shape.sound.play(shape.spriteName);
         }, shape.startTime);
-
-        setTimeout(() => {
-          console.log(`stopping shape ${shape.groupId}`);
-          shape.sound.stop();
-        }, shape.startTime + shape.duration)
       } else {
         setTimeout(() => {
           console.log(`playing shape ${shape.groupId}`);
-          shape.sound.loop(true);
           shape.sound.play();
         }, shape.startTime);
-
-        setTimeout(() => {
-          console.log(`stopping shape ${shape.groupId}`);
-          shape.sound.stop();
-        }, shape.startTime + shape.duration)
       }
     });
   }

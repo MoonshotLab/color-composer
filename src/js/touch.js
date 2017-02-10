@@ -12,6 +12,7 @@ const canvas = document.getElementById(config.canvasId);
 
 const viewWidth = paper.view.viewSize.width;
 const viewHeight = paper.view.viewSize.height;
+
 const compositionLength = sound.compositionLength;
 
 const hitOptions = {
@@ -266,8 +267,8 @@ function panEnd(event) {
   // get size
 
   const playSounds = false;
-  const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength) * 1000; // ms
-  const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength) * 1000; // ms
+  const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength); // ms
+  const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength); // ms
   let compositionObj = {};
   compositionObj.sound = sounds[shapePattern];
   compositionObj.startTime = quantizedSoundStartTime;

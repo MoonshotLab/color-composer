@@ -1,6 +1,7 @@
+const sound = require('./sound');
+
 const $body = $('body');
 const tapEvent = 'click tap touch';
-const sound = require('./sound');
 
 export const playingClass = 'playing';
 
@@ -93,7 +94,7 @@ function initColorPalette() {
 
   // hook up click
   $paletteColors.on('click tap touch', function() {
-    if (!$body.hasClass(shape.playingClass)) {
+    if (!$body.hasClass(playingClass)) {
       let $svg = $(this).find('svg.palette-color');
 
       if (!$svg.hasClass(paletteSelectedClass)) {
