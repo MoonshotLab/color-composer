@@ -3,16 +3,16 @@ const $body = $('body');
 const tapEvent = 'click tap touch';
 
 // next card
-function cardNavNext(card) {
+function cardNavNext($card) {
   // animate out of view
-  $(card).parent().addClass('leave-left');
+  $card.addClass('leave-left');
   // reset
   setTimeout(() => {
-    $(card).parent().addClass('hidden').removeClass('leave-left');
+    $card.addClass('hidden').removeClass('leave-left');
   }, 400);
 };
 
-function setupOverlays(hammerManager) {
+function setupOverlays() {
   const $cards = $body.find('.overlay .card');
   const cardCount = $cards.length;
 
@@ -21,23 +21,20 @@ function setupOverlays(hammerManager) {
     $body.find('main').addClass('overlay-active');
   });
 
-  // close
+  // card interactions
   $body.find('.overlay').on(tapEvent, e => {
-    if ( !$(e.target).closest('.contents, .card, button').length ) {
+    if ( e.target.className == 'overlay' || e.target.className == 'contents' ) {
+      // outside elements, close everything and reset
       $body.find('main').removeClass('overlay-active');
       $cards.removeClass('hidden');
+    } else {
+      // directly on a card, navigate to the next one
+      cardNavNext($(e.target).closest('.card'));
     }
   });
 
-  // navigate
-  $body.find('.overlay .next').on(tapEvent, e => {
-    cardNavNext(e.currentTarget);
-  });
-
-  console.log(hammerManager);
-
 }
 
-export function init(hammerManager) {
-  setupOverlays(hammerManager);
+export function init() {
+  setupOverlays();
 }
