@@ -62,9 +62,9 @@ gulp.task('js', function() {
        .on('error', map_error)
        .pipe(source('main.js'))
        .pipe(buffer())
-      //  .pipe(sourcemaps.init())
-      //  .pipe(uglify())
-      //  .pipe(sourcemaps.write('./maps'))
+       .pipe(sourcemaps.init())
+       .pipe(uglify())
+       .pipe(sourcemaps.write('./maps'))
        .pipe(gulp.dest('./public/js'))
        .pipe(browserSync.stream());
 });
