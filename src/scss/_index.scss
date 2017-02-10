@@ -187,6 +187,25 @@ canvas.main {
     z-index: 5;
   }
 
+  .card {
+
+    &.hidden {
+      opacity: 0;
+      z-index: -1;
+    }
+
+    &.leave-left {
+      animation: leaveLeft 0.5s forwards;
+      transform-origin: 0% 0%;
+    }
+
+
+    &.leave-right {
+      animation: leaveRight 0.5s forwards;
+      transform-origin: 100% 0%;
+    }
+  }
+
   $total: 10;
   @for $i from 1 through $total {
     .card {
@@ -203,11 +222,20 @@ canvas.main {
         transform: translate(#{$i}rem, -#{$i}rem);
         z-index: #{$total - $i};
       }
+    }
+  }
 
-      &.hidden {
-        opacity: 0;
-        z-index: -1;
-      }
+  @keyframes leaveLeft {
+    to {
+      opacity: 0;
+      transform: translate3d(0, 400px,0) rotate3d(0,0,1,40deg);
+    }
+  }
+
+  @keyframes leaveRight {
+    to {
+      opacity: 0;
+      transform: translate3d(0, 400px,0) rotate3d(0,0,1,-40deg);
     }
   }
 }

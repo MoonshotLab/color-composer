@@ -20,7 +20,14 @@ function setupOverlays() {
 
   // navigate
   $body.find('.overlay .next').on(tapEvent, e => {
-    $(e.currentTarget).parent().addClass('hidden');
+
+    // animate out of view
+    $(e.currentTarget).parent().addClass('leave-left');
+
+    // reset
+    setTimeout(() => {
+      $(e.currentTarget).parent().addClass('hidden').removeClass('leave-left');
+    }, 400);
   });
 
 }
