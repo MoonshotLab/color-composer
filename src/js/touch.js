@@ -143,14 +143,16 @@ function panMove(event) {
   event.preventDefault();
   if (window.kan.pinching) return;
 
+  const thresholdAngleRad = util.rad(shape.cornerThresholdDeg);
+
   const pointer = event.center;
   let point = new Point(pointer.x, pointer.y);
 
   let angle = Math.atan2(event.velocityY, event.velocityX);
   let prevAngle = window.kan.prevAngle;
   let angleDelta = util.angleDelta(angle, prevAngle);
-  const thresholdAngleRad = util.rad(shape.cornerThresholdDeg);
   window.kan.prevAngle = angle;
+
   let side = window.kan.side;
   let sides = window.kan.sides;
 
@@ -184,7 +186,7 @@ function panMove(event) {
   paper.view.draw();
 }
 
-// hc svnt dracones
+// hc svnt dracones :/
 function panEnd(event) {
   if (window.kan.pinching) return;
 
