@@ -1,5 +1,6 @@
 const touch = require('./touch');
 const ui = require('./ui');
+const overlays = require('./overlays');
 
 window.kan = {
   currentColor: '#20171C',
@@ -25,6 +26,7 @@ $(document).ready(function() {
   function run() {
     ui.init();
     touch.init();
+    overlays.init();
   }
 
   run();

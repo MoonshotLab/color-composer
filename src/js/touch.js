@@ -22,8 +22,10 @@ const hitOptions = {
   tolerance: 5
 };
 
+let hammerManager;
+
 export function init() {
-  const hammerManager = new Hammer.Manager(canvas);
+  hammerManager = new Hammer.Manager(canvas);
 
   hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
   hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
@@ -405,6 +407,13 @@ function panEnd(event) {
       }]
     );
   }
+}
+
+function hitTestGroupBounds(point) {
+  let groups = paper.project.getItems({
+    className: 'Group'
+  });
+  return shape.hitTestBounds(point, groups);
 }
 
 function pinchStart(event) {

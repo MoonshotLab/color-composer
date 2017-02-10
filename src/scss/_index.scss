@@ -10,6 +10,11 @@ body {
   overflow: hidden;
 }
 
+main {
+  transition: filter 0.5s;
+  z-index: 1;
+}
+
 path {
   fill: none;
   stroke: #000;
@@ -26,7 +31,7 @@ canvas.main {
 
 #canvas {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .control-panel {
@@ -35,7 +40,7 @@ canvas.main {
   width: 100%;
   height: 13rem;
   background-color: $darkGray;
-  z-index: 2;
+  z-index: 4;
 }
 
 .control-panel ul {
@@ -151,7 +156,111 @@ canvas.main {
   padding: 4px;
 }
 
+.overlay-active {
+  filter: blur(5px);
+
+  & + .overlay {
+    opacity: 1;
+    z-index: 3;
+  }
+}
+
 .overlay {
-  position: relative;
-  z-index: 3;
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.5);
+  transition: opacity 0.5s;
+  opacity: 0;
+  z-index: -1;
+
+  .contents {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 45vw;
+    height: 55vh;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+  }
+
+  .card {
+    text-align: center;
+
+    &.hidden {
+      top: -100%;
+      left: -100%;
+      opacity: 0;
+      z-index: -1;
+    }
+
+    &.leave-left {
+      animation: leaveLeft 0.5s forwards;
+      transform-origin: 0% 0%;
+    }
+
+
+    &.leave-right {
+      animation: leaveRight 0.5s forwards;
+      transform-origin: 100% 0%;
+    }
+  }
+
+  .wrap {
+    box-sizing: border-box;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    margin: 0 auto;
+    padding: 0 5vw;
+    line-height: 1.25;
+    transform: translate(-50%, -50%);
+  }
+
+  .title {
+    margin-bottom: 2rem;
+    font-size: 2.6rem;
+    font-weight: 800;
+  }
+
+  .text {
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+
+  $total: 10;
+  @for $i from 1 through $total {
+    .card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 90%;
+      background: #fff;
+      border: 1px solid black;
+      z-index: $total;
+
+      &:nth-child(#{$i + 1}) {
+        transform: translate(#{$i}rem, -#{$i}rem);
+        z-index: #{$total - $i};
+      }
+    }
+  }
+
+  @keyframes leaveLeft {
+    to {
+      opacity: 0;
+      transform: translate3d(0, 400px,0) rotate3d(0,0,1,40deg);
+    }
+  }
+
+  @keyframes leaveRight {
+    to {
+      opacity: 0;
+      transform: translate3d(0, 400px,0) rotate3d(0,0,1,-40deg);
+    }
+  }
 }
