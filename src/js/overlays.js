@@ -18,14 +18,14 @@ function setupOverlays() {
 
   // open
   $body.find('li.tips').on(tapEvent, e => {
-    $body.find('main').addClass('overlay-active');
+    $body.toggleClass('overlay-active');
   });
 
   // card interactions
   $body.find('.overlay').on(tapEvent, e => {
     if ( e.target.className == 'overlay' || e.target.className == 'contents' ) {
       // outside elements, close everything and reset
-      $body.find('main').removeClass('overlay-active');
+      $body.removeClass('overlay-active');
       $cards.removeClass('hidden');
     } else {
       // directly on a card, navigate to the next one
