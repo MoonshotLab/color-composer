@@ -1,7 +1,18 @@
+const config = require('./../../config');
 const $body = $('body');
 const tapEvent = 'click tap touch';
 
-function setupOverlays() {
+// next card
+function cardNavNext(card) {
+  // animate out of view
+  $(card).parent().addClass('leave-left');
+  // reset
+  setTimeout(() => {
+    $(card).parent().addClass('hidden').removeClass('leave-left');
+  }, 400);
+};
+
+function setupOverlays(hammerManager) {
   const $cards = $body.find('.overlay .card');
   const cardCount = $cards.length;
 
@@ -20,18 +31,13 @@ function setupOverlays() {
 
   // navigate
   $body.find('.overlay .next').on(tapEvent, e => {
-
-    // animate out of view
-    $(e.currentTarget).parent().addClass('leave-left');
-
-    // reset
-    setTimeout(() => {
-      $(e.currentTarget).parent().addClass('hidden').removeClass('leave-left');
-    }, 400);
+    cardNavNext(e.currentTarget);
   });
+
+  console.log(hammerManager);
 
 }
 
-export function init() {
-  setupOverlays();
+export function init(hammerManager) {
+  setupOverlays(hammerManager);
 }
