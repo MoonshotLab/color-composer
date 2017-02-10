@@ -141,12 +141,18 @@ export function startComposition(composition) {
       console.log(shape);
       if (shape.sprite) {
         setTimeout(() => {
+          if (!window.kan.playing) {
+            return;
+          }
           console.log(`1 playing shape ${shape.groupId}`);
           shape.sound.play(shape.spriteName);
           animateNote(shape);
         }, shape.startTime);
       } else {
         setTimeout(() => {
+          if (!window.kan.playing) {
+            return;
+          }
           console.log(`2 playing shape ${shape.groupId}`);
           shape.sound.play();
           animateNote(shape);

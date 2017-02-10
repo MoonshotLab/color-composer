@@ -219,11 +219,11 @@ function panEnd(event) {
 
   corners.push(point);
 
-  shapePath.simplify();
+  // shapePath.simplify();
 
   let shapeJSON = shapePath.exportJSON();
   let shapeData = shape.processShapeData(shapeJSON);
-  console.log(shapeData);
+  console.log('shapeData', shapeData);
   let shapePrediction = shape.detector.spot(shapeData);
   let shapePattern;
   if (shapePrediction.score > 0.5) {
