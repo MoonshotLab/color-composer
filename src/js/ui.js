@@ -163,9 +163,7 @@ function setupCanvas() {
 
   const scaleFactorHorizontal = paper.view.viewSize.width / canvasBg.size.width;
   const scaleFactorVertical = paper.view.viewSize.height / canvasBg.size.height;
-  if (scaleFactorHorizontal < 1 || scaleFactorVertical < 1) {
-    canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
-  }
+  canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
   let layer = new Layer(); // init new layer that all other shapes will be drawn upon
   paper.project.activeLayer.name = 'canvas';
   console.log(paper.project);
