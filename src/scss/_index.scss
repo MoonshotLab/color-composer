@@ -110,12 +110,13 @@ canvas.main {
 }
 
 .main-controls-wrap {
+  width: 100%;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .aux-controls-wrap {
-  right: 0;
+  right: 3rem;
 }
 
 .palette-colors {
