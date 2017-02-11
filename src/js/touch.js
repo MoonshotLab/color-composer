@@ -6,14 +6,7 @@ const color = require('./color');
 const shape = require('./shape');
 const util = require('./util');
 
-const sounds = sound.initShapeSounds();
-
 const canvas = document.getElementById(config.canvasId);
-
-const viewWidth = paper.view.viewSize.width;
-const viewHeight = paper.view.viewSize.height;
-
-const compositionLength = sound.compositionLength;
 
 const hitOptions = {
   segments: false,
@@ -194,7 +187,10 @@ function panEnd(event) {
 
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
+
   const transparent = color.transparent;
+  const colorName = color.getColorName(window.kan.currentColor);
+
   let shapePath = window.kan.shapePath;
   let side = window.kan.side;
   let sides = window.kan.sides;
@@ -207,43 +203,30 @@ function panEnd(event) {
   group.data.rotation = 0; // init variable to track rotation changes
 
   shapePath.add(point);
-  // shapePath.simplify();
 
   side.push(point);
   sides.push(side);
+  corners.push(point);
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
     last: true
   };
 
-  corners.push(point);
+  shapePath.reduce();
+  let preShapePrediction = shape.getShapePrediction(shapePath);
 
-  shapePath.simplify();
-
-  let shapeJSON = shapePath.exportJSON();
-  let shapeData = shape.processShapeData(shapeJSON);
-  console.log('shapeData', shapeData);
-  let shapePrediction = shape.detector.spot(shapeData);
-  let shapePattern;
-  if (shapePrediction.score > 0.5) {
-    shapePattern = shapePrediction.pattern;
-  } else {
-    shapePattern = "other";
-  }
-
-  console.log('shape before', shapePattern, shapePrediction.score);;
-  // shapePath.reduce();
   let [truedGroup, trueWasNecessary] = shape.trueGroup(group, corners);
   group.replaceWith(truedGroup);
   shapePath = group._namedChildren.shapePath[0];
   shapePath.strokeColor = group.strokeColor;
-  // shapePath.selected = true;
 
-  // shapePath.flatten(4);
-  // shapePath.reduce();
 
-  // shapePath.simplify();
+
+
+
+
+
   if (trueWasNecessary) {
     let computedCorners = shape.getComputedCorners(shapePath);
     let computedCornersPath = new Path(computedCorners);
@@ -257,46 +240,6 @@ function panEnd(event) {
     }
   }
 
-  // check shape
-  shapeJSON = shapePath.exportJSON();
-  shapeData = shape.processShapeData(shapeJSON);
-  shapePrediction = shape.detector.spot(shapeData);
-  if (shapePrediction.score > 0.6) {
-    shapePattern = shapePrediction.pattern;
-  } else {
-    shapePattern = "other";
-  }
-  const colorName = color.getColorName(window.kan.currentColor);
-
-  // get size
-
-  const playSounds = false;
-  const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength); // ms
-  const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength); // ms
-  let compositionObj = {};
-  compositionObj.sound = sounds[shapePattern];
-  compositionObj.startTime = quantizedSoundStartTime;
-  compositionObj.duration = quantizedSoundDuration;
-  compositionObj.groupId = group.id;
-  if (shape.shapeNames[shapePattern].sprite) {
-    compositionObj.sprite = true;
-    compositionObj.spriteName = colorName;
-
-    if (playSounds) {
-      sounds[shapePattern].play(colorName);
-    }
-  } else {
-    compositionObj.sprite = false;
-
-    if (playSounds) {
-      sounds[shapePattern].play();
-    }
-  }
-
-  window.kan.composition.push(compositionObj);
-
-  // set sound to loop again
-  console.log(`${shapePattern}-${colorName}`);
 
   let intersections = shapePath.getCrossings();
   if (intersections.length > 0) {
@@ -337,43 +280,8 @@ function panEnd(event) {
     }
   }
 
-  let children = group.getItems({
-    match: function(item) {
-      return item.name !== 'shapePath'
-    }
-  });
-
-  // console.log('-----');
-  // console.log(group);
-  // console.log(children);
-  // group.selected = true;
-  let unitedPath = new Path();
-  if (children.length > 1) {
-    let accumulator = new Path();
-    accumulator.copyContent(children[0]);
-    accumulator.visible = false;
-
-    for (let i = 1; i < children.length; i++) {
-      let otherPath = new Path();
-      otherPath.copyContent(children[i]);
-      otherPath.visible = false;
-
-      unitedPath = accumulator.unite(otherPath);
-      otherPath.remove();
-      accumulator = unitedPath;
-    }
-
-  } else if (children.length > 0) {
-    unitedPath.copyContent(children[0]);
-  }
-
-  unitedPath.visible = false;
-  unitedPath.data.name = 'mask';
-
-  group.addChild(unitedPath);
-  unitedPath.sendToBack();
-
-  // shapePath.selected = true
+  let shapeSoundObj = sound.getShapeSoundObj(shapePath);
+  window.kan.composition.push(shapeSoundObj);
 
   window.kan.shapePath = shapePath;
   window.kan.side = side;

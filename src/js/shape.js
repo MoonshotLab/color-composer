@@ -24,6 +24,23 @@ export const shapeNames = {
   }
 };
 
+export function getShapePrediction(path) {
+  let prediction = {};
+
+  let shapeJSON = path.exportJSON();
+  let shapeData = processShapeData(shapeJSON);
+  let shapePrediction = detector.spot(shapeData);
+
+  if (shapePrediction.score > 0.5) {
+    prediction.pattern = shapePrediction.pattern;
+  } else {
+    prediction.pattern = "other";
+  }
+  prediction.score = shapePrediction.score;
+
+  return prediction;
+}
+
 export function getStrokes(path, pathData) {
   let pathClone = path.clone();
   let strokes = new Path();

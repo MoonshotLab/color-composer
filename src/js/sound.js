@@ -2,12 +2,42 @@ require('howler');
 
 const ui = require('./ui');
 const shape = require('./shape');
+const color = require('./color');
+
+const sounds = initShapeSounds();
 
 const measures = 4;
 const bpm = 120;
 const beatLength = (60 / bpm) * 1000; // ms
 const measureLength = beatLength * 4;
 export const compositionLength = measureLength * measures;
+
+export function getShapeSoundObj(path) {
+  const viewWidth = paper.view.viewSize.width;
+  const viewHeight = paper.view.viewSize.height;
+
+  let shapePrediction = shape.getShapePrediction(path);
+  let group = path.parent;
+  let colorName = color.getPathColorName(path);
+
+  const quantizedSoundStartTime = quantizeLength(group.bounds.x / viewWidth * compositionLength); // ms
+  const quantizedSoundDuration = quantizeLength(group.bounds.width / viewWidth * compositionLength); // ms
+
+  let soundObj = {};
+  soundObj.sound = sounds[shapePrediction.pattern];
+  soundObj.startTime = quantizedSoundStartTime;
+  soundObj.duration = quantizedSoundDuration;
+  soundObj.groupId = group.id;
+
+  if (shape.shapeNames[shapePrediction.pattern].sprite) {
+    soundObj.sprite = true;
+    soundObj.spriteName = colorName;
+  } else {
+    soundObj.sprite = false;
+  }
+
+  return soundObj;
+}
 
 export function startPlaying() {
   if (paper.project.activeLayer.children.length > 0) {
