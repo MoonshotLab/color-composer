@@ -16,18 +16,20 @@ export function getShapeSoundObj(path) {
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
 
+  console.log('shape sound obj path', path);
+
   let shapePrediction = shape.getShapePrediction(path);
-  let group = path.parent;
   let colorName = color.getPathColorName(path);
 
-  const quantizedSoundStartTime = quantizeLength(group.bounds.x / viewWidth * compositionLength); // ms
-  const quantizedSoundDuration = quantizeLength(group.bounds.width / viewWidth * compositionLength); // ms
+  const quantizedSoundStartTime = quantizeLength(path.bounds.x / viewWidth * compositionLength); // ms
+  const quantizedSoundDuration = quantizeLength(path.bounds.width / viewWidth * compositionLength); // ms
 
   let soundObj = {};
   soundObj.sound = sounds[shapePrediction.pattern];
   soundObj.startTime = quantizedSoundStartTime;
   soundObj.duration = quantizedSoundDuration;
-  soundObj.groupId = group.id;
+  // console.log(path);
+  soundObj.pathId = path.id;
 
   if (shape.shapeNames[shapePrediction.pattern].sprite) {
     soundObj.sprite = true;
@@ -121,47 +123,52 @@ export function quantizePosition(position, viewWidth) {
 }
 
 function animateNote(shape) {
-  const item = paper.project.getItems({
-    className: 'Group',
+  const item = paper.project.getItem({
+    className: 'Path',
     match: function(el) {
-      return (el.id === shape.groupId);
+      return (el.id === shape.pathId);
     }
   });
-  item[0].animate([
-    {
-      properties: {
-        scale: 1.15,
-        translate: new paper.Point(20, 0),
-        rotate: -10,
+  let group = item.parent;
+  try {
+    group.animate([
+      {
+        properties: {
+          scale: 1.15,
+          translate: new paper.Point(20, 0),
+          rotate: -10,
+        },
+        settings: {
+          duration: 100,
+          easing: "easeInOut",
+        }
       },
-      settings: {
-        duration: 100,
-        easing: "easeInOut",
-      }
-    },
-    {
-      properties: {
-        scale: 1.25,
-        translate: new paper.Point(10, 0),
-        rotate: 10,
+      {
+        properties: {
+          scale: 1.25,
+          translate: new paper.Point(10, 0),
+          rotate: 10,
+        },
+        settings: {
+          duration: 100,
+          easing: "easeInOut",
+        }
       },
-      settings: {
-        duration: 100,
-        easing: "easeInOut",
-      }
-    },
-    {
-      properties: {
-        scale: 1,
-        translate: new paper.Point(0, 0),
-        rotate: 0,
+      {
+        properties: {
+          scale: 1,
+          translate: new paper.Point(0, 0),
+          rotate: 0,
+        },
+        settings: {
+          duration: 100,
+          easing: "easeInOut",
+        }
       },
-      settings: {
-        duration: 100,
-        easing: "easeInOut",
-      }
-    },
-  ]);
+    ]);
+  } catch(e) {
+    console.error('Error animating shape:', e);
+  }
 }
 
 export function startComposition(composition) {
@@ -174,7 +181,6 @@ export function startComposition(composition) {
           if (!window.kan.playing) {
             return;
           }
-          console.log(`1 playing shape ${shape.groupId}`);
           shape.sound.play(shape.spriteName);
           animateNote(shape);
         }, shape.startTime);
@@ -183,7 +189,6 @@ export function startComposition(composition) {
           if (!window.kan.playing) {
             return;
           }
-          console.log(`2 playing shape ${shape.groupId}`);
           shape.sound.play();
           animateNote(shape);
         }, shape.startTime);

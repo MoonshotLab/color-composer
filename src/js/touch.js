@@ -121,10 +121,10 @@ function panStart(event) {
 
   shapePath.add(point);
 
-  window.kan.corners = [point];
+  // window.kan.corners = [point];
 
-  window.kan.sides = [];
-  window.kan.side = [point];
+  // window.kan.sides = [];
+  // window.kan.side = [point];
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -148,25 +148,25 @@ function panMove(event) {
   let angleDelta = util.angleDelta(angle, prevAngle);
   window.kan.prevAngle = angle;
 
-  let side = window.kan.side;
-  let sides = window.kan.sides;
+  // let side = window.kan.side;
+  // let sides = window.kan.sides;
 
-  if (angleDelta > thresholdAngleRad) {
-    if (side.length > 0) {
-      // console.log('corner');
-      let cornerPoint = point;
-      // new Path.Circle({
-      //   center: cornerPoint,
-      //   radius: 15,
-      //   strokeColor: 'black'
-      // });
-      window.kan.corners.push(cornerPoint);
-      sides.push(side);
-      side = [];
-    }
-  }
+  // if (angleDelta > thresholdAngleRad) {
+  //   if (side.length > 0) {
+  //     // console.log('corner');
+  //     let cornerPoint = point;
+  //     // new Path.Circle({
+  //     //   center: cornerPoint,
+  //     //   radius: 15,
+  //     //   strokeColor: 'black'
+  //     // });
+  //     // window.kan.corners.push(cornerPoint);
+  //     sides.push(side);
+  //     side = [];
+  //   }
+  // }
 
-  side.push(point);
+  // side.push(point);
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -175,13 +175,12 @@ function panMove(event) {
   };
 
   window.kan.shapePath.add(point);
-  window.kan.sides = sides;
-  window.kan.side = side;
+  // window.kan.sides = sides;
+  // window.kan.side = side;
 
   paper.view.draw();
 }
 
-// hc svnt dracones :/
 function panEnd(event) {
   if (window.kan.pinching) return;
 
@@ -192,101 +191,44 @@ function panEnd(event) {
   const colorName = color.getColorName(window.kan.currentColor);
 
   let shapePath = window.kan.shapePath;
-  let side = window.kan.side;
-  let sides = window.kan.sides;
-  let corners = window.kan.corners;
-
-  let group = new Group([shapePath]);
-  group.data.color = shapePath.strokeColor;
-  group.data.update = true; // used for pops
-  group.data.scale = 1; // init variable to track scale changes
-  group.data.rotation = 0; // init variable to track rotation changes
+  // let side = window.kan.side;
+  // let sides = window.kan.sides;
+  // let corners = window.kan.corners;
 
   shapePath.add(point);
 
-  side.push(point);
-  sides.push(side);
-  corners.push(point);
+  let truedShape = shape.getTruedShape(shapePath);
+  shapePath.remove();
+  truedShape.visible = true;
+
+  let shapeSoundObj = sound.getShapeSoundObj(truedShape);
+  window.kan.composition.push(shapeSoundObj);
+
+  // side.push(point);
+  // sides.push(side);
+  // corners.push(point);
+
+  let group = new Group();
+  group.data.color = truedShape.strokeColor;
+  group.data.scale = 1; // init variable to track scale changes
+  group.data.rotation = 0; // init variable to track rotation changes
+
+  group.addChild(truedShape);
+  let enclosedLoops = shape.findInteriorCurves(truedShape);
+  Base.each(enclosedLoops, (loop, i) => {
+    group.addChild(loop);
+    loop.sendToBack();
+  });
+
+  window.kan.shapePath = truedShape;
+  // window.kan.side = side;
+  // window.kan.sides = sides;
+  // window.kan.corners = corners;
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
     last: true
   };
-
-  shapePath.reduce();
-  let preShapePrediction = shape.getShapePrediction(shapePath);
-
-  let [truedGroup, trueWasNecessary] = shape.trueGroup(group, corners);
-  group.replaceWith(truedGroup);
-  shapePath = group._namedChildren.shapePath[0];
-  shapePath.strokeColor = group.strokeColor;
-
-
-
-
-
-
-
-  if (trueWasNecessary) {
-    let computedCorners = shape.getComputedCorners(shapePath);
-    let computedCornersPath = new Path(computedCorners);
-    computedCornersPath.visible = false;
-    let computedCornersPathLength = computedCornersPath.length;
-    if (Math.abs(computedCornersPathLength - shapePath.length) / shapePath.length <= 0.1) {
-      shapePath.removeSegments();
-      // console.log(computedCorners);
-      shapePath.segments = computedCorners;
-      // shapePath.reduce();
-    }
-  }
-
-
-  let intersections = shapePath.getCrossings();
-  if (intersections.length > 0) {
-    // we create a copy of the path because resolveCrossings() splits source path
-    let pathCopy = new Path();
-    pathCopy.copyContent(shapePath);
-    pathCopy.visible = false;
-
-    let enclosedLoops = shape.findInteriorCurves(pathCopy);
-
-    if (enclosedLoops.length > 0) {
-      for (let i = 0; i < enclosedLoops.length; i++) {
-        if (shapePath.closed) {
-          enclosedLoops[i].fillColor = shapePath.strokeColor;
-          enclosedLoops[i].data.interior = true;
-          enclosedLoops[i].data.transparent = false;
-        } else {
-          enclosedLoops[i].fillColor = transparent;
-          enclosedLoops[i].data.transparent = true;
-        }
-        enclosedLoops[i].data.interior = true;
-        enclosedLoops[i].visible = true;
-        enclosedLoops[i].closed = true;
-        group.addChild(enclosedLoops[i]);
-        enclosedLoops[i].sendToBack();
-      }
-    }
-    // pathCopy.remove();
-  } else {
-    if (shapePath.closed) {
-      let enclosedLoop = shapePath.clone();
-      enclosedLoop.visible = true;
-      enclosedLoop.fillColor = group.strokeColor;
-      enclosedLoop.data.interior = true;
-      enclosedLoop.data.transparent = false;
-      group.addChild(enclosedLoop);
-      enclosedLoop.sendToBack();
-    }
-  }
-
-  let shapeSoundObj = sound.getShapeSoundObj(shapePath);
-  window.kan.composition.push(shapeSoundObj);
-
-  window.kan.shapePath = shapePath;
-  window.kan.side = side;
-  window.kan.sides = sides;
-  window.kan.corners = corners;
 
   window.kan.moves.push({
     type: 'newGroup',
@@ -294,10 +236,11 @@ function panEnd(event) {
   });
 
   if (config.runAnimations) {
+    let scaleFactor = 0.9
     group.animate(
       [{
         properties: {
-          scale: 0.9
+          scale: scaleFactor
         },
         settings: {
           duration: 100,
@@ -306,7 +249,7 @@ function panEnd(event) {
       },
       {
         properties: {
-          scale: 1.11
+          scale: 1 / scaleFactor
         },
         settings: {
           duration: 100,
