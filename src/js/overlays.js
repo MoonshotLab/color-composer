@@ -2,39 +2,52 @@ const config = require('./../../config');
 const $body = $('body');
 const tapEvent = 'click tap touch';
 
-// next card
-function cardNavNext($card) {
-  // animate out of view
-  $card.addClass('leave-left');
-  // reset
-  setTimeout(() => {
-    $card.addClass('hidden').removeClass('leave-left');
-  }, 400);
-};
+export function init() {
+  const $cardsWrap = $body.find('.card-wrap');
+  const $cardItems = $cardsWrap.find('article');
+  const cardsCount = $cardItems.length;
+  const $footer = $body.find('.overlay.tips .footer');
 
-function setupOverlays() {
-  const $cards = $body.find('.overlay .card');
-  const cardCount = $cards.length;
+  // card slider navigation
+  let cardNavNext = () => {
+    let $old = $body.find('.card-wrap .current');
+    let $new = ($old.next().length) ? $old.next() : $cardItems.first();
+    let $next = ($new.next().length) ? $new.next() : $cardItems.first();
+    let $third = ($next.next().length) ? $next.next() : $cardItems.first().next();
+    let slide = $new.index();
+    $old.removeClass().addClass('remove');
+    $new.removeClass().addClass('current');
+    $next.removeClass().addClass('next');
+    $third.removeClass().addClass('third');
+    $footer.find('.current').html(slide + 1);
+    $footer.find('.next').html(cardsCount);
+    setTimeout(() => {
+      $old.removeClass();
+    }, 600);
+  };
 
   // open
   $body.find('li.tips').on(tapEvent, e => {
-    $body.toggleClass('overlay-active');
+    let $new = $cardItems.first();
+    let $next = ($new.next().length) ? $new.next() : $cardItems.first();
+    let $third = ($next.next().length) ? $next.next() : $cardItems.first().next();
+    $cardItems.removeClass();
+    $new.removeClass().addClass('current');
+    $next.removeClass().addClass('next');
+    $third.removeClass().addClass('third');
+    $body.toggleClass('overlay-active tips-active');
   });
 
   // card interactions
   $body.find('.overlay').on(tapEvent, e => {
-    if ( e.target.className == 'overlay' || e.target.className == 'contents' ) {
-      // outside elements, close everything and reset
-      $body.removeClass('overlay-active');
-      $cards.removeClass('hidden');
-    } else {
+    if ( $(e.target).closest('.contents').length == 1 ) {
       // directly on a card, navigate to the next one
-      cardNavNext($(e.target).closest('.card'));
+      cardNavNext();
+    } else {
+      // outside elements, close everything and reset
+      $body.removeClass('overlay-active tips-active');
+      $cardItems.removeClass();
     }
   });
 
-}
-
-export function init() {
-  setupOverlays();
 }

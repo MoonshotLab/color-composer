@@ -159,18 +159,23 @@ path {
     filter: blur(5px);
   }
 
-  .overlay {
-    opacity: 1;
-    z-index: 3;
-  }
+  // tips
+  &.tips-active {
 
-  .main-controls {
-    opacity: 0.25;
-    filter: blur(1px);
+    .overlay.tips {
+      opacity: 1;
+      z-index: 3;
+    }
+
+    .main-controls {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+
   }
 }
 
-.overlay {
+.overlay.tips {
   content: "";
   position: fixed;
   top: 0;
@@ -187,90 +192,117 @@ path {
     top: 50%;
     left: 50%;
     width: 45vw;
-    height: 55vh;
+    height: 50vh;
     transform: translate(-50%, -50%);
     z-index: 5;
   }
 
-  .header,
-  .footer {
-    display: none;
+  .header {
+    position: relative;
+    top: -4rem;
+    text-align: center;
   }
 
-  .card {
+  .card-wrap {
+    position: relative;
+    height: 100%;
+  }
+
+  // cards
+  article {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 90%;
+    height: 100%;
     background: #fff;
     border: 0.3rem solid black;
     text-align: center;
+    opacity: 0;
+    transform: translate(0, 0);
+    transition: all 0.2s;
+    z-index: -1;
 
-    &.hidden {
-      top: -100%;
-      left: -100%;
-      opacity: 0;
-      z-index: -1;
+    &.current {
+      opacity: 1;
+      z-index: 3;
     }
 
-    &.leave-left {
-      animation: leaveLeft 0.5s forwards;
-      transform-origin: 0% 0%;
+    &.next {
+      top: -1rem;
+      left: 1rem;
+      opacity: 1;
+      z-index: 2;
     }
 
+    &.third {
+      top: -2rem;
+      left: 2rem;
+      opacity: 1;
+      z-index: 1;
+    }
 
-    &.leave-right {
-      animation: leaveRight 0.5s forwards;
-      transform-origin: 100% 0%;
+    &.remove {
+      animation: cardSort 0.6s forwards;
+    }
+
+    .wrap {
+      box-sizing: border-box;
+      position: relative;
+      top: 50%;
+      left: 50%;
+      margin: 0 auto;
+      padding: 0 5vw;
+      line-height: 1.25;
+      transform: translate(-50%, -50%);
+    }
+
+    .title {
+      margin-bottom: 2rem;
+      font-size: 2vw;
+      font-weight: 800;
+    }
+
+    .text {
+      font-size: 1.4vw;
+      font-weight: 600;
     }
   }
 
-  .wrap {
-    box-sizing: border-box;
+  .footer {
     position: relative;
-    top: 50%;
-    left: 50%;
-    margin: 0 auto;
-    padding: 0 5vw;
-    line-height: 1.25;
-    transform: translate(-50%, -50%);
+    top: 3rem;
+    text-align: center;
   }
 
-  .title {
-    margin-bottom: 2rem;
-    font-size: 2vw;
-    font-weight: 800;
-  }
-
-  .text {
-    font-size: 1.4vw;
-    font-weight: 600;
-  }
-
-  $total: 10;
-  @for $i from 1 through $total {
-    .card {
-      z-index: $total;
-
-      &:nth-child(#{$i + 1}) {
-        transform: translate(#{$i}rem, -#{$i}rem);
-        z-index: #{$total - $i};
-      }
-    }
-  }
-
-  @keyframes leaveLeft {
-    to {
+  @keyframes cardSort {
+    0% {
+      transform: translate(0, 0);
+      opacity: 1;
+    },
+    50% {
+      transform: translate(-2rem, 2rem);
+    },
+    90% {
+      opacity: 1;
+    },
+    100% {
+      transform: translate(0, 0);
       opacity: 0;
-      transform: translate3d(0, 400px,0) rotate3d(0,0,1,40deg);
     }
   }
 
-  @keyframes leaveRight {
-    to {
-      opacity: 0;
-      transform: translate3d(0, 400px,0) rotate3d(0,0,1,-40deg);
-    }
-  }
+  // @keyframes leaveLeft {
+  //   to {
+  //     opacity: 0;
+  //     transform: translate3d(0, 400px,0) rotate3d(0,0,1,40deg);
+  //   }
+  // }
+
+  // @keyframes leaveRight {
+  //   to {
+  //     opacity: 0;
+  //     transform: translate3d(0, 400px,0) rotate3d(0,0,1,-40deg);
+  //   }
+  // }
 }
