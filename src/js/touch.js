@@ -304,15 +304,23 @@ function pinchStart(event) {
 }
 
 function pinchMove(event) {
-  console.log('pinchMove');
   event.preventDefault();
+
+  const viewWidth = paper.view.viewSize.width;
+  const viewHeight = paper.view.viewSize.height;
   let pinchedGroup = window.kan.pinchedGroup;
+
   if (!!pinchedGroup) {
-    // console.log('pinchmove', event);
-    // console.log(pinchedGroup);
     let currentScale = event.scale;
-    let scaleDelta = currentScale / window.kan.lastScale;
-    // console.log(lastScale, currentScale, scaleDelta);
+    let scaleDelta;
+    if (pinchedGroup.bounds.width < paper.view.viewSize.width &&
+        pinchedGroup.bounds.height < paper.view.viewSize.height) {
+        // only allow shape to scale if it fits in the viewport
+        scaleDelta = currentScale / window.kan.lastScale;
+      } else {
+        scaleDelta = 1;
+      }
+
     window.kan.lastScale = currentScale;
 
     let currentRotation = event.rotation;
@@ -323,7 +331,9 @@ function pinchMove(event) {
     // console.log(`rotating by ${rotationDelta}`);
 
     pinchedGroup.position = event.center;
-    pinchedGroup.scale(scaleDelta);
+    if (scaleDelta !== 1) {
+      pinchedGroup.scale(scaleDelta);
+    }
     pinchedGroup.rotate(rotationDelta);
 
     pinchedGroup.data.scale *= scaleDelta;
