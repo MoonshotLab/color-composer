@@ -73,13 +73,15 @@ export function getShapePrediction(path) {
     prediction.pattern = "line";
     prediction.score = 0.9;
   } else {
-    if (shapePrediction.score < 0.5) {
+    if (shapePrediction.score > 0.5) {
       prediction.pattern = shapePrediction.pattern;
     } else {
       prediction.pattern = "other";
     }
     prediction.score = shapePrediction.score;
   }
+
+  console.log(prediction);
 
   return prediction;
 }
