@@ -6,14 +6,7 @@ const color = require('./color');
 const shape = require('./shape');
 const util = require('./util');
 
-const sounds = sound.initShapeSounds();
-
 const canvas = document.getElementById(config.canvasId);
-
-const viewWidth = paper.view.viewSize.width;
-const viewHeight = paper.view.viewSize.height;
-
-const compositionLength = sound.compositionLength;
 
 const hitOptions = {
   segments: false,
@@ -47,157 +40,6 @@ export function init() {
   hammerManager.on('pinchmove', pinchMove);
   hammerManager.on('pinchend', pinchEnd);
   hammerManager.on('pinchcancel', function() { hammerManager.get('pan').set({enable: true}); }); // make sure it's reenabled
-}
-
-function addTestShape(innerShapePath, shapeData, pathData, corners, sides) {
-  console.log('innerShapePath', innerShapePath);
-  console.log('shapeData', shapeData);
-  console.log('pathData', pathData);
-  console.log('corners', corners);
-  console.log('sides', sides);
-  
-  let maxSpeed = 0;
-  for (let dataPoint in pathData) {
-    if (!!pathData[dataPoint].speed) {
-      // console.log(pathData[dataPoint]);
-      maxSpeed = Math.max(pathData[dataPoint].speed, maxSpeed);
-    }
-  }
-  
-  const sideSpeeds = [];
-  sides.forEach((side, index) => {
-    let thisSideSpeed = 0;
-    side.forEach((point, pointIndex) => {
-      const speed = pathData[shape.stringifyPoint(point)].speed;
-      if (typeof(speed) === 'undefined') { // FIXME: figure out why these are undefined. Maybe a simplified point?
-        return;
-      }
-      thisSideSpeed += pathData[shape.stringifyPoint(point)].speed;
-    });
-    console.log('max', maxSpeed, 'this', thisSideSpeed);
-    // const lineWidth = Math.min(Math.max((thisSideSpeed / maxSpeed) * 5, 2) / 3, 20);
-    const lineWidth = 20; // FIXME: this should be a variable width
-    sideSpeeds.push(lineWidth);
-  });
-  
-  console.log('sideSpeeds', sideSpeeds);
-
-  let shapePath = new Path({
-    strokeColor: window.kan.currentColor,
-    name: 'shapePath',
-    strokeWidth: 5,
-    visible: false,
-    strokeCap: 'round',
-    selected: true,
-    segments: shapeData,
-    closed: true,
-  });
-  const shapeCenter = {
-    x: shapePath.position._x,
-    y: shapePath.position._y
-  };
-  
-  const outerPoints = [];
-  
-  // Split paths from each corner
-  const sidePaths = [];
-  let pathRemainder = innerShapePath.clone({insert: true});
-  corners.forEach((corner, cornerIndex) => {
-    new Path.Circle({
-      center: corner,
-      radius: 15,
-      fillColor: new Color(1, 0, 0.5, 0.5)
-    });
-
-    // Don't split the first
-    if (cornerIndex == 0) {
-      return;
-    }
-
-    pathRemainder = pathRemainder.clone({insert: true});
-    // pathRemainder.selected = true;
-    const nearestLocation = pathRemainder.getNearestLocation(corner);
-    console.log('corner', corner);
-    console.log('nearestLocation', nearestLocation);
-    const pathSegment = pathRemainder.splitAt(nearestLocation);
-    sidePaths.push(pathRemainder);
-  });
-  
-  console.log('sidePaths', sidePaths);
-  const guessedSides = [];
-  sidePaths.forEach((sidePath, sidePathIndex) => {
-    // sidePath.selected = true;
-    sidePath.strokeColor = 'green';
-    if (!corners[sidePathIndex + 1]) {
-      return;
-    }
-    console.log(`sidepath ${sidePathIndex} length`, sidePath.length);
-    const calcLength = corners[sidePathIndex].getDistance(corners[sidePathIndex + 1]);
-    console.log(`calculated length`, calcLength);
-    if (sidePath.length > (calcLength * 0.9) && sidePath.length < (calcLength * 1.1)) {
-      // This is probably a straight line
-      console.log('segments', sidePath._segments);
-      console.log('last', sidePath.length - 1, sidePath.segments[sidePath.length - 1]);
-      const first = sidePath._segments[0]._point;
-      const last = sidePath._segments[sidePath.length - 1]._point;
-      console.log('Guessed a straight line between', first, last);
-      guessedSides.push(first, last);
-    } else {
-      guessedSides.push(sidePath);
-    }
-  });
-  console.log('guessedSides', guessedSides);
-  // console.log('pathRemainder', pathRemainder);
-
-  // console.log('center', shapeCenter);
-  sides.forEach((side, sideIndex) => {
-    side.forEach((point, pointIndex) => {
-      if (((sideIndex == sides.length - 1) && (pointIndex == side.length - 1)) || ((sideIndex == 0) && (pointIndex == 0))) {
-        // Mark the beginning and ends
-        new Path.Circle({
-          center: point,
-          radius: 15,
-          fillColor: new Color(0, 0, 1, 0.5)
-        });
-        return;
-      }
-      // console.log('point', pointIndex, point);
-      
-      const pointsDistanceFromCenter = Math.sqrt(
-        Math.pow(shapeCenter.x - point.x, 2) + Math.pow(shapeCenter.y - point.y, 2)
-      );
-      // console.log('distance', pointsDistanceFromCenter);
-      
-      const distanceRatio = (pointsDistanceFromCenter + sideSpeeds[sideIndex]) / pointsDistanceFromCenter;
-      const newPoint = new Point(
-        ((1 - distanceRatio) * shapeCenter.x) + (distanceRatio * point.x),
-        ((1 - distanceRatio) * shapeCenter.y) + (distanceRatio * point.y)
-      );
-      // console.log('newPoint', newPoint);
-      
-      outerPoints.push(newPoint);
-    });
-  });
-
-  let outerShapePath = new Path({
-    strokeColor: new Color(1, 0, 0, 0.8),
-    name: 'shapePath',
-    strokeWidth: 1,
-    visible: true,
-    strokeCap: 'round',
-    selected: true,
-    segments: outerPoints,
-    closed: true,
-  });
-  
-  let innerPath = outerShapePath.subtract(shapePath);
-  innerPath.strokeWidth = 0;
-  innerPath.fillColor = new Color(1, 0.5, 0.5, 0.2);
-  innerPath.visible = true;
-  // innerPath.selected = true;
-  // innerPath.smooth(); // This makes it an ovoid
-  
-  // console.log('shapePath', shapePath);
 }
 
 function singleTap(event) {
@@ -344,199 +186,57 @@ function panMove(event) {
   paper.view.draw();
 }
 
-// hc svnt dracones :/
 function panEnd(event) {
   if (window.kan.pinching) return;
 
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
+
   const transparent = color.transparent;
+  const colorName = color.getColorName(window.kan.currentColor);
+
   let shapePath = window.kan.shapePath;
   let side = window.kan.side;
   let sides = window.kan.sides;
   let corners = window.kan.corners;
 
-  let group = new Group([shapePath]);
-  group.data.color = shapePath.strokeColor;
-  group.data.update = true; // used for pops
-  group.data.scale = 1; // init variable to track scale changes
-  group.data.rotation = 0; // init variable to track rotation changes
-
   shapePath.add(point);
-  // shapePath.simplify();
+
+  let truedShape = shape.getTruedShape(shapePath);
+  shapePath.remove();
+  truedShape.visible = true;
+
+  // addTestShape(shapePath, shapeData, window.kan.pathData, corners, sides);
+  shape.addTestShape(truedShape);
+
+  let shapeSoundObj = sound.getShapeSoundObj(truedShape);
+  window.kan.composition.push(shapeSoundObj);
 
   side.push(point);
   sides.push(side);
-
-  window.kan.pathData[shape.stringifyPoint(point)] = {
-    point: point,
-    last: true
-  };
-
   corners.push(point);
 
-  shapePath.simplify();
+  let group = new Group();
+  group.data.color = truedShape.strokeColor;
+  group.data.scale = 1; // init variable to track scale changes
+  group.data.rotation = 0; // init variable to track rotation changes
 
-
-  let shapeJSON = shapePath.exportJSON();
-  let shapeData = shape.processShapeData(shapeJSON);
-  console.log('shapeData', shapeData);
-  addTestShape(shapePath, shapeData, window.kan.pathData, corners, sides);
-  let shapePrediction = shape.detector.spot(shapeData);
-  let shapePattern;
-  if (shapePrediction.score > 0.5) {
-    shapePattern = shapePrediction.pattern;
-  } else {
-    shapePattern = "other";
-  }
-
-  console.log('shape before', shapePattern, shapePrediction.score);
-  // shapePath.reduce();
-  let [truedGroup, trueWasNecessary] = shape.trueGroup(group, corners);
-  group.replaceWith(truedGroup);
-  shapePath = group._namedChildren.shapePath[0];
-  shapePath.strokeColor = group.strokeColor;
-  // shapePath.selected = true;
-
-  // shapePath.flatten(4);
-  // shapePath.reduce();
-
-  // shapePath.simplify();
-  if (trueWasNecessary) {
-    let computedCorners = shape.getComputedCorners(shapePath);
-    let computedCornersPath = new Path(computedCorners);
-    computedCornersPath.visible = false;
-    let computedCornersPathLength = computedCornersPath.length;
-    if (Math.abs(computedCornersPathLength - shapePath.length) / shapePath.length <= 0.1) {
-      shapePath.removeSegments();
-      // console.log(computedCorners);
-      shapePath.segments = computedCorners;
-      // shapePath.reduce();
-    }
-  }
-
-  // check shape
-  shapeJSON = shapePath.exportJSON();
-  shapeData = shape.processShapeData(shapeJSON);
-  shapePrediction = shape.detector.spot(shapeData);
-  if (shapePrediction.score > 0.6) {
-    shapePattern = shapePrediction.pattern;
-  } else {
-    shapePattern = "other";
-  }
-  const colorName = color.getColorName(window.kan.currentColor);
-
-  // get size
-
-  const playSounds = false;
-  const quantizedSoundStartTime = sound.quantizeLength(group.bounds.x / viewWidth * compositionLength); // ms
-  const quantizedSoundDuration = sound.quantizeLength(group.bounds.width / viewWidth * compositionLength); // ms
-  let compositionObj = {};
-  compositionObj.sound = sounds[shapePattern];
-  compositionObj.startTime = quantizedSoundStartTime;
-  compositionObj.duration = quantizedSoundDuration;
-  compositionObj.groupId = group.id;
-  if (shape.shapeNames[shapePattern].sprite) {
-    compositionObj.sprite = true;
-    compositionObj.spriteName = colorName;
-
-    if (playSounds) {
-      sounds[shapePattern].play(colorName);
-    }
-  } else {
-    compositionObj.sprite = false;
-
-    if (playSounds) {
-      sounds[shapePattern].play();
-    }
-  }
-
-  window.kan.composition.push(compositionObj);
-
-  // set sound to loop again
-  console.log(`Added shape: ${shapePattern}-${colorName}`);
-
-  let intersections = shapePath.getCrossings();
-  if (intersections.length > 0) {
-    // we create a copy of the path because resolveCrossings() splits source path
-    let pathCopy = new Path();
-    pathCopy.copyContent(shapePath);
-    pathCopy.visible = false;
-
-    let enclosedLoops = shape.findInteriorCurves(pathCopy);
-
-    if (enclosedLoops.length > 0) {
-      for (let i = 0; i < enclosedLoops.length; i++) {
-        if (shapePath.closed) {
-          enclosedLoops[i].fillColor = shapePath.strokeColor;
-          enclosedLoops[i].data.interior = true;
-          enclosedLoops[i].data.transparent = false;
-        } else {
-          enclosedLoops[i].fillColor = transparent;
-          enclosedLoops[i].data.transparent = true;
-        }
-        enclosedLoops[i].data.interior = true;
-        enclosedLoops[i].visible = true;
-        enclosedLoops[i].closed = true;
-        group.addChild(enclosedLoops[i]);
-        enclosedLoops[i].sendToBack();
-      }
-    }
-    // pathCopy.remove();
-  } else {
-    if (shapePath.closed) {
-      let enclosedLoop = shapePath.clone();
-      enclosedLoop.visible = true;
-      enclosedLoop.fillColor = group.strokeColor;
-      enclosedLoop.data.interior = true;
-      enclosedLoop.data.transparent = false;
-      group.addChild(enclosedLoop);
-      enclosedLoop.sendToBack();
-    }
-  }
-
-  let children = group.getItems({
-    match: function(item) {
-      return item.name !== 'shapePath'
-    }
+  group.addChild(truedShape);
+  let enclosedLoops = shape.findInteriorCurves(truedShape);
+  Base.each(enclosedLoops, (loop, i) => {
+    group.addChild(loop);
+    loop.sendToBack();
   });
-
-  // console.log('-----');
-  // console.log(group);
-  // console.log(children);
-  // group.selected = true;
-  // let unitedPath = new Path();
-  // if (children.length > 1) {
-  //   let accumulator = new Path();
-  //   accumulator.copyContent(children[0]);
-  //   accumulator.visible = false;
-  // 
-  //   for (let i = 1; i < children.length; i++) {
-  //     let otherPath = new Path();
-  //     otherPath.copyContent(children[i]);
-  //     otherPath.visible = false;
-  // 
-  //     unitedPath = accumulator.unite(otherPath);
-  //     otherPath.remove();
-  //     accumulator = unitedPath;
-  //   }
-  // 
-  // } else if (children.length > 0) {
-  //   unitedPath.copyContent(children[0]);
-  // }
-  // 
-  // unitedPath.visible = false;
-  // unitedPath.data.name = 'mask';
-  // 
-  // group.addChild(unitedPath);
-  // unitedPath.sendToBack();
-
-  // shapePath.selected = true
 
   window.kan.shapePath = shapePath;
   window.kan.side = side;
   window.kan.sides = sides;
   window.kan.corners = corners;
+
+  window.kan.pathData[shape.stringifyPoint(point)] = {
+    point: point,
+    last: true
+  };
 
   window.kan.moves.push({
     type: 'newGroup',
@@ -544,10 +244,11 @@ function panEnd(event) {
   });
 
   if (config.runAnimations) {
+    let scaleFactor = 0.9
     group.animate(
       [{
         properties: {
-          scale: 0.9
+          scale: scaleFactor
         },
         settings: {
           duration: 100,
@@ -556,7 +257,7 @@ function panEnd(event) {
       },
       {
         properties: {
-          scale: 1
+          scale: 1 / scaleFactor
         },
         settings: {
           duration: 100,
@@ -611,15 +312,23 @@ function pinchStart(event) {
 }
 
 function pinchMove(event) {
-  console.log('pinchMove');
   event.preventDefault();
+
+  const viewWidth = paper.view.viewSize.width;
+  const viewHeight = paper.view.viewSize.height;
   let pinchedGroup = window.kan.pinchedGroup;
+
   if (!!pinchedGroup) {
-    // console.log('pinchmove', event);
-    // console.log(pinchedGroup);
     let currentScale = event.scale;
-    let scaleDelta = currentScale / window.kan.lastScale;
-    // console.log(lastScale, currentScale, scaleDelta);
+    let scaleDelta;
+    if (pinchedGroup.bounds.width < paper.view.viewSize.width &&
+        pinchedGroup.bounds.height < paper.view.viewSize.height) {
+        // only allow shape to scale if it fits in the viewport
+        scaleDelta = currentScale / window.kan.lastScale;
+      } else {
+        scaleDelta = 1;
+      }
+
     window.kan.lastScale = currentScale;
 
     let currentRotation = event.rotation;
@@ -630,7 +339,9 @@ function pinchMove(event) {
     // console.log(`rotating by ${rotationDelta}`);
 
     pinchedGroup.position = event.center;
-    pinchedGroup.scale(scaleDelta);
+    if (scaleDelta !== 1) {
+      pinchedGroup.scale(scaleDelta);
+    }
     pinchedGroup.rotate(rotationDelta);
 
     pinchedGroup.data.scale *= scaleDelta;
