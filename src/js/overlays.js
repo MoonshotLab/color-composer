@@ -2,7 +2,7 @@ const config = require('./../../config');
 const $body = $('body');
 const tapEvent = 'click tap touch';
 
-export function init() {
+export function init(hammerManager) {
   const $cardsWrap = $body.find('.card-wrap');
   const $cardItems = $cardsWrap.find('article');
   const cardsCount = $cardItems.length;

@@ -15,7 +15,7 @@ const hitOptions = {
   tolerance: 5
 };
 
-let hammerManager;
+export let hammerManager;
 
 export function init() {
   hammerManager = new Hammer.Manager(canvas);
