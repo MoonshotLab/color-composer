@@ -26,7 +26,7 @@ $(document).ready(function() {
   function run() {
     ui.init();
     touch.init();
-    overlays.init(touch.hammerManager);
+    overlays.init();
   }
 
   run();
