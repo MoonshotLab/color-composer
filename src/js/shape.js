@@ -124,11 +124,11 @@ export function addTestShape(innerShapePath) {
     if (sidePath.length > (calcLength * 0.9) && sidePath.length < (calcLength * 1.1)) {
       // This is probably a straight line
       console.log('segments', sidePath._segments);
-      console.log('last', sidePath.length - 1, sidePath.segments[sidePath.length - 1]);
-      const first = sidePath._segments[0]._point;
-      const last = sidePath._segments[sidePath.length - 1]._point;
-      console.log('Guessed a straight line between', first, last);
-      guessedSides.push(first, last);
+      console.log('last', sidePath.length - 1, sidePath.segments[sidePath.segments.length - 1]);
+      const firstPoint = sidePath.firstSegment.point;
+      const lastPoint = sidePath.lastSegment.point;
+      console.log('Guessed a straight line between', firstPoint, lastPoint);
+      guessedSides.push(firstPoint, lastPoint);
     } else {
       guessedSides.push(sidePath);
     }

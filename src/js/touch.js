@@ -96,6 +96,7 @@ function doubleTap(event) {
 }
 
 function panStart(event) {
+  console.log('---------------PANSTART---------------');
   // paper.project.activeLayer.removeChildren(); // REMOVE
 
   // ignore other touch inputs
@@ -266,6 +267,8 @@ function panEnd(event) {
       }]
     );
   }
+
+  console.log('---------------PANEND---------------');
 }
 
 function hitTestGroupBounds(point) {
