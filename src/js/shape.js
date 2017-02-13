@@ -64,14 +64,22 @@ export function getShapePrediction(path) {
 
   let shapeJSON = path.exportJSON();
   let shapeData = processShapeData(shapeJSON);
+  // console.log(JSON.stringify(shapeData));
   let shapePrediction = detector.spot(shapeData);
 
-  if (shapePrediction.score > 0.5) {
-    prediction.pattern = shapePrediction.pattern;
+  if (shapePrediction.score === 0) {
+    // algorithm doesn't like vertical lines for some reason
+    // if the certainty is 0 it's probably a line
+    prediction.pattern = "line";
+    prediction.score = 0.9;
   } else {
-    prediction.pattern = "other";
+    if (shapePrediction.score < 0.5) {
+      prediction.pattern = shapePrediction.pattern;
+    } else {
+      prediction.pattern = "other";
+    }
+    prediction.score = shapePrediction.score;
   }
-  prediction.score = shapePrediction.score;
 
   return prediction;
 }

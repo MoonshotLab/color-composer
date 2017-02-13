@@ -212,8 +212,8 @@ function panEnd(event) {
   group.data.color = truedShape.strokeColor;
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
-
   group.addChild(truedShape);
+
   let enclosedLoops = shape.findInteriorCurves(truedShape);
   Base.each(enclosedLoops, (loop, i) => {
     group.addChild(loop);
