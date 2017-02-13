@@ -1,4 +1,4 @@
-exports.runAnimations = false;
+exports.runAnimations = true;
 exports.canvasId = 'canvas';
 
 exports.palette = {

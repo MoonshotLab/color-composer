@@ -2,7 +2,7 @@ const ShapeDetector = require('./lib/shape-detector');
 
 const util = require('./util');
 
-export const cornerThresholdDeg = 30;
+export const cornerThresholdDeg = 50;
 
 export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
