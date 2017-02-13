@@ -8,23 +8,7 @@ export const thresholdDistMultiplier = 0.1;
 
 export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
-export const shapeNames = {
-  "line": {
-    sprite: true,
-  },
-  "circle": {
-    sprite: true,
-  },
-  "square": {
-    sprite: true,
-  },
-  "triangle": {
-    sprite: true,
-  },
-  "other": {
-    sprite: true,
-  }
-};
+export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 
 export function getTruedShape(path) {
   let pathClone = path.clone();

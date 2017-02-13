@@ -28,15 +28,8 @@ export function getShapeSoundObj(path) {
   soundObj.sound = sounds[shapePrediction.pattern];
   soundObj.startTime = quantizedSoundStartTime;
   soundObj.duration = quantizedSoundDuration;
-  // console.log(path);
   soundObj.pathId = path.id;
-
-  if (shape.shapeNames[shapePrediction.pattern].sprite) {
-    soundObj.sprite = true;
-    soundObj.spriteName = colorName;
-  } else {
-    soundObj.sprite = false;
-  }
+  soundObj.spriteName = colorName;
 
   return soundObj;
 }
@@ -68,27 +61,14 @@ export function initShapeSounds() {
   const extensions = ['ogg', 'm4a', 'mp3', 'ac3'];
 
   const shapeNames = shape.shapeNames;
-  Base.each(shapeNames, (shape, shapeName) => {
-    // console.log(shape, shapeName);
-    if (shape.sprite) {
-      let shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
-      $.getJSON(shapeSoundJSONPath, (resp) => {
-        let shapeSoundData = formatShapeSoundData(shapeName, resp);
-        let sound = new Howl(shapeSoundData);
-        returnSounds[shapeName] = sound;
-      });
-    } else {
-      // let sound = new Howl({
-      //   src: extensions.map((extension) => `./audio/shapes/${shape.name}/${shape.name}.${extension}`),
-      // });
-      // console.log({
-      //   src: extensions.map((extension) => `./audio/shapes/${shape.name}/${shape.name}.${extension}`),
-      // }) Math.
-      let sound = new Howl({
-        src: `./audio/shapes/${shapeName}/${shapeName}.mp3`,
-      });
+  Base.each(shapeNames, (shapeName) => {
+    let shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
+
+    $.getJSON(shapeSoundJSONPath, (resp) => {
+      let shapeSoundData = formatShapeSoundData(shapeName, resp);
+      let sound = new Howl(shapeSoundData);
       returnSounds[shapeName] = sound;
-    }
+    });
   });
 
   return returnSounds;
@@ -176,23 +156,17 @@ export function startComposition(composition) {
     console.log('repeat');
     Base.each(composition, (shape, i) => {
       console.log(shape);
-      if (shape.sprite) {
-        setTimeout(() => {
-          if (!window.kan.playing) {
-            return;
-          }
-          shape.sound.play(shape.spriteName);
-          animateNote(shape);
-        }, shape.startTime);
-      } else {
-        setTimeout(() => {
-          if (!window.kan.playing) {
-            return;
-          }
-          shape.sound.play();
-          animateNote(shape);
-        }, shape.startTime);
-      }
+      setTimeout(() => {
+        if (!window.kan.playing) {
+          return;
+        }
+        console.log(shape.sound);
+        console.log(shape.spriteName);
+        console.log('hiiiiiiiiii');
+        debugger;
+        shape.sound.play(shape.spriteName);
+        animateNote(shape);
+      }, shape.startTime);
     });
   }
 
