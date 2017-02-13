@@ -313,12 +313,13 @@ function pinchMove(event) {
   if (!!pinchedGroup) {
     let currentScale = event.scale;
     let scaleDelta;
+
     if (pinchedGroup.bounds.width < paper.view.viewSize.width &&
         pinchedGroup.bounds.height < paper.view.viewSize.height) {
         // only allow shape to scale if it fits in the viewport
         scaleDelta = currentScale / window.kan.lastScale;
       } else {
-        scaleDelta = 1;
+        scaleDelta = 0.99;
       }
 
     window.kan.lastScale = currentScale;

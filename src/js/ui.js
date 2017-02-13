@@ -12,7 +12,7 @@ export function init() {
   initPlayButton();
   initTipsButton();
   initShareButton();
-  setupCanvas();
+  addCanvasBackground();
 }
 
 function newPressed() {
@@ -155,7 +155,7 @@ function initShareButton() {
   });
 }
 
-function setupCanvas() {
+function addCanvasBackground() {
   paper.project.activeLayer.name = 'background';
   const canvasBg = new Raster('canvas-bg');
   canvasBg.name = 'canvasBg';
@@ -166,5 +166,4 @@ function setupCanvas() {
   canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
   let layer = new Layer(); // init new layer that all other shapes will be drawn upon
   paper.project.activeLayer.name = 'canvas';
-  console.log(paper.project);
 }
