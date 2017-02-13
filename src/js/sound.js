@@ -155,15 +155,11 @@ export function startComposition(composition) {
   function playCompositionOnce() {
     console.log('repeat');
     Base.each(composition, (shape, i) => {
-      console.log(shape);
       setTimeout(() => {
         if (!window.kan.playing) {
           return;
         }
-        console.log(shape.sound);
-        console.log(shape.spriteName);
-        console.log('hiiiiiiiiii');
-        debugger;
+
         shape.sound.play(shape.spriteName);
         animateNote(shape);
       }, shape.startTime);
