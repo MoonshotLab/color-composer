@@ -193,7 +193,7 @@ path {
     left: 50%;
     width: 45vw;
     height: 50vh;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -60%);
     z-index: 5;
   }
 
@@ -273,6 +273,10 @@ path {
     position: relative;
     top: 3rem;
     text-align: center;
+
+    span {
+      display: inline-block;
+    }
   }
 
   @keyframes cardSort {
