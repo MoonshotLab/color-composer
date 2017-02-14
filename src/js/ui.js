@@ -166,4 +166,5 @@ function addCanvasBackground() {
   canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
   let layer = new Layer(); // init new layer that all other shapes will be drawn upon
   paper.project.activeLayer.name = 'canvas';
+  window.kan.canvasLayer = layer;
 }

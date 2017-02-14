@@ -44,7 +44,7 @@ export function addTestShape(truedShape) {
 
   let sides = window.kan.sides;
   console.log('sides', sides);
-  
+
   // Find max speed
   let maxSpeed = 0;
   for (let dataPoint in pathData) {
@@ -102,9 +102,10 @@ export function addTestShape(truedShape) {
     }
     // console.log('returned segment:', pathSegment);
     // console.log('pathRemainder', pathRemainder);
-    
+
     const sidePath = pathRemainder.clone({insert: true});
     sidePaths.push(sidePath);
+    pathRemainder.remove();
     pathRemainder = pathSegment.clone({insert: true});
   });
   sidePaths.push(pathRemainder);
@@ -138,7 +139,7 @@ export function addTestShape(truedShape) {
       //   radius: 10,
       //   fillColor: new Color(0, 0, 1, 0.5)
       // });
-      
+
       // Debug: highlight with white
       var path = new Path.Line(firstPoint, lastPoint);
       path.strokeColor = new Color(1, 1, 1, 0.8);
@@ -146,7 +147,18 @@ export function addTestShape(truedShape) {
 
       guessedSides.push(path);
     } else {
-      console.log('Guessed a curve. sidePath:', sidePath);
+      truedShape.visible = false;
+
+      if (sidePath.layer === null) {
+        // no idea why the clone sometimes gets separated from the layer, but it happens if the curve does not self intersect
+        window.kan.canvasLayer.addChild(sidePath);
+      }
+
+      sidePath.visible = true;
+      sidePath.strokeWidth = 10;
+      sidePath.strokeColor = 'red';
+
+      console.log('Guessed a curve. sidePath:', sidePath, sidePath.length);
       new Path.Circle({
         center: firstPoint,
         radius: 10,
@@ -157,9 +169,14 @@ export function addTestShape(truedShape) {
         radius: 10,
         fillColor: new Color(0, 1, 1, 0.5)
       });
-      sidePath.visible = true;
-      sidePath.strokeWidth = 10;
-      sidePath.strokeColor = 'red';
+      Base.each(sidePath.segments, (segment, i) => {
+        new Path.Circle({
+          center: segment.point,
+          radius: 2,
+          fillColor: 'black'
+        });
+      });
+
       var path = sidePath.clone({insert: true});
       path.selected = true;
       path.fullySelected = true;
@@ -186,19 +203,19 @@ export function addTestShape(truedShape) {
   //       return;
   //     }
   //     // console.log('point', pointIndex, point);
-  // 
+  //
   //     const pointsDistanceFromCenter = Math.sqrt(
   //       Math.pow(shapeCenter.x - point.x, 2) + Math.pow(shapeCenter.y - point.y, 2)
   //     );
   //     // console.log('distance', pointsDistanceFromCenter);
-  // 
+  //
   //     const distanceRatio = (pointsDistanceFromCenter + sideSpeeds[sideIndex]) / pointsDistanceFromCenter;
   //     const newPoint = new Point(
   //       ((1 - distanceRatio) * shapeCenter.x) + (distanceRatio * point.x),
   //       ((1 - distanceRatio) * shapeCenter.y) + (distanceRatio * point.y)
   //     );
   //     // console.log('newPoint', newPoint);
-  // 
+  //
   //     outerPoints.push(newPoint);
   //   });
   // });
@@ -213,7 +230,7 @@ export function addTestShape(truedShape) {
   //   segments: outerPoints,
   //   closed: true,
   // });
-  // 
+  //
   // let innerPath = outerShapePath.subtract(shapePath);
   // innerPath.strokeWidth = 0;
   // innerPath.fillColor = new Color(1, 0.5, 0.5, 0.2);
@@ -230,6 +247,7 @@ export function getTruedShape(path) {
   let pathClone = path.clone();
   pathClone.visible = false;
   let completedPath = getCompletedPath(pathClone);
+  // console.log('completedPath', completedPath);
 
   // true the path!
   let truedPath = completedPath;
@@ -354,7 +372,7 @@ export function findInteriorCurves(path) {
 
   let interiorCurves = [];
 
-  let pathClone = path.clone({ insert: false });
+  let pathClone = path.clone();
   let intersections = pathClone.getIntersections();
 
   if (intersections.length > 0) {
@@ -399,6 +417,8 @@ export function findInteriorCurves(path) {
       interiorCurves.push(enclosedLoop);
     }
   }
+
+  pathClone.remove();
 
   return interiorCurves;
 }
@@ -456,7 +476,7 @@ export function getTrimmedPath(path) {
           }
         }
 
-        dividedPath.selected = true;
+        // dividedPath.selected = true;
 
         let trimmedPath = pathClone.subtract(dividedPath);
         if (trimmedPath.className === 'CompoundPath' && trimmedPath.children.length > 0) {

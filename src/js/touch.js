@@ -52,7 +52,7 @@ function singleTap(event) {
 
   if (hitResult) {
     let item = hitResult.item;
-    // item.selected = !item.selected;
+    item.selected = !item.selected;
     console.log(item);
   }
 }
@@ -97,7 +97,7 @@ function doubleTap(event) {
 
 function panStart(event) {
   console.log('---------------PANSTART---------------');
-  // paper.project.activeLayer.removeChildren(); // REMOVE
+  paper.project.activeLayer.removeChildren(); // REMOVE
 
   // ignore other touch inputs
   if (window.kan.pinching) return;
