@@ -39,9 +39,11 @@ html
                 img(src='img/tips.svg' alt='Tips')
       canvas(id=config.canvasId)
       img#canvas-bg(src='img/canvas-bg.jpg', style='display: none;')
+    div#video
+      asdf
     div.overlay.tips
       div.contents
-        div.header <span>x</span> Tips
+        div.header <span class="icon-close"></span><span>Tips</span>
         div.card-wrap
           article.current
             div.wrap
@@ -70,6 +72,7 @@ html
           span.current 0
           span.sep of
           span.next 0
+    div.overlay.share
   script(src='js/lib/jquery.min.js')
   script(src='js/lib/paper-full.min.js')
   script.

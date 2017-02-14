@@ -27,6 +27,7 @@ $(document).ready(function() {
     ui.init();
     touch.init();
     overlays.init();
+    video.init();
   }
 
   run();

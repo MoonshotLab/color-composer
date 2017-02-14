@@ -1,6 +1,7 @@
 const config = require('./../../config');
 
 const touch = require('./touch');
+const hammerManager = touch.hammerManager;
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -9,8 +10,6 @@ const $cardsWrap = $body.find('.card-wrap');
 const $cardItems = $cardsWrap.find('article');
 const cardsCount = $cardItems.length;
 const $footer = $body.find('.overlay.tips .footer');
-
-const hammerManager = touch.hammerManager;
 
 // card slider navigation
 function cardNavNext() {
