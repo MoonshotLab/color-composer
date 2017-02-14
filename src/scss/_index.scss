@@ -366,4 +366,15 @@ path {
     min-height: 100%;
   }
 
+  .contents {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 45vw;
+    border: 1px solid white;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    z-index: 15;
+  }
+
 }
