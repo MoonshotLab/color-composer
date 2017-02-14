@@ -177,6 +177,40 @@ path {
   }
 }
 
+.contextual-tutorial-tips {
+  position: absolute;
+  @extend %naked-list;
+
+  li {
+    pointer-events: none;
+    position: fixed;
+    z-index: 10;
+    min-width: 22rem;
+    max-width: 24rem;
+    padding: 2rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+    color: white;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 1.4rem;
+
+    &:after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 0;
+      height: 0;
+      top: 100%;
+      left: 50%;
+      border: solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.5);
+      border-width: 16px;
+      margin-left: -16px;
+    }
+  }
+}
+
 // overlays
 .overlay-active {
 

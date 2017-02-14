@@ -5,6 +5,7 @@ const sound = require('./sound');
 const color = require('./color');
 const shape = require('./shape');
 const util = require('./util');
+const tutorial = require('./tutorial');
 
 const canvas = document.getElementById(config.canvasId);
 
@@ -187,6 +188,11 @@ function panEnd(event) {
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
+  window.kan.pathData[shape.stringifyPoint(point)] = {
+    point: point,
+    last: true
+  };
+
   const transparent = color.transparent;
   const colorName = color.getColorName(window.kan.currentColor);
 
@@ -200,6 +206,7 @@ function panEnd(event) {
   let truedShape = shape.getTruedShape(shapePath);
   shapePath.remove();
   truedShape.visible = true;
+  window.kan.shapePath = truedShape;
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
   window.kan.composition.push(shapeSoundObj);
@@ -218,6 +225,11 @@ function panEnd(event) {
   Base.each(enclosedLoops, (loop, i) => {
     group.addChild(loop);
     loop.sendToBack();
+  });
+
+  window.kan.moves.push({
+    type: 'newGroup',
+    id: group.id
   });
 
   if (config.runAnimations) {
@@ -244,29 +256,26 @@ function panEnd(event) {
     );
   }
 
-  if (truedShape.closed) {
-    // add contextual tutorial if this is one of the first 3 closed shapes
-    if (window.kan.numClosedShapes < 3) {
-      let tip = tutorial.contextualTips
+  if (!tutorial.allTutorialsCompleted()) {
+    const tutorialCompletion = window.kan.tutorialCompletion;
+    if (!tutorialCompletion['fill'] && truedShape.closed) {
+      console.log('fill tutorial');
+      tutorial.addContextualTutorial('fill');
+      window.kan.tutorialCompletion['fill'] = true;
+    } else if (!tutorialCompletion['pinch'] && true) {
+      console.log('pinch tutorial');
+      tutorial.addContextualTutorial('pinch');
+      window.kan.tutorialCompletion['pinch'] = true;
+    } else if (!tutorialCompletion['swipe'] && true) {
+      console.log('swipe tutorial');
+      tutorial.addContextualTutorial('swipe');
+      window.kan.tutorialCompletion['swipe'] = true;
     }
-
-    window.kan.numClosedShapes++;
   }
 
-  window.kan.shapePath = truedShape;
   // window.kan.side = side;
   // window.kan.sides = sides;
   // window.kan.corners = corners;
-
-  window.kan.pathData[shape.stringifyPoint(point)] = {
-    point: point,
-    last: true
-  };
-
-  window.kan.moves.push({
-    type: 'newGroup',
-    id: group.id
-  });
 }
 
 function hitTestGroupBounds(point) {

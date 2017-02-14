@@ -21,7 +21,11 @@ window.kan = {
   lastScale: 1,
   lastRotation: 0,
   originalPosition: null,
-  numClosedShapes: 0,
+  tutorialCompletion: {
+    "fill": false,
+    "pinch": false,
+    "swipe": false
+  },
 };
 
 $(document).ready(function() {
