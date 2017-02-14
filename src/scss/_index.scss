@@ -189,18 +189,26 @@ path {
 
   .contents {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     width: 45vw;
-    height: 50vh;
-    transform: translate(-50%, -60%);
+    height: 45vh;
+    transform: translate(-50%, -50%);
     z-index: 5;
   }
 
   .header {
     position: relative;
     top: -4rem;
+    font-size: 1.8vw;
+    font-weight: 700;
+    letter-spacing: 0.2rem;
     text-align: center;
+    text-transform: uppercase;
+
+    span {
+      margin-right: 2rem;
+    }
   }
 
   .card-wrap {
@@ -252,31 +260,33 @@ path {
       top: 50%;
       left: 50%;
       margin: 0 auto;
-      padding: 0 5vw;
       line-height: 1.25;
       transform: translate(-50%, -50%);
     }
 
     .title {
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
+      padding: 0 5vw;
       font-size: 2vw;
       font-weight: 800;
     }
 
     .text {
-      font-size: 1.4vw;
+      padding: 0 7vw;
+      font-size: 1.3vw;
       font-weight: 600;
     }
   }
 
   .footer {
     position: relative;
-    top: 3rem;
+    top: 2rem;
     text-align: center;
 
     span {
       display: inline-block;
-      margin: 0 0.2rem;
+      margin: 0 0.3rem;
+      text-transform: uppercase;
     }
   }
 

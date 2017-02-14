@@ -46,7 +46,7 @@ function openOverlayTips() {
 // tipcs card interactions
 function cardInteractions() {
   $body.find('.overlay').on(tapEvent, e => {
-    if ( $(e.target).closest('.contents').length == 1 ) {
+    if ( $(e.target).closest('.card-wrap').length == 1 ) {
       // directly on a card, navigate to the next one
       cardNavNext();
     } else {
