@@ -18,6 +18,7 @@ export function init() {
 function newPressed() {
   console.log('new pressed');
   window.kan.composition = [];
+  window.kan.numClosedShapes = 0;
   paper.project.activeLayer.removeChildren();
 }
 

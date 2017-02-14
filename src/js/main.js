@@ -20,6 +20,7 @@ window.kan = {
   lastScale: 1,
   lastRotation: 0,
   originalPosition: null,
+  numClosedShapes: 0,
 };
 
 $(document).ready(function() {

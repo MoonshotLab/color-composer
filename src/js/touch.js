@@ -220,23 +220,8 @@ function panEnd(event) {
     loop.sendToBack();
   });
 
-  window.kan.shapePath = truedShape;
-  // window.kan.side = side;
-  // window.kan.sides = sides;
-  // window.kan.corners = corners;
-
-  window.kan.pathData[shape.stringifyPoint(point)] = {
-    point: point,
-    last: true
-  };
-
-  window.kan.moves.push({
-    type: 'newGroup',
-    id: group.id
-  });
-
   if (config.runAnimations) {
-    let scaleFactor = 0.9
+    const scaleFactor = 0.9;
     group.animate(
       [{
         properties: {
@@ -258,6 +243,30 @@ function panEnd(event) {
       }]
     );
   }
+
+  if (truedShape.closed) {
+    // add contextual tutorial if this is one of the first 3 closed shapes
+    if (window.kan.numClosedShapes < 3) {
+      let tip = tutorial.contextualTips
+    }
+
+    window.kan.numClosedShapes++;
+  }
+
+  window.kan.shapePath = truedShape;
+  // window.kan.side = side;
+  // window.kan.sides = sides;
+  // window.kan.corners = corners;
+
+  window.kan.pathData[shape.stringifyPoint(point)] = {
+    point: point,
+    last: true
+  };
+
+  window.kan.moves.push({
+    type: 'newGroup',
+    id: group.id
+  });
 }
 
 function hitTestGroupBounds(point) {
