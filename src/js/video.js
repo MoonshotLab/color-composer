@@ -29,6 +29,6 @@ function videoTriggers() {
 export function init() {
   if ( window.location.hash.length > 0 && window.location.hash == '#video' ) {
     $body.toggleClass('play-video');
+    videoTriggers();
   }
-  videoTriggers();
 }

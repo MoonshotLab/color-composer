@@ -186,22 +186,33 @@ path {
 
   // tips
   &.tips-active {
-
     .overlay.tips {
       opacity: 1;
       z-index: 3;
     }
-
     .main-controls {
       opacity: 0.25;
       filter: blur(1px);
     }
-
   }
+
+  // share
+  &.share-active {
+    .overlay.share {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls > li:not(.share),
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
 }
 
-// tips
-.overlay.tips {
+// overlay defaults
+.overlay {
   content: "";
   position: fixed;
   top: 0;
@@ -237,6 +248,10 @@ path {
       margin-right: 2rem;
     }
   }
+}
+
+// tips
+.overlay.tips {
 
   .card-wrap {
     position: relative;
@@ -317,23 +332,23 @@ path {
       text-transform: uppercase;
     }
   }
+}
 
-  @keyframes cardSort {
-    0% {
-      transform: translate(0, 0);
-      opacity: 1;
-    },
-    20% {
-      transform: translate(-2rem, 2rem);
-    },
-    50% {
-      transform: translate(2rem, -2rem);
-      opacity: 1;
-    },
-    100% {
-      transform: translate(0, 0);
-      opacity: 0;
-    }
+@keyframes cardSort {
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  },
+  20% {
+    transform: translate(-2rem, 2rem);
+  },
+  50% {
+    transform: translate(2rem, -2rem);
+    opacity: 1;
+  },
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
   }
 }
 

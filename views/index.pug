@@ -31,7 +31,7 @@ html
             li.play-stop
               img.play(src='img/play.svg' alt='Play')
               img.stop(src='img/stop.svg' alt='Stop')
-            li.share(style="visibility:hidden;")
+            li.share
               img(src='img/share.svg' alt='Share')
           div.aux-controls-wrap.controls-wrap
             ul.aux-controls.controls
@@ -74,6 +74,9 @@ html
           span.sep of
           span.next 0
     div.overlay.share
+      div.contents
+        div.header <span class="icon-close"></span><span>Share</span>
+        div.card-wrap asdf
   script(src='js/lib/jquery.min.js')
   script(src='js/lib/paper-full.min.js')
   script.

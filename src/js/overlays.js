@@ -32,11 +32,24 @@ function cardNavNext() {
 function openOverlayTips() {
   $body.find('li.tips').on(tapEvent, e => {
     if ( $body.hasClass('overlay-active') ) {
-      closeAndResetTips();
+      closeAndResetOverlays();
     } else {
       activateTipsCards();
       setTimeout(() => {
         $body.addClass('overlay-active tips-active');
+      }, 150);
+    }
+  });
+}
+
+// open sharing
+function openOverlayShare() {
+  $body.find('li.share').on(tapEvent, e => {
+    if ( $body.hasClass('overlay-active') ) {
+      closeAndResetOverlays();
+    } else {
+      setTimeout(() => {
+        $body.addClass('overlay-active share-active');
       }, 150);
     }
   });
@@ -50,14 +63,14 @@ function cardInteractions() {
       cardNavNext();
     } else {
       // outside elements, close everything and reset
-      closeAndResetTips();
+      closeAndResetOverlays();
     }
   });
 }
 
 // close and reset tips
-function closeAndResetTips() {
-  $body.removeClass('overlay-active tips-active');
+function closeAndResetOverlays() {
+  $body.removeClass();
   $cardItems.removeClass();
 }
 
@@ -79,12 +92,8 @@ function updateCardCounter(current, total) {
   $footer.find('.next').html(total);
 }
 
-// initial setup
-function setupTipsCardStack() {
-  openOverlayTips();
-  cardInteractions();
-}
-
 export function init() {
-  setupTipsCardStack();
+  openOverlayTips();
+  openOverlayShare();
+  cardInteractions();
 }
