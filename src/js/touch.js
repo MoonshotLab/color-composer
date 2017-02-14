@@ -207,15 +207,14 @@ function panEnd(event) {
   shapePath.remove();
   truedShape.visible = true;
 
-  // addTestShape(shapePath, shapeData, window.kan.pathData, corners, sides);
-  shape.addTestShape(truedShape);
-
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
   window.kan.composition.push(shapeSoundObj);
 
   side.push(point);
   sides.push(side);
   corners.push(point);
+
+  shape.addTestShape(truedShape);
 
   let group = new Group();
   group.data.color = truedShape.strokeColor;
@@ -259,6 +258,15 @@ function panEnd(event) {
       {
         properties: {
           scale: 1 / scaleFactor
+        },
+        settings: {
+          duration: 100,
+          easing: "easeIn",
+        }
+      },
+      { // FIXME: I added this to bounce it back to 1 ^bc
+        properties: {
+          scale: 1
         },
         settings: {
           duration: 100,

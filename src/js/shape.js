@@ -27,10 +27,11 @@ export const shapeNames = {
   }
 };
 
-export function addTestShape(innerShapePath) {
-  console.log('innerShapePath', innerShapePath);
+export function addTestShape(truedShape) {
+  console.log('--- addTestShape begin ---');
+  console.log('truedShape', truedShape);
 
-  let shapeJSON = innerShapePath.exportJSON();
+  let shapeJSON = truedShape.exportJSON();
   let shapeData = processShapeData(shapeJSON);
   console.log('shapeData', shapeData);
 
@@ -42,7 +43,8 @@ export function addTestShape(innerShapePath) {
 
   let sides = window.kan.sides;
   console.log('sides', sides);
-
+  
+  // Find max speed
   let maxSpeed = 0;
   for (let dataPoint in pathData) {
     if (!!pathData[dataPoint].speed) {
@@ -50,7 +52,9 @@ export function addTestShape(innerShapePath) {
       maxSpeed = Math.max(pathData[dataPoint].speed, maxSpeed);
     }
   }
+  // End max speed
 
+  // Calculate average speed for one side
   const sideSpeeds = [];
   sides.forEach((side, index) => {
     let thisSideSpeed = 0;
@@ -61,35 +65,38 @@ export function addTestShape(innerShapePath) {
       }
       thisSideSpeed += pathData[stringifyPoint(point)].speed;
     });
-    console.log('max', maxSpeed, 'this', thisSideSpeed);
+    // console.log('- max speed', maxSpeed, 'this', thisSideSpeed);
     // const lineWidth = Math.min(Math.max((thisSideSpeed / maxSpeed) * 5, 2) / 3, 20);
     const lineWidth = 20; // FIXME: this should be a variable width
     sideSpeeds.push(lineWidth);
   });
+  // console.log('sideSpeeds', sideSpeeds);
+  // End calculating side speeds
 
-  console.log('sideSpeeds', sideSpeeds);
-
-  let shapePath = new Path({
-    strokeColor: window.kan.currentColor,
-    name: 'shapePath',
-    strokeWidth: 5,
-    visible: false,
-    strokeCap: 'round',
-    selected: true,
-    segments: shapeData,
-    closed: true,
-  });
-  const shapeCenter = {
-    x: shapePath.position._x,
-    y: shapePath.position._y
-  };
+  // let shapePath = new Path({
+  //   strokeColor: 'pink',
+  //   name: 'shapePath',
+  //   strokeWidth: 10,
+  //   visible: true,
+  //   strokeCap: 'round',
+  //   selected: false,
+  //   segments: shapeData,
+  //   closed: false, // TODO: determine closed status based on original shape / trued shape
+  // });
+  // let shapePath = truedShape.clone({insert: true});
+  // const shapeCenter = {
+  //   x: shapePath.position._x,
+  //   y: shapePath.position._y
+  // };
 
   const outerPoints = [];
 
-  // Split paths from each corner
+  // Split paths at each corner
   const sidePaths = [];
-  let pathRemainder = shapePath.clone({insert: true});
+  let pathRemainder = truedShape.clone({insert: true});
+  // pathRemainder.selected = true;
   corners.forEach((corner, cornerIndex) => {
+    // Debug - draw a circle at each corner
     new Path.Circle({
       center: corner,
       radius: 15,
@@ -101,90 +108,128 @@ export function addTestShape(innerShapePath) {
       return;
     }
 
-    pathRemainder = pathRemainder.clone({insert: true});
-    // pathRemainder.selected = true;
+    // Here's where we're splitting the path
     const nearestLocation = pathRemainder.getNearestLocation(corner);
-    console.log('corner', corner);
-    console.log('nearestLocation', nearestLocation);
-    const pathSegment = pathRemainder.splitAt(nearestLocation);
-    sidePaths.push(pathRemainder);
-  });
+    if (!!nearestLocation) {
+      new Path.Circle({
+        center: nearestLocation.point,
+        radius: 20,
+        fillColor: new Color(0, 0, 1, 0.2)
+      });
+      // console.log('nearestLocation', nearestLocation._point);
+    }
 
-  console.log('sidePaths', sidePaths);
-  const guessedSides = [];
-  sidePaths.forEach((sidePath, sidePathIndex) => {
-    // sidePath.selected = true;
-    sidePath.strokeColor = 'green';
-    if (!corners[sidePathIndex + 1]) {
+    const pathSegment = pathRemainder.splitAt(nearestLocation);
+    if (pathSegment === null) {
+      console.log('%c no pathSegment', 'color: red;');
       return;
     }
+    // console.log('returned segment:', pathSegment);
+    // console.log('pathRemainder', pathRemainder);
+    
+    const sidePath = pathRemainder.clone({insert: true});
+    sidePath.visible = true;
+    // sidePath.selected = true;
+    sidePath.strokeColor = new Color(Math.random(), Math.random(), Math.random(), 0.4);
+    sidePath.strokeWidth = 15;
+
+    sidePaths.push(sidePath);
+    pathRemainder = pathSegment.clone({insert: true});
+  });
+  sidePaths.push(pathRemainder);
+  console.log('split sidePaths', sidePaths);
+  // End splitting path at corners
+
+  // Start recreating a shape based on the sides
+  const guessedSides = [];
+  sidePaths.forEach((sidePath, sidePathIndex) => {
+    console.log('------- sidePath -----');
+    sidePath.selected = true;
+    sidePath.visible = true;
+    sidePath.strokeColor = new Color(0, 1, 0, 0.2);
+    sidePath.strokeWidth = 15;
+
     console.log(`sidepath ${sidePathIndex} length`, sidePath.length);
     const calcLength = corners[sidePathIndex].getDistance(corners[sidePathIndex + 1]);
     console.log(`calculated length`, calcLength);
-    if (sidePath.length > (calcLength * 0.9) && sidePath.length < (calcLength * 1.1)) {
+
+    // Find straights and curves
+    // TODO: determine best margin of error for distance
+    if (sidePath.length > (calcLength * 0.8) && sidePath.length < (calcLength * 1.2)) {
       // This is probably a straight line
       console.log('segments', sidePath._segments);
       console.log('last', sidePath.length - 1, sidePath.segments[sidePath.segments.length - 1]);
       const firstPoint = sidePath.firstSegment.point;
       const lastPoint = sidePath.lastSegment.point;
       console.log('Guessed a straight line between', firstPoint, lastPoint);
+      
+      // Debug: highlight with white
+      var path = new Path.Line(firstPoint, lastPoint);
+      path.strokeColor = new Color(1, 1, 1, 0.8);
+      path.strokeWidth = 10;
+
       guessedSides.push(firstPoint, lastPoint);
     } else {
+      console.log('Guessed a curve');
+      sidePath.selected = true;
+      // Assume this is a curve
       guessedSides.push(sidePath);
     }
   });
   console.log('guessedSides', guessedSides);
-  // console.log('pathRemainder', pathRemainder);
+  // End recreating the shape
 
   // console.log('center', shapeCenter);
-  sides.forEach((side, sideIndex) => {
-    side.forEach((point, pointIndex) => {
-      if (((sideIndex == sides.length - 1) && (pointIndex == side.length - 1)) || ((sideIndex == 0) && (pointIndex == 0))) {
-        // Mark the beginning and ends
-        new Path.Circle({
-          center: point,
-          radius: 15,
-          fillColor: new Color(0, 0, 1, 0.5)
-        });
-        return;
-      }
-      // console.log('point', pointIndex, point);
+  // sides.forEach((side, sideIndex) => {
+  //   side.forEach((point, pointIndex) => {
+  //     if (((sideIndex == sides.length - 1) && (pointIndex == side.length - 1)) || ((sideIndex == 0) && (pointIndex == 0))) {
+  //       // Mark the beginning and ends
+  //       new Path.Circle({
+  //         center: point,
+  //         radius: 10,
+  //         fillColor: new Color(0, 0, 1, 0.5)
+  //       });
+  //       return;
+  //     }
+  //     // console.log('point', pointIndex, point);
+  // 
+  //     const pointsDistanceFromCenter = Math.sqrt(
+  //       Math.pow(shapeCenter.x - point.x, 2) + Math.pow(shapeCenter.y - point.y, 2)
+  //     );
+  //     // console.log('distance', pointsDistanceFromCenter);
+  // 
+  //     const distanceRatio = (pointsDistanceFromCenter + sideSpeeds[sideIndex]) / pointsDistanceFromCenter;
+  //     const newPoint = new Point(
+  //       ((1 - distanceRatio) * shapeCenter.x) + (distanceRatio * point.x),
+  //       ((1 - distanceRatio) * shapeCenter.y) + (distanceRatio * point.y)
+  //     );
+  //     // console.log('newPoint', newPoint);
+  // 
+  //     outerPoints.push(newPoint);
+  //   });
+  // });
 
-      const pointsDistanceFromCenter = Math.sqrt(
-        Math.pow(shapeCenter.x - point.x, 2) + Math.pow(shapeCenter.y - point.y, 2)
-      );
-      // console.log('distance', pointsDistanceFromCenter);
+  // let outerShapePath = new Path({
+  //   strokeColor: new Color(1, 0, 0, 0.8),
+  //   name: 'shapePath',
+  //   strokeWidth: 1,
+  //   visible: true,
+  //   strokeCap: 'round',
+  //   selected: true,
+  //   segments: outerPoints,
+  //   closed: true,
+  // });
+  // 
+  // let innerPath = outerShapePath.subtract(shapePath);
+  // innerPath.strokeWidth = 0;
+  // innerPath.fillColor = new Color(1, 0.5, 0.5, 0.2);
+  // innerPath.visible = true;
 
-      const distanceRatio = (pointsDistanceFromCenter + sideSpeeds[sideIndex]) / pointsDistanceFromCenter;
-      const newPoint = new Point(
-        ((1 - distanceRatio) * shapeCenter.x) + (distanceRatio * point.x),
-        ((1 - distanceRatio) * shapeCenter.y) + (distanceRatio * point.y)
-      );
-      // console.log('newPoint', newPoint);
-
-      outerPoints.push(newPoint);
-    });
-  });
-
-  let outerShapePath = new Path({
-    strokeColor: new Color(1, 0, 0, 0.8),
-    name: 'shapePath',
-    strokeWidth: 1,
-    visible: true,
-    strokeCap: 'round',
-    selected: true,
-    segments: outerPoints,
-    closed: true,
-  });
-
-  let innerPath = outerShapePath.subtract(shapePath);
-  innerPath.strokeWidth = 0;
-  innerPath.fillColor = new Color(1, 0.5, 0.5, 0.2);
-  innerPath.visible = true;
   // innerPath.selected = true;
   // innerPath.smooth(); // This makes it an ovoid
 
   // console.log('shapePath', shapePath);
+  console.log('--- addTestShape end ---');
 }
 
 export function getTruedShape(path) {
