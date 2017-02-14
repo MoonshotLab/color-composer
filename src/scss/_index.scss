@@ -177,6 +177,7 @@ path {
   }
 }
 
+// overlays
 .overlay-active {
 
   canvas {
@@ -199,6 +200,7 @@ path {
   }
 }
 
+// tips
 .overlay.tips {
   content: "";
   position: fixed;
@@ -333,18 +335,15 @@ path {
       opacity: 0;
     }
   }
+}
 
-  // @keyframes leaveLeft {
-  //   to {
-  //     opacity: 0;
-  //     transform: translate3d(0, 400px,0) rotate3d(0,0,1,40deg);
-  //   }
-  // }
-
-  // @keyframes leaveRight {
-  //   to {
-  //     opacity: 0;
-  //     transform: translate3d(0, 400px,0) rotate3d(0,0,1,-40deg);
-  //   }
-  // }
+// intro
+.play-video #video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 10;
 }

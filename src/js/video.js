@@ -7,9 +7,11 @@ const $body = $('body');
 const tapEvent = 'click tap touch';
 
 function playVideo() {
-  console.log('asdf');
+  $body.addClass('play-video');
 }
 
 export function init() {
-  playVideo();
+  if ( window.location.hash.length > 0 && window.location.hash == '#video' ) {
+    playVideo();
+  }
 }

@@ -1,6 +1,7 @@
 const touch = require('./touch');
 const ui = require('./ui');
 const overlays = require('./overlays');
+const video = require('./video');
 
 window.kan = {
   currentColor: '#20171C',
