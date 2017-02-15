@@ -159,11 +159,12 @@ function panMove(event) {
     if (side.length > 0) {
       // console.log('corner');
       let cornerPoint = point;
-      new Path.Circle({
-        center: cornerPoint,
-        radius: 5,
-        fillColor: new Color(0, 1, 0, 0.5)
-      });
+      // Debug: draw a circle when a corner has been detected
+      // new Path.Circle({
+      //   center: cornerPoint,
+      //   radius: 5,
+      //   fillColor: new Color(0, 1, 0, 0.5)
+      // });
       if (pointDistance > thresholdLength) {
         window.kan.corners.push(cornerPoint);
         sides.push(side);
@@ -176,9 +177,11 @@ function panMove(event) {
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
-    speed: Math.abs(event.overallVelocity),
+    speed: Math.abs(event.velocity),
     angle: angle
   };
+  // console.log('velocity: ', event.velocity);
+  // console.log('overallVelocity: ', event.overallVelocity);
 
   window.kan.shapePath.add(point);
   window.kan.sides = sides;
@@ -214,8 +217,6 @@ function panEnd(event) {
   sides.push(side);
   corners.push(point);
 
-  shape.addTestShape(truedShape);
-
   let group = new Group();
   group.data.color = truedShape.strokeColor;
   group.data.scale = 1; // init variable to track scale changes
@@ -237,6 +238,8 @@ function panEnd(event) {
     point: point,
     last: true
   };
+  
+  shape.addTestShape(truedShape);
 
   window.kan.moves.push({
     type: 'newGroup',

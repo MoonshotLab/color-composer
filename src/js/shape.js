@@ -30,7 +30,7 @@ export const shapeNames = {
 export function addTestShape(truedShape) {
   console.log('--- addTestShape begin ---');
   console.log('truedShape', truedShape);
-  truedShape.strokeWidth = 2;
+  truedShape.visible = false;
 
   let shapeJSON = truedShape.exportJSON();
   let shapeData = processShapeData(shapeJSON);
@@ -45,31 +45,24 @@ export function addTestShape(truedShape) {
   let sides = window.kan.sides;
   console.log('sides', sides);
 
-  // Find max speed
-  let maxSpeed = 0;
-  for (let dataPoint in pathData) {
-    if (!!pathData[dataPoint].speed) {
-      // console.log(pathData[dataPoint]);
-      maxSpeed = Math.max(pathData[dataPoint].speed, maxSpeed);
-    }
-  }
-  // End max speed
 
   // Calculate average speed for one side
   const sideSpeeds = [];
   sides.forEach((side, index) => {
-    let thisSideSpeed = 0;
+    let minSpeed = 100;
+    let maxSpeed = 0;
     side.forEach((point, pointIndex) => {
       const speed = pathData[stringifyPoint(point)].speed;
       if (typeof(speed) === 'undefined') { // FIXME: figure out why these are undefined. Maybe a simplified point?
         return;
       }
-      thisSideSpeed += pathData[stringifyPoint(point)].speed;
+      minSpeed = Math.min(pathData[stringifyPoint(point)].speed, minSpeed);
+      maxSpeed = Math.max(pathData[stringifyPoint(point)].speed, maxSpeed);
     });
-    // console.log('- max speed', maxSpeed, 'this', thisSideSpeed);
-    // const lineWidth = Math.min(Math.max((thisSideSpeed / maxSpeed) * 5, 2) / 3, 20);
-    const lineWidth = 20; // FIXME: this should be a variable width
-    sideSpeeds.push(lineWidth);
+    sideSpeeds.push({
+      minSpeed: minSpeed,
+      maxSpeed: maxSpeed
+    });
   });
   // End calculating side speeds
 
@@ -85,23 +78,12 @@ export function addTestShape(truedShape) {
 
     // Here's where we're splitting the path
     const nearestLocation = pathRemainder.getNearestLocation(corner);
-    // Debug stuff
-    // if (!!nearestLocation) {
-    //   new Path.Circle({
-    //     center: nearestLocation.point,
-    //     radius: 20,
-    //     fillColor: new Color(0, 0, 1, 0.2)
-    //   });
-    //   // console.log('nearestLocation', nearestLocation._point);
-    // }
 
     const pathSegment = pathRemainder.splitAt(nearestLocation);
     if (pathSegment === null) {
       console.log('%c no pathSegment', 'color: red;');
       return;
     }
-    // console.log('returned segment:', pathSegment);
-    // console.log('pathRemainder', pathRemainder);
 
     const sidePath = pathRemainder.clone({insert: true});
     sidePaths.push(sidePath);
@@ -121,125 +103,158 @@ export function addTestShape(truedShape) {
     const lastPoint = sidePath.lastSegment.point;
 
     const calcLength = corners[sidePathIndex].getDistance(corners[sidePathIndex + 1]);
-    console.log(`  ${sidePathIndex} length`, sidePath.length);
-    console.log(`  calculated length`, calcLength);
+    // console.log(`  ${sidePathIndex} length`, sidePath.length);
+    // console.log(`  calculated length`, calcLength);
 
     // Find straights and curves
     // TODO: determine best margin of error for distance
     if (sidePath.length > (calcLength * 0.9) && sidePath.length < (calcLength * 1.1)) {
       // This is probably a straight line
-      console.log('Guessed a straight line between', firstPoint, lastPoint);
-      // new Path.Circle({
-      //   center: firstPoint,
-      //   radius: 10,
-      //   fillColor: new Color(1, 0, 0, 0.5)
-      // });
-      // new Path.Circle({
-      //   center: lastPoint,
-      //   radius: 10,
-      //   fillColor: new Color(0, 0, 1, 0.5)
-      // });
-
-      // Debug: highlight with white
+      // console.log('Guessed a straight line between', firstPoint, lastPoint);
       var path = new Path.Line(firstPoint, lastPoint);
-      path.strokeColor = new Color(1, 1, 1, 0.8);
-      path.strokeWidth = 10;
-
-      guessedSides.push(path);
+      
+      guessedSides.push({
+        type: 'line',
+        path: path,
+        minSpeed: sideSpeeds[sidePathIndex].minSpeed,
+        maxSpeed: sideSpeeds[sidePathIndex].maxSpeed,
+      });
     } else {
-      truedShape.visible = false;
-
+      // Assume this is a curve
       if (sidePath.layer === null) {
         // no idea why the clone sometimes gets separated from the layer, but it happens if the curve does not self intersect
         window.kan.canvasLayer.addChild(sidePath);
       }
 
-      sidePath.visible = true;
-      sidePath.strokeWidth = 10;
-      sidePath.strokeColor = 'red';
-
-      console.log('Guessed a curve. sidePath:', sidePath, sidePath.length);
-      new Path.Circle({
-        center: firstPoint,
-        radius: 10,
-        fillColor: new Color(0, 1, 0, 0.5)
-      });
-      new Path.Circle({
-        center: lastPoint,
-        radius: 10,
-        fillColor: new Color(0, 1, 1, 0.5)
-      });
-      Base.each(sidePath.segments, (segment, i) => {
-        new Path.Circle({
-          center: segment.point,
-          radius: 2,
-          fillColor: 'black'
-        });
-      });
+      // console.log('Guessed a curve. sidePath:', sidePath, sidePath.length);
 
       var path = sidePath.clone({insert: true});
-      path.selected = true;
-      path.fullySelected = true;
-      path.visible = true;
-      path.strokeWidth = 20;
-      path.strokeColor = new Color(Math.random(), Math.random(), Math.random(), 0.5);
-      // Assume this is a curve
-      guessedSides.push(path);
+      guessedSides.push({
+        type: 'curve',
+        path: path,
+        minSpeed: sideSpeeds[sidePathIndex].minSpeed,
+        maxSpeed: sideSpeeds[sidePathIndex].maxSpeed,
+      });
     }
   });
-  console.log('guessedSides', guessedSides);
+  // console.log('guessedSides', guessedSides);
   // End recreating the shape
 
-  // console.log('center', shapeCenter);
-  // sides.forEach((side, sideIndex) => {
-  //   side.forEach((point, pointIndex) => {
-  //     if (((sideIndex == sides.length - 1) && (pointIndex == side.length - 1)) || ((sideIndex == 0) && (pointIndex == 0))) {
-  //       // Mark the beginning and ends
-  //       new Path.Circle({
-  //         center: point,
-  //         radius: 10,
-  //         fillColor: new Color(0, 0, 1, 0.5)
-  //       });
-  //       return;
-  //     }
-  //     // console.log('point', pointIndex, point);
-  //
-  //     const pointsDistanceFromCenter = Math.sqrt(
-  //       Math.pow(shapeCenter.x - point.x, 2) + Math.pow(shapeCenter.y - point.y, 2)
-  //     );
-  //     // console.log('distance', pointsDistanceFromCenter);
-  //
-  //     const distanceRatio = (pointsDistanceFromCenter + sideSpeeds[sideIndex]) / pointsDistanceFromCenter;
-  //     const newPoint = new Point(
-  //       ((1 - distanceRatio) * shapeCenter.x) + (distanceRatio * point.x),
-  //       ((1 - distanceRatio) * shapeCenter.y) + (distanceRatio * point.y)
-  //     );
-  //     // console.log('newPoint', newPoint);
-  //
-  //     outerPoints.push(newPoint);
-  //   });
-  // });
 
-  // let outerShapePath = new Path({
-  //   strokeColor: new Color(1, 0, 0, 0.8),
-  //   name: 'shapePath',
-  //   strokeWidth: 1,
-  //   visible: true,
-  //   strokeCap: 'round',
-  //   selected: true,
-  //   segments: outerPoints,
-  //   closed: true,
-  // });
-  //
-  // let innerPath = outerShapePath.subtract(shapePath);
-  // innerPath.strokeWidth = 0;
-  // innerPath.fillColor = new Color(1, 0.5, 0.5, 0.2);
-  // innerPath.visible = true;
+  const outerPath = new Path();
 
-  // innerPath.selected = true;
-  // innerPath.smooth(); // This makes it an ovoid
+  // Now calculate thicker line points from each side
+  guessedSides.forEach((guessedSide, guessedSideIndex) => {
+    console.log('---');
+    console.log('guessedSide', guessedSide);
 
-  // console.log('shapePath', shapePath);
+    // pathData[stringifyPoint(point)].speed
+
+    if (guessedSide.type == 'line') {
+      // Line
+      console.log('real side', sides[guessedSideIndex]);
+      let currentPosition = 0;
+      
+      sides[guessedSideIndex].forEach((point, pointIndex) => {
+        // let pointSpeed = pathData[stringifyPoint(point)].speed;
+        // console.log('pointSpeed', pointSpeed);
+        
+        const angle = pathData[stringifyPoint(point)].angle;
+        const pointSpeed = pathData[stringifyPoint(point)].speed;
+
+        const avgSize = Math.max(5, 30 - (10 * pointSpeed));
+
+        const bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
+        const bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
+        const bottom = new Point(bottomX, bottomY);
+        outerPath.add(bottom);
+
+        const topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
+        const topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
+        const top = new Point(topX, topY);
+        outerPath.insert(0, top);
+        
+        // Debug: draw a connector line
+        // const connectorLine = new Path.Line(top, bottom);
+        // connectorLine.strokeWidth = 2;
+        // connectorLine.strokeColor = 'black';
+
+        // new Path.Circle({
+        //   center: point,
+        //   radius: avgSize,
+        //   fillColor: new Color(1, 0, 0, 0.1),
+        // });
+        
+        currentPosition += 0.1;
+      });
+    } else {
+      // Curve
+      console.log('real side', sides[guessedSideIndex]);
+      let currentPosition = 0;
+
+      sides[guessedSideIndex].forEach((point, pointIndex) => {
+        const angle = pathData[stringifyPoint(point)].angle;
+        const pointSpeed = pathData[stringifyPoint(point)].speed;
+        const maxSpeed = sideSpeeds[guessedSideIndex].maxSpeed;
+        const minSpeed = sideSpeeds[guessedSideIndex].minSpeed;
+        const deltaSpeed = maxSpeed - minSpeed;
+        // console.log(`${pointIndex}: min:${minSpeed} max:${maxSpeed}`);
+        
+        // const percentage = sidePaths[guessedSideIndex].getNearestLocation(pathData[stringifyPoint(point)].point);
+        // const currentPosition = percentage.time;
+        // console.log('point:', pathData[stringifyPoint(point)].point);
+
+        // const avgSize = currentPosition * deltaSpeed + minSpeed;
+        const avgSize = 10;
+
+        const topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
+        const topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
+        const top = new Point(topX, topY);
+
+        const bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
+        const bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
+        const bottom = new Point(bottomX, bottomY);
+
+        outerPath.add(top);
+        outerPath.insert(0, bottom);
+
+
+        // Debug: draw a connector line
+        // const connectorLine = new Path.Line(top, bottom);
+        // connectorLine.strokeWidth = 2;
+        // connectorLine.strokeColor = 'red';
+
+        // new Path.Circle({
+        //   center: point,
+        //   radius: avgSize,
+        //   fillColor: new Color(1, 0, 0, 0.2),
+        // });
+
+        currentPosition += 0.1; // FIXME: this'll get way out of whack quickly
+      });
+    }
+  });
+  // End calculating thicker line points
+  
+  // console.log('pathData', pathData);
+  // Add first and last points
+  for (let point in pathData) {
+    if (pathData[point].first) {
+      // outerPath.add(pathData[point].point);
+      // topPath.add(pathData[point].point);
+    }
+    if (pathData[point].last) {
+      // outerPath.insert(0, pathData[point].point);
+      outerPath.add(pathData[point].point);
+    }
+  }
+  outerPath.closed = true;
+  // outerPath.simplify();
+  console.log('post simplify', outerPath);
+  // outerPath.smooth({type: 'continuous'});
+  outerPath.selected = true;
+  outerPath.fillColor = new Color(0, 1, 0, 0.4);
+
   console.log('--- addTestShape end ---');
 }
 
