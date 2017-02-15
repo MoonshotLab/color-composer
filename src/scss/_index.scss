@@ -164,10 +164,10 @@ path {
     content: "";
     display: block;
     position: absolute;
-    top: 0.5rem;
+    top: 0.3rem;
     left: 1rem;
-    width: 0.2rem;
-    height: 1.7rem;
+    width: 0.3rem;
+    height: 2rem;
     background: #3A3A3A;
     transform: rotate(-45deg);
   }
@@ -281,7 +281,9 @@ path {
 
   // share
   &.share-active {
-    .overlay.share {
+    // FIXME: this is where you toggle the sharing modal per system
+    // .share-tips, .share-phone, etc.
+    .overlay.share-tips {
       opacity: 1;
       z-index: 3;
     }
@@ -291,7 +293,6 @@ path {
       filter: blur(1px);
     }
   }
-
 }
 
 // overlay defaults
@@ -343,7 +344,18 @@ path {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #fff;
+    background-color: #fff;
+    background-image:
+      url('img/symbol-circle.gif'),
+      url('img/symbol-square.gif'),
+      url('img/symbol-swiggle.gif'),
+      url('img/symbol-triangle.gif');
+    background-position:
+      0% 0%,
+      100% 0%,
+      100% 100%,
+      0% 100%;
+    background-repeat: no-repeat;
     border: 0.3rem solid black;
     text-align: center;
     transition: all 0.2s;
@@ -354,6 +366,20 @@ path {
     position: relative;
     margin: 0 auto;
     line-height: 1.25;
+  }
+
+  .title {
+    margin-bottom: 3rem;
+    padding: 0 5vw;
+    font-size: 2vw;
+    font-weight: 800;
+  }
+
+  .text {
+    padding: 0 4.5vw;
+    font-size: 1.3vw;
+    font-weight: 600;
+    line-height: 1.5;
   }
 }
 
@@ -395,17 +421,8 @@ path {
       transform: translate(-50%, -50%);
     }
 
-    .title {
-      margin-bottom: 3rem;
-      padding: 0 5vw;
-      font-size: 2vw;
-      font-weight: 800;
-    }
-
     .text {
       padding: 0 7vw;
-      font-size: 1.3vw;
-      font-weight: 600;
     }
   }
 
@@ -423,6 +440,58 @@ path {
   }
 }
 
+// card background graphics - placed here for clarity
+article {
+  &[data-bg="0"],
+  &[data-bg="10"] {
+    background-position:
+      92% 5%,
+      10% 90%,
+      1000% 1000%,
+      4% 10% !important;
+  }
+  &[data-bg="1"],
+  &[data-bg="6"] {
+    background-position:
+      10% 7%,
+      5% 17%,
+      92% 90%,
+      1000% 1000% !important;
+  }
+  &[data-bg="2"],
+  &[data-bg="7"] {
+    background-position:
+      75% 95%,
+      1000% 1000%,
+      92% 7%,
+      5% 20% !important;
+  }
+  &[data-bg="3"],
+  &[data-bg="8"] {
+    background-position:
+      1000% 1000%,
+      12% 95%,
+      5% 75%,
+      95% 10% !important;
+  }
+  &[data-bg="4"],
+  &[data-bg="9"] {
+    background-position:
+      5% 12%,
+      1000% 1000%,
+      98% 45%,
+      92% 90% !important;
+  }
+  &[data-bg="5"] {
+    background-position:
+      25% 92%,
+      70% 5%,
+      30% 95%,
+      1000% 1000% !important;
+  }
+}
+
+// card animation keyframes
 @keyframes cardSort {
   0% {
     transform: translate(0, 0);
@@ -441,8 +510,17 @@ path {
   }
 }
 
-// sharing
-.overlay.share {
+// sharing - tips
+.overlay.share-tips {
+  .wrap {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+// sharing - full
+.overlay.share-phone {
 
   & * {
     box-sizing: border-box;
@@ -547,6 +625,10 @@ path {
         left: 0.9rem;
         width: 0.4rem;
         height: 2.5rem;
+      }
+
+      &::after {
+        left: 0.8rem;
       }
     }
   }
