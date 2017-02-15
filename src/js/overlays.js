@@ -114,9 +114,17 @@ function phoneNumberInputs() {
   // $shareKeypad.find('.send').on(tapEvent, e => {});
 }
 
+// "randomly" place fiddly bits on the cards
+function randomCardGraphics() {
+  $body.find('.card-wrap article').each((i, el) => {
+    $(el).attr('data-bg', i);
+  });
+}
+
 export function init() {
   openOverlayTips();
   openOverlayShare();
   cardInteractions();
   phoneNumberInputs();
+  randomCardGraphics();
 }
