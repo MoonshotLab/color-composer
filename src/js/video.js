@@ -11,11 +11,12 @@ function videoTriggers() {
   $body.on(tapEvent, e => {
     // hiding the video if playing
     if ( $body.hasClass('play-video') ) {
+      $body.addClass('overlay-active intro-active');
       $body.toggleClass('play-video');
       clearTimeout(counter);
     } else {
       clearTimeout(counter);
-      // wait for another interaction, else play the video
+      // wait for another interaction, then play the video
       counter = setTimeout(() => {
         $body.toggleClass('play-video');
       }, 5 * 60 * 1000); // 5 minutes

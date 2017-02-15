@@ -6,7 +6,7 @@ const hammerManager = touch.hammerManager;
 const $body = $('body');
 const tapEvent = 'click tap touch';
 
-const $cardsWrap = $body.find('.card-wrap');
+const $cardsWrap = $body.find('.overlay.tips .card-wrap');
 const $cardItems = $cardsWrap.find('article');
 const cardsCount = $cardItems.length;
 const $footer = $body.find('.overlay.tips .footer');
