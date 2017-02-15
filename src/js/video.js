@@ -18,7 +18,7 @@ function videoTriggers() {
       // wait for another interaction, else play the video
       counter = setTimeout(() => {
         $body.toggleClass('play-video');
-      }, 30 * 1000); // 30 seconds
+      }, 5 * 60 * 1000); // 5 minutes
     }
   });
 }
