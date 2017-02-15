@@ -1,4 +1,5 @@
 const sound = require('./sound');
+const overlays = require('./overlays');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -70,6 +71,7 @@ function undoPressed() {
 
 function playPressed() {
   console.log('play pressed');
+  overlays.closeAndResetOverlays();
   if (window.kan.playing) {
     sound.stopPlaying(true);
   } else {
