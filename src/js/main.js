@@ -12,6 +12,7 @@ window.kan = {
   playing: false,
   pinching: false,
   pinchedGroup: null,
+  pinchedTut: null,
   pathData: {},
   shapePath: null,
   prevAngle: null,

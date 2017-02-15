@@ -184,13 +184,14 @@ path {
   .tut {
     // pointer-events: none;
     display: flex;
+    visibility: hidden;
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
     position: fixed;
     z-index: 10;
     min-width: 22rem;
-    max-width: 24rem;
+    max-width: 28rem;
     padding: 2rem 1.8rem;
     background-color: rgba(0, 0, 0, 0.5);
     margin: 0;

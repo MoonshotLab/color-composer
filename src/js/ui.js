@@ -22,7 +22,7 @@ function newPressed() {
   window.kan.composition = [];
   window.kan.numClosedShapes = 0;
   paper.project.activeLayer.removeChildren();
-  tutorial.hideContextualTuts();
+  tutorial.resetContextualTuts();
 }
 
 function undoPressed() {
@@ -56,6 +56,11 @@ function undoPressed() {
       case 'transform':
         if (!!lastMove.position) {
           item.position = lastMove.position
+          if (item.data && item.data.tut && item.data.tut.length > 0) {
+            // item has connected contextual tut, move it to the right place
+            const $tut = $(`.tut[data-tut-type='${tutName}']`);
+            tutorial.moveContextualTut($tut, lastMove.position);
+          }
         }
         if (!!lastMove.rotation) {
           item.rotation = lastMove.rotation;
@@ -162,7 +167,7 @@ function initShareButton() {
 function initContextualTuts() {
   const $tuts = $('.contextual-tuts .tut');
   $tuts.on(tapEvent, function() {
-    $(this).hide();
+    $(this).css({visibility: 'hidden'});
   });
 }
 

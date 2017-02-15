@@ -7,8 +7,14 @@ html
     meta(name='description', content='')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/main.css')
-  body
+  body#body
     main
+      ul.contextual-tuts
+        each tut in config.contextualTuts
+          li.tut(data-tut-type= tut.type)
+            div.tut-close-wrap
+              img.tut-close(src='img/close.svg' alt='Close Contextual Tutorial')
+            span.tut-copy #{tut.copy}
       nav.control-panel
         div.logo-wrap.controls-wrap
           img.main-logo(src='img/logo.svg' alt='Color Composer')
@@ -39,12 +45,6 @@ html
                 img(src='img/tips.svg' alt='Tips')
       canvas(id=config.canvasId)
       img#canvas-bg(src='img/canvas-bg.jpg', style='display: none;')
-      ul.contextual-tuts
-        each tut in config.contextualTuts
-          li.tut(data-tut-type= tut.type style="display: none;")
-            div.tut-close-wrap
-              img.tut-close(src='img/close.svg' alt='Close Contextual Tutorial')
-            span.tut-copy #{tut.copy}
 
     div#video
       video(src='video/intro-test.mp4', autoplay, loop, muted)

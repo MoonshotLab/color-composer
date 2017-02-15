@@ -19,7 +19,9 @@ const hitOptions = {
 export let hammerManager;
 
 export function init() {
-  hammerManager = new Hammer.Manager(canvas);
+  const body = document.getElementById('body');
+  hammerManager = new Hammer.Manager(body);
+  // hammerManager = new Hammer.Manager(canvas);
 
   hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
   hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
@@ -46,6 +48,9 @@ export function init() {
 function singleTap(event) {
   sound.stopPlaying();
 
+  if (!eventTargetIsOnCanvas(event)) return;
+  console.log(event);
+
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
       hitResult = paper.project.hitTest(point, hitOptions);
@@ -62,11 +67,15 @@ function doubleTap(event) {
       point = new Point(pointer.x, pointer.y),
       hitResult = paper.project.hitTest(point, hitOptions);
 
+  if (!eventTargetIsOnCanvas(event)) return;
+
   const transparent = color.transparent;
 
   if (hitResult) {
     let item = hitResult.item;
     let parent = item.parent;
+
+    tutorial.hideContextualTutByName('fill');
 
     if (item.data.interior) {
       item.data.transparent = !item.data.transparent;
@@ -105,6 +114,8 @@ function panStart(event) {
     console.log('event.changedPointers > 1');
   }
 
+  if (!eventTargetIsOnCanvas(event)) return;
+
   sound.stopPlaying();
 
   window.kan.prevAngle = Math.atan2(event.velocityY, event.velocityX);
@@ -138,6 +149,8 @@ function panStart(event) {
 function panMove(event) {
   event.preventDefault();
   if (window.kan.pinching) return;
+
+  if (!eventTargetIsOnCanvas(event)) return;
 
   const thresholdAngleRad = util.rad(shape.cornerThresholdDeg);
 
@@ -184,6 +197,7 @@ function panMove(event) {
 
 function panEnd(event) {
   if (window.kan.pinching) return;
+  if (!eventTargetIsOnCanvas(event)) return;
 
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
@@ -258,18 +272,28 @@ function panEnd(event) {
 
   if (!tutorial.allTutsCompleted()) {
     const tutorialCompletion = window.kan.tutorialCompletion;
+    let tutName = null;
+
     if (!tutorialCompletion['fill'] && truedShape.closed) {
-      console.log('fill tutorial');
-      tutorial.addContextualTut('fill');
-      window.kan.tutorialCompletion['fill'] = true;
-    } else if (!tutorialCompletion['pinch'] && true) {
-      console.log('pinch tutorial');
-      tutorial.addContextualTut('pinch');
-      window.kan.tutorialCompletion['pinch'] = true;
-    } else if (!tutorialCompletion['swipe'] && true) {
-      console.log('swipe tutorial');
-      tutorial.addContextualTut('swipe');
-      window.kan.tutorialCompletion['swipe'] = true;
+      tutName = 'fill';
+    } else {
+      let groups = paper.project.getItems({
+        match: function(el) {
+          return el.className === 'Group'
+        }
+      });
+      if (!tutorialCompletion['pinch'] && groups.length >= 3) {
+        tutName = 'pinch';
+      } else if (!tutorialCompletion['swipe'] && groups.length >= 5) {
+        tutName = 'swipe';
+      }
+    }
+
+    if (tutName !== null) {
+      console.log(`${tutName} tutorial`);
+      tutorial.addContextualTut(tutName);
+      window.kan.tutorialCompletion[tutName] = true;
+      group.data.tut = tutName;
     }
   }
 
@@ -286,6 +310,8 @@ function hitTestGroupBounds(point) {
 }
 
 function pinchStart(event) {
+  if (!eventTargetIsOnCanvas(event)) return;
+
   console.log('pinchStart', event.center);
   sound.stopPlaying();
 
@@ -304,19 +330,31 @@ function pinchStart(event) {
     window.kan.originalRotation = hitResult.data.rotation;
     window.kan.originalScale = hitResult.data.scale;
 
-    if (config.runAnimations) {
-      hitResult.animate({
-        properties: {
-          scale: 1.25
-        },
-        settings: {
-          duration: 100,
-          easing: "easeOut",
-        }
-      });
+    if (hitResult.data.tut && hitResult.data.tut.length > 0) {
+      let $tut = $(`.tut[data-tut-type='${hitResult.data.tut}']`);
+      if ($tut) {
+        window.kan.pinchedTut = $tut;
+      } else {
+        window.kan.pinchedTut = null;
+      }
+    } else {
+      window.kan.pinchedTut = null;
     }
+
+    // if (config.runAnimations) {
+    //   hitResult.animate({
+    //     properties: {
+    //       scale: 1.25
+    //     },
+    //     settings: {
+    //       duration: 100,
+    //       easing: "easeOut",
+    //     }
+    //   });
+    // }
   } else {
     window.kan.pinchedGroup = null;
+    window.kan.pinchedTut = null;
     console.log('hit no item');
   }
 }
@@ -327,10 +365,13 @@ function pinchMove(event) {
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
   let pinchedGroup = window.kan.pinchedGroup;
+  let $pinchedTut = window.kan.pinchedTut;
 
   if (!!pinchedGroup) {
     let currentScale = event.scale;
     let scaleDelta;
+
+    tutorial.hideContextualTutByName('pinch');
 
     if (pinchedGroup.bounds.width < paper.view.viewSize.width &&
         pinchedGroup.bounds.height < paper.view.viewSize.height) {
@@ -349,7 +390,12 @@ function pinchMove(event) {
     // console.log(`scaling by ${scaleDelta}`);
     // console.log(`rotating by ${rotationDelta}`);
 
-    pinchedGroup.position = event.center;
+    const centerPoint = event.center;
+    pinchedGroup.position = centerPoint;
+    if (!!$pinchedTut) {
+      tutorial.moveContextualTut($pinchedTut, centerPoint);
+    }
+
     if (scaleDelta !== 1) {
       pinchedGroup.scale(scaleDelta);
     }
@@ -363,6 +409,7 @@ function pinchMove(event) {
 function pinchEnd(event) {
   window.kan.lastEvent = event;
   let pinchedGroup = window.kan.pinchedGroup;
+  let $pinchedTut = window.kan.pinchedTut;
   let originalPosition = window.kan.originalPosition;
   let originalRotation = window.kan.originalRotation;
   let originalScale = window.kan.originalScale;
@@ -391,6 +438,12 @@ function pinchEnd(event) {
     window.kan.moves.push(move);
 
     if (Math.abs(event.velocity) > 1) {
+      tutorial.hideContextualTutByName('swipe');
+
+      // hide any connected tuts
+      if (!!$pinchedTut) {
+        tutorial.hideContextualTut($pinchedTut);
+      }
       // dispose of group offscreen
       throwPinchedGroup();
     }
@@ -429,6 +482,15 @@ function throwPinchedGroup() {
     return;
   }
   requestAnimationFrame(throwPinchedGroup);
-  pinchedGroup.position.x += lastEvent.velocityX * velocityMultiplier;
-  pinchedGroup.position.y += lastEvent.velocityY * velocityMultiplier;
+  const newX = pinchedGroup.position.x + lastEvent.velocityX * velocityMultiplier;
+  const newY = pinchedGroup.position.y + lastEvent.velocityY * velocityMultiplier;
+  const newPos = new Point(newX, newY);
+  pinchedGroup.position = newPos;
+}
+
+function eventTargetIsOnCanvas(event) {
+  if (!event) return false;
+  if (event.target != canvas) return false;
+  return true;
+
 }
