@@ -14,6 +14,23 @@ const $footer = $body.find('.overlay.tips .footer');
 const $sharePhone = $body.find('#phone');
 const $shareKeypad = $body.find('.keypad');
 
+export function openOverlay(overlayName) {
+  closeAndResetOverlays();
+
+  switch (overlayName) {
+    case 'tips':
+      break;
+    case 'play-info':
+      break;
+    case 'share-info':
+      break;
+    case 'inactivity':
+      break;
+    default:
+      console.log('could not find overlay:', overlayName);
+  }
+}
+
 // card slider navigation
 function cardNavNext() {
   let $old = $body.find('.card-wrap .current');

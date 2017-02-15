@@ -28,6 +28,7 @@ window.kan = {
     "pinch": false,
     "swipe": false
   },
+  inactivityTimeout: null,
 };
 
 $(document).ready(function() {
