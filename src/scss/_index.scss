@@ -267,6 +267,18 @@ path {
     filter: blur(5px);
   }
 
+  &.play-tip-active {
+    .overlay.play-tip {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls > li:not(.play-stop),
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
   // tips
   &.tips-active {
     .overlay.tips {
@@ -511,7 +523,8 @@ article {
 }
 
 // sharing - tips
-.overlay.share-tips {
+.overlay.share-tips,
+.overlay.play-tip {
   .wrap {
     top: 50%;
     left: 50%;

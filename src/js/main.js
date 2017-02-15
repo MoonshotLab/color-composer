@@ -2,6 +2,7 @@ const touch = require('./touch');
 const ui = require('./ui');
 const overlays = require('./overlays');
 const video = require('./video');
+const timing = require('./timing');
 
 window.kan = {
   currentColor: '#20171C',
@@ -34,7 +35,12 @@ $(document).ready(function() {
     ui.init();
     touch.init();
     overlays.init();
+<<<<<<< HEAD
     // video.init();
+=======
+    video.init();
+    timing.init();
+>>>>>>> master
   }
 
   run();

@@ -58,6 +58,17 @@ function openOverlayShare() {
   });
 }
 
+// open play
+export function openOverlayPlay() {
+  if ( $body.hasClass('overlay-active') ) {
+    closeAndResetOverlays();
+  } else {
+    setTimeout(() => {
+      $body.addClass('overlay-active play-tip-active');
+    }, 150);
+  }
+}
+
 // tipcs card interactions
 function cardInteractions() {
   $body.find('.overlay').on(tapEvent, e => {
@@ -72,7 +83,7 @@ function cardInteractions() {
 }
 
 // close and reset tips
-function closeAndResetOverlays() {
+export function closeAndResetOverlays() {
   $body.removeClass();
   $cardItems.removeClass();
   $sharePhone.html('');
