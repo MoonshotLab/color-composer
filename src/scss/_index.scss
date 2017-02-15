@@ -177,17 +177,21 @@ path {
   }
 }
 
-.contextual-tutorial-tips {
+.contextual-tuts {
   position: absolute;
   @extend %naked-list;
 
-  li {
-    pointer-events: none;
+  .tut {
+    // pointer-events: none;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     z-index: 10;
     min-width: 22rem;
     max-width: 24rem;
-    padding: 2rem;
+    padding: 2rem 1.8rem;
     background-color: rgba(0, 0, 0, 0.5);
     margin: 0;
     color: white;
@@ -208,6 +212,23 @@ path {
       border-width: 16px;
       margin-left: -16px;
     }
+  }
+
+  .tut-close-wrap,
+  .tut-copy {
+    display: inline-block;
+  }
+
+  .tut-close-wrap {
+    width: 20%;
+  }
+
+  .tut-close {
+    width: 2.2rem;
+  }
+
+  .tut-copy {
+    width: 80%;
   }
 }
 

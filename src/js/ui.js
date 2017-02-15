@@ -1,4 +1,5 @@
 const sound = require('./sound');
+const tutorial = require('./tutorial');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -12,6 +13,7 @@ export function init() {
   initPlayButton();
   initTipsButton();
   initShareButton();
+  initContextualTuts();
   addCanvasBackground();
 }
 
@@ -20,6 +22,7 @@ function newPressed() {
   window.kan.composition = [];
   window.kan.numClosedShapes = 0;
   paper.project.activeLayer.removeChildren();
+  tutorial.hideContextualTuts();
 }
 
 function undoPressed() {
@@ -153,6 +156,13 @@ function initShareButton() {
     if (!$body.hasClass(playingClass)) {
       sharePressed();
     }
+  });
+}
+
+function initContextualTuts() {
+  const $tuts = $('.contextual-tuts .tut');
+  $tuts.on(tapEvent, function() {
+    $(this).hide();
   });
 }
 

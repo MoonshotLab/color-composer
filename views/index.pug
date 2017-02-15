@@ -39,7 +39,13 @@ html
                 img(src='img/tips.svg' alt='Tips')
       canvas(id=config.canvasId)
       img#canvas-bg(src='img/canvas-bg.jpg', style='display: none;')
-      ul.contextual-tutorial-tips
+      ul.contextual-tuts
+        each tut in config.contextualTuts
+          li.tut(data-tut-type= tut.type style="display: none;")
+            div.tut-close-wrap
+              img.tut-close(src='img/close.svg' alt='Close Contextual Tutorial')
+            span.tut-copy #{tut.copy}
+
     div#video
       video(src='video/intro-test.mp4', autoplay, loop, muted)
       div.contents [contents]

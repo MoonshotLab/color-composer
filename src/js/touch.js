@@ -256,19 +256,19 @@ function panEnd(event) {
     );
   }
 
-  if (!tutorial.allTutorialsCompleted()) {
+  if (!tutorial.allTutsCompleted()) {
     const tutorialCompletion = window.kan.tutorialCompletion;
     if (!tutorialCompletion['fill'] && truedShape.closed) {
       console.log('fill tutorial');
-      tutorial.addContextualTutorial('fill');
+      tutorial.addContextualTut('fill');
       window.kan.tutorialCompletion['fill'] = true;
     } else if (!tutorialCompletion['pinch'] && true) {
       console.log('pinch tutorial');
-      tutorial.addContextualTutorial('pinch');
+      tutorial.addContextualTut('pinch');
       window.kan.tutorialCompletion['pinch'] = true;
     } else if (!tutorialCompletion['swipe'] && true) {
       console.log('swipe tutorial');
-      tutorial.addContextualTutorial('swipe');
+      tutorial.addContextualTut('swipe');
       window.kan.tutorialCompletion['swipe'] = true;
     }
   }
