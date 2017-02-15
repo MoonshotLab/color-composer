@@ -279,6 +279,18 @@ path {
     }
   }
 
+  // intro
+  &.intro-active {
+    .overlay.intro {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
   // tips
   &.tips-active {
     .overlay.tips {
@@ -519,6 +531,7 @@ article {
 }
 
 // sharing - tips
+.overlay.intro,
 .overlay.share-tips,
 .overlay.share-soon,
 .overlay.play-tip {
@@ -529,7 +542,7 @@ article {
   }
 }
 
-// sharing - full
+// sharing - phone
 .overlay.share-phone {
 
   & * {
@@ -642,10 +655,9 @@ article {
       }
     }
   }
-
 }
 
-// intro
+// video
 #video {
   position: fixed;
   top: 0;
