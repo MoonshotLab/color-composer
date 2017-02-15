@@ -166,7 +166,7 @@ a:hover {
 /* Buttons
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .button,
-button,
+button:not(.plain),
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
@@ -188,12 +188,12 @@ input[type="button"] {
   cursor: pointer;
   box-sizing: border-box; }
 .button:hover,
-button:hover,
+button:not(.plain):hover,
 input[type="submit"]:hover,
 input[type="reset"]:hover,
 input[type="button"]:hover,
 .button:focus,
-button:focus,
+button:not(.plain):focus,
 input[type="submit"]:focus,
 input[type="reset"]:focus,
 input[type="button"]:focus {

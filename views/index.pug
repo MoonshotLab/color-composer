@@ -40,8 +40,8 @@ html
       canvas(id=config.canvasId)
       img#canvas-bg(src='img/canvas-bg.jpg', style='display: none;')
     div#video
-      video(src='video/intro-test.mp4', autoplay, loop, muted)
-      div.contents [contents]
+      video(src='https://s3.amazonaws.com/nelson-atkins/CC_TEXT.mp4', autoplay, loop, muted)
+      //- div.contents [contents]
     div.overlay.tips
       div.contents
         div.header <span class="icon-close"></span><span>Tips</span>
@@ -76,7 +76,28 @@ html
     div.overlay.share
       div.contents
         div.header <span class="icon-close"></span><span>Share</span>
-        div.card-wrap asdf
+        div.card-wrap
+          article
+            div.wrap.u-cf
+              div.output
+                input#phone(type='number', pattern="\\d{3}\-\d{3}\-\d{4}")
+                div.instructions Enter your phone number and we’ll send you a text with a link to your composition.
+                div.legal I HEREBY AUTHORIZE THE NELSON ATKINS MUSEUM OF ART TO SEND ME A TEXT MESSAGE WITH MY CUSTOM VIDEO. NOTE, DATA MESSAGING RATES MAY APPLY.
+              div.keypad
+                button.plain.num.one 1
+                button.plain.num.two 2
+                button.plain.num.three 3
+                button.plain.num.four 4
+                button.plain.num.five 5
+                button.plain.num.six 6
+                button.plain.num.seven 7
+                button.plain.num.eight 8
+                button.plain.num.nine 9
+                button.plain.func.clear
+                  span.icon-close
+                button.plain.num.zero 0
+                button.plain.func.send
+                  span.icon-check
   script(src='js/lib/jquery.min.js')
   script(src='js/lib/paper-full.min.js')
   script.
@@ -84,4 +105,5 @@ html
     const canvas = document.getElementById('#{config.canvasId}');
     paper.setup(canvas);
   script(src='js/lib/animatePaper.min.js')
+  script(src='js/lib/maskedInput.min.js')
   script(src='js/main.js')

@@ -92,8 +92,14 @@ function updateCardCounter(current, total) {
   $footer.find('.next').html(total);
 }
 
+// phone inputs
+function phoneNumberInputs() {
+
+}
+
 export function init() {
   openOverlayTips();
   openOverlayShare();
   cardInteractions();
+  phoneNumberInputs();
 }
