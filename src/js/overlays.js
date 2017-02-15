@@ -11,6 +11,9 @@ const $cardItems = $cardsWrap.find('article');
 const cardsCount = $cardItems.length;
 const $footer = $body.find('.overlay.tips .footer');
 
+const $sharePhone = $body.find('#phone');
+const $shareKeypad = $body.find('.keypad');
+
 // card slider navigation
 function cardNavNext() {
   let $old = $body.find('.card-wrap .current');
@@ -32,11 +35,24 @@ function cardNavNext() {
 function openOverlayTips() {
   $body.find('li.tips').on(tapEvent, e => {
     if ( $body.hasClass('overlay-active') ) {
-      closeAndResetTips();
+      closeAndResetOverlays();
     } else {
       activateTipsCards();
       setTimeout(() => {
         $body.addClass('overlay-active tips-active');
+      }, 150);
+    }
+  });
+}
+
+// open sharing
+function openOverlayShare() {
+  $body.find('li.share').on(tapEvent, e => {
+    if ( $body.hasClass('overlay-active') ) {
+      closeAndResetOverlays();
+    } else {
+      setTimeout(() => {
+        $body.addClass('overlay-active share-active');
       }, 150);
     }
   });
@@ -50,15 +66,16 @@ function cardInteractions() {
       cardNavNext();
     } else {
       // outside elements, close everything and reset
-      closeAndResetTips();
+      closeAndResetOverlays();
     }
   });
 }
 
 // close and reset tips
-function closeAndResetTips() {
-  $body.removeClass('overlay-active tips-active');
+function closeAndResetOverlays() {
+  $body.removeClass();
   $cardItems.removeClass();
+  $sharePhone.html('');
 }
 
 // deal a fresh stack of cards
@@ -79,12 +96,27 @@ function updateCardCounter(current, total) {
   $footer.find('.next').html(total);
 }
 
-// initial setup
-function setupTipsCardStack() {
-  openOverlayTips();
-  cardInteractions();
+// phone inputs
+function phoneNumberInputs() {
+  // mask the output
+  $sharePhone.mask('000-000-0000');
+  // get interactions from the keypad
+  $shareKeypad.find('.num').on(tapEvent, e => {
+    let phoneNumber = $sharePhone.html().toString() + $(e.target).html().toString();
+    phoneNumber = $sharePhone.masked(phoneNumber);
+    $sharePhone.html(phoneNumber);
+  });
+  // clear the display
+  $shareKeypad.find('.clear').on(tapEvent, e => {
+    $sharePhone.html('');
+  });
+  // FIXME: send sms
+  // $shareKeypad.find('.send').on(tapEvent, e => {});
 }
 
 export function init() {
-  setupTipsCardStack();
+  openOverlayTips();
+  openOverlayShare();
+  cardInteractions();
+  phoneNumberInputs();
 }
