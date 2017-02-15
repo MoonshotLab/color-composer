@@ -35,12 +35,8 @@ $(document).ready(function() {
     ui.init();
     touch.init();
     overlays.init();
-<<<<<<< HEAD
-    // video.init();
-=======
     video.init();
     timing.init();
->>>>>>> master
   }
 
   run();
