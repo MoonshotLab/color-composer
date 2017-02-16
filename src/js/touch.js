@@ -18,6 +18,8 @@ const hitOptions = {
   tolerance: 5
 };
 
+const minShapeSize = 50;
+
 export let hammerManager;
 
 export function init() {
@@ -204,11 +206,6 @@ function panEnd(event) {
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
-  window.kan.pathData[shape.stringifyPoint(point)] = {
-    point: point,
-    last: true
-  };
-
   const transparent = color.transparent;
   const colorName = color.getColorName(window.kan.currentColor);
 
@@ -218,6 +215,17 @@ function panEnd(event) {
   // let corners = window.kan.corners;
 
   shapePath.add(point);
+
+  if (shapePath.length < minShapeSize) {
+    console.log('path is too short');
+    shapePath.remove();
+    return;
+  }
+
+  window.kan.pathData[shape.stringifyPoint(point)] = {
+    point: point,
+    last: true
+  };
 
   let truedShape = shape.getTruedShape(shapePath);
   shapePath.remove();
@@ -385,13 +393,16 @@ function pinchMove(event) {
 
     tutorial.hideContextualTutByName('pinch');
 
-    if (pinchedGroup.bounds.width < paper.view.viewSize.width &&
-        pinchedGroup.bounds.height < paper.view.viewSize.height) {
-        // only allow shape to scale if it fits in the viewport
-        scaleDelta = currentScale / window.kan.lastScale;
-      } else {
-        scaleDelta = 0.99;
-      }
+    if (pinchedGroup.bounds.width < minShapeSize || pinchedGroup.bounds.height < minShapeSize) {
+      // only allow a shape to scale down if it is larger than the minimum size
+      scaleDelta = 1.01;
+    } else if (pinchedGroup.bounds.width >= paper.view.viewSize.width ||
+        pinchedGroup.bounds.height >= paper.view.viewSize.height) {
+      // only allow shape to scale up if it fits in the viewport
+      scaleDelta = 0.99;
+    } else {
+      scaleDelta = currentScale / window.kan.lastScale;
+    }
 
     window.kan.lastScale = currentScale;
 
