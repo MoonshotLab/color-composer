@@ -181,4 +181,5 @@ function initShare() {
 
 export function init() {
   initTips();
+  initShare();
 }
