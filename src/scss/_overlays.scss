@@ -5,19 +5,6 @@
     filter: blur(3px);
   }
 
-  &.play-tip-active {
-    .overlay.play-tip {
-      opacity: 1;
-      z-index: 3;
-    }
-    .main-controls > li:not(.play-stop),
-    .aux-controls-wrap {
-      opacity: 0.25;
-      filter: blur(1px);
-    }
-  }
-
-  // intro
   &.intro-active {
     .overlay.intro {
       opacity: 1;
@@ -29,7 +16,41 @@
     }
   }
 
-  // tips
+  &.continue-active {
+    .overlay.continue {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
+  &.play-prompt-active {
+    .overlay.play-prompt {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls > li:not(.play-stop),
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
+  &.play-prompt-active {
+    .overlay.play-prompt {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls > li:not(.share),
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
   &.tips-active {
     .overlay.tips {
       opacity: 1;
@@ -127,6 +148,9 @@
     position: relative;
     margin: 0 auto;
     line-height: 1.25;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .title {
@@ -174,12 +198,6 @@
 
     &.remove {
       animation: cardSort 1.2s forwards;
-    }
-
-    .wrap {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
     }
   }
 
@@ -265,18 +283,6 @@ article {
   100% {
     transform: translate(0, 0);
     opacity: 0;
-  }
-}
-
-// sharing - tips
-.overlay.intro,
-.overlay.share-tips,
-.overlay.share-soon,
-.overlay.play-tip {
-  .wrap {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
   }
 }
 

@@ -27,9 +27,9 @@ export function exitTutorialMode() {
   $body.removeClass(videoPlayingClass);
   clearTimeout(window.kan.inactivityTimeout);
 
-  $body.addClass('overlay-active intro-active');
+  overlays.openOverlay('intro');
 
   window.kan.inactivityTimeout = setTimeout(() => {
-    overlays.openContinueModal();
+    overlays.openOverlay('continue');
   }, timing.continueInactivityDelay);
 }

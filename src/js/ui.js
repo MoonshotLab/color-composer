@@ -91,10 +91,12 @@ function playPressed() {
 }
 
 function tipsPressed() {
+  overlays.openOverlay('tips');
   console.log('tips pressed');
 }
 
 function sharePressed() {
+  overlays.openOverlay('share');
   console.log('share pressed');
 }
 
@@ -153,7 +155,7 @@ function initPlayButton() {
 }
 
 function initTipsButton() {
-  $('.aux-controls .tips').on(tapEvent, function() {
+  $('.controls .tips').on(tapEvent, function() {
     if (!$body.hasClass(playingClass)) {
       tipsPressed();
     }
@@ -161,7 +163,7 @@ function initTipsButton() {
 }
 
 function initShareButton() {
-  $('.aux-controls .share').on(tapEvent, function() {
+  $('.controls .share').on(tapEvent, function() {
     if (!$body.hasClass(playingClass)) {
       sharePressed();
     }

@@ -21,6 +21,6 @@ export function preventInactivityTimeout() {
   clearTimeout(window.kan.inactivityTimeout);
 
   window.kan.inactivityTimeout = setTimeout(() => {
-    overlays.openContinueModal();
+    overlays.openOverlay('continue');
   }, drawInactivityDelay);
 }

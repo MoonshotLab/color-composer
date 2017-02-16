@@ -260,7 +260,7 @@ function panEnd(event) {
     // first shape!
     // set play prompt timeout
     window.kan.playPromptTimeout = setTimeout(() => {
-      overlays.openOverlayPlay();
+      overlays.openOverlay('play-prompt');
     }, timing.playPromptDelay);
 
     window.kan.userHasDrawnFirstShape = true;

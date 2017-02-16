@@ -2,6 +2,7 @@ const config = require('./../../config');
 
 const touch = require('./touch');
 const video = require('./video');
+const timing = require('./timing');
 
 const hammerManager = touch.hammerManager;
 
@@ -16,22 +17,73 @@ const $footer = $body.find('.overlay.tips .footer');
 const $sharePhone = $body.find('#phone');
 const $shareKeypad = $body.find('.keypad');
 
-export function openOverlay(overlayName) {
-  closeAndResetOverlays();
+const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share'];
+const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
 
-  switch (overlayName) {
-    case 'tips':
-      break;
-    case 'play-info':
-      break;
-    case 'share-info':
-      break;
-    case 'inactivity':
-      break;
-    default:
-      console.log('could not find overlay:', overlayName);
+const overlayActiveClass = 'overlay-active';
+
+export function openOverlay(overlayName) {
+  if (allOverlays.includes(overlayName)) {
+    closeAndResetOverlays();
+    $body.addClass(overlayActiveClass);
+
+    switch (overlayName) {
+      case 'intro':
+        openIntroOverlay();
+        break;
+      case 'play-prompt':
+        openPlayPromptOverlay();
+        break;
+      case 'share-prompt':
+        openSharePromptOverlay();
+        break;
+      case 'continue':
+        openContinueOverlay();
+        break;
+      case 'tips':
+        openTipsOverlay();
+        break;
+      case 'share':
+        openShareOverlay();
+        break;
+    }
+  } else {
+    console.log('unable to open unknown overlay', overlayName);
   }
 }
+
+function openIntroOverlay() {
+  $body.addClass('intro-active');
+}
+
+function openPlayPromptOverlay() {
+  $body.addClass('play-prompt-active');
+}
+
+function openSharePromptOverlay() {
+  $body.addClass('share-prompt-active');
+}
+
+function openContinueOverlay() {
+  $body.addClass('continue-active');
+
+  clearTimeout(window.kan.inactivityTimeout);
+  clearTimeout(window.kan.playPromptTimeout);
+
+  window.kan.inactivityTimeout = setTimeout(() => {
+    video.enterTutorialMode();
+  }, timing.continueInactivityDelay);
+}
+
+function openTipsOverlay() {
+  $body.addClass('tips-active');
+  activateTipsCards();
+}
+
+function openShareOverlay() {
+  $body.addClass('share-active');
+}
+
 
 // card slider navigation
 function cardNavNext() {
@@ -50,57 +102,7 @@ function cardNavNext() {
   }, 600);
 }
 
-export function openContinueModal() {
-  const tutorialDelay = 30 * 1000; // ms
-
-  console.log('continue modal');
-  clearTimeout(window.kan.inactivityTimeout);
-  clearTimeout(window.kan.playPromptTimeout);
-
-  window.kan.inactivityTimeout = setTimeout(() => {
-    video.enterTutorialMode();
-  }, tutorialDelay);
-}
-
-// open the tips
-function openOverlayTips() {
-  $body.find('li.tips').on(tapEvent, e => {
-    if ( $body.hasClass('overlay-active') ) {
-      closeAndResetOverlays();
-    } else {
-      activateTipsCards();
-      setTimeout(() => {
-        $body.addClass('overlay-active tips-active');
-      }, 150);
-    }
-  });
-}
-
-// open sharing
-function openOverlayShare() {
-  $body.find('li.share').on(tapEvent, e => {
-    if ( $body.hasClass('overlay-active') ) {
-      closeAndResetOverlays();
-    } else {
-      setTimeout(() => {
-        $body.addClass('overlay-active share-active');
-      }, 150);
-    }
-  });
-}
-
-// open play
-export function openOverlayPlay() {
-  if ( $body.hasClass('overlay-active') ) {
-    closeAndResetOverlays();
-  } else {
-    setTimeout(() => {
-      $body.addClass('overlay-active play-tip-active');
-    }, 150);
-  }
-}
-
-// tipcs card interactions
+// tips card interactions
 function cardInteractions() {
   $body.find('.overlay').on(tapEvent, e => {
     if ( $(e.target).closest('.card-wrap').length == 1 ) {
@@ -113,11 +115,16 @@ function cardInteractions() {
   });
 }
 
-// close and reset tips
-export function closeAndResetOverlays() {
-  $body.removeClass();
+function resetTips() {
   $cardItems.removeClass();
   $sharePhone.html('');
+}
+
+// close and reset tips
+export function closeAndResetOverlays() {
+  $body.removeClass('overlay-active');
+  $body.removeClass(overlayOpenClasses);
+  resetTips();
 }
 
 // deal a fresh stack of cards
@@ -163,10 +170,15 @@ function randomCardGraphics() {
   });
 }
 
-export function init() {
-  openOverlayTips();
-  openOverlayShare();
+function initTips() {
   cardInteractions();
+}
+
+function initShare() {
   phoneNumberInputs();
   randomCardGraphics();
+}
+
+export function init() {
+  initTips();
 }
