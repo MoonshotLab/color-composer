@@ -72,6 +72,13 @@ path {
 }
 
 .controls {
+  .dithered {
+    img, svg {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
   .play-stop {
     .stop {
       display: none;
@@ -79,13 +86,6 @@ path {
   }
 
   .playing & {
-    li {
-      img, svg {
-        opacity: 0.25;
-        filter: blur(1px);
-      }
-    }
-
     .play-stop {
       .play {
         display: none;
@@ -93,11 +93,6 @@ path {
 
       .stop {
         display: inherit;
-      }
-
-      img {
-        opacity: 1;
-        filter: none;
       }
     }
   }

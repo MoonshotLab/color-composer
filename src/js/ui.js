@@ -5,7 +5,16 @@ const overlays = require('./overlays');
 const $body = $('body');
 const tapEvent = 'click tap touch';
 
-export const playingClass = 'playing';
+const playingClass = sound.playingClass;
+const playEnabledClass = sound.playEnabledClass;
+
+const $newButton = $('.controls .new');
+const $undoButton = $('.controls .undo');
+const $playButton = $('.controls .play-stop');
+const $shareButton = $('.controls .share');
+const $tipsButton = $('.controls .tips');
+
+const ditheredClass = 'dithered';
 
 export function init() {
   initColorPalette();
@@ -18,11 +27,30 @@ export function init() {
   resetCanvas();
 }
 
+function unditherAllButtons() {
+  $(`.controls .${ditheredClass}`).removeClass(ditheredClass);
+}
+
+function ditherPlayAndShareButtons(undither = false) {
+  if (undither !== true) {
+    $playButton.addClass(ditheredClass);
+    $shareButton.addClass(ditheredClass);
+  } else {
+    $playButton.removeClass(ditheredClass);
+    $shareButton.removeClass(ditheredClass);
+  }
+}
+
+function unditherPlayAndShareButtons() {
+  ditherPlayAndShareButtons(true);
+}
+
 function newPressed() {
   console.log('new pressed');
   window.kan.composition = [];
   paper.project.activeLayer.removeChildren();
   tutorial.hideContextualTuts();
+  ui.ditherPlayAndShareButtons();
   // window.kan.userHasDrawnFirstShape = false;
   // tutorial.resetContextualTuts();
 }
@@ -30,7 +58,7 @@ function newPressed() {
 function undoPressed() {
   const transparent = new Color(0, 0);
   console.log('undo pressed');
-  if (!(window.kan.moves.length > 0)) {
+  if (!(window.kan.moves.length > 0) || !$undoButton.hasClass(ditheredClass)) {
     console.log('no moves yet');
     window.kan.userHasDrawnFirstShape = false;
     return;
@@ -99,8 +127,10 @@ function tipsPressed() {
 }
 
 function sharePressed() {
-  overlays.openOverlay('share');
   console.log('share pressed');
+  if ($body.hasClass(sound.playEnabledClass)) {
+    overlays.openOverlay('share');
+  }
 }
 
 function initColorPalette() {

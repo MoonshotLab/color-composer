@@ -7,11 +7,16 @@ const overlays = require('./overlays');
 
 const sounds = initShapeSounds();
 
+const $body = $('body');
+
 const measures = 4;
 const bpm = 120;
 const beatLength = (60 / bpm) * 1000; // ms
 const measureLength = beatLength * 4;
 export const compositionLength = measureLength * measures;
+
+export const playingClass = 'playing';
+export const playEnabledClass = 'play-enabled';
 
 export function getShapeSoundObj(path) {
   const viewWidth = paper.view.viewSize.width;
@@ -36,8 +41,8 @@ export function getShapeSoundObj(path) {
 }
 
 export function startPlaying() {
-  if (paper.project.activeLayer.children.length > 0) {
-    $('body').addClass(ui.playingClass);
+  if ($body.hasClass(playEnabledClass)) {
+    $('body').addClass(playingClass);
 
     Howler.mute(false);
 
@@ -50,7 +55,7 @@ export function startPlaying() {
       window.kan.compositionInterval = startComposition(window.kan.composition, true);
     }
   } else {
-    console.log('cannot play, no children');
+    console.log('play is not enabled');
   }
 }
 
@@ -59,7 +64,7 @@ export function stopPlaying(mute = false) {
     Howler.mute(true);
   }
 
-  $('body').removeClass(ui.playingClass);
+  $('body').removeClass(playingClass);
 
   window.kan.playing = false;
   stopComposition();

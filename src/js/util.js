@@ -23,3 +23,9 @@ export function delta(p1, p2) {
 export function getTime() {
   return new Date().toLocaleTimeString();
 }
+
+export function getAllGroups() {
+  return paper.project.getItems({
+    match: (el) => el.className === 'Group'
+  });
+}

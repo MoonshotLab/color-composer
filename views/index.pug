@@ -16,7 +16,7 @@ html
           ul.main-controls.controls
             li.new
               img(src='img/new.svg' alt='New Canvas')
-            li.undo
+            li.undo.dithered
               img(src='img/undo.svg' alt='Undo Last')
             li.palette
               ul.palette-colors
@@ -28,10 +28,10 @@ html
                     else
                       svg.palette-color(width=config.palette.colorSize, height=config.palette.colorSize)
                         rect(width='100%', height='100%', fill=color)
-            li.play-stop
+            li.play-stop.dithered
               img.play(src='img/play.svg' alt='Play')
               img.stop(src='img/stop.svg' alt='Stop')
-            li.share
+            li.share.dithered
               img(src='img/share.svg' alt='Share')
           div.aux-controls-wrap.controls-wrap
             ul.aux-controls.controls

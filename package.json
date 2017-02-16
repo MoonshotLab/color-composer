@@ -50,6 +50,7 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
+    "array-range": "^1.0.1",
     "debug": "^2.3.3",
     "dotenv": "^2.0.0",
     "express": "^4.14.0",

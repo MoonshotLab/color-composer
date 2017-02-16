@@ -11,6 +11,8 @@ const overlays = require('./overlays');
 
 const canvas = document.getElementById(config.canvasId);
 
+const $body = $('body');
+
 const hitOptions = {
   segments: false,
   stroke: true,
@@ -264,6 +266,13 @@ function panEnd(event) {
     }, timing.playPromptDelay);
 
     window.kan.userHasDrawnFirstShape = true;
+  } else {
+    const groups = util.getAllGroups();
+    if (groups.length >= 3 && !$body.hasClass(sound.playEnabledClass)) {
+      $body.addClass(sound.playEnabledClass);
+      ui.unditherPlayAndShareButtons();
+    }
+    console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
 
   if (config.runAnimations) {
