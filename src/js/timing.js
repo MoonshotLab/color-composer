@@ -1,5 +1,6 @@
 const overlays = require('./overlays');
 const video = require('./video');
+const util = require('./util');
 
 const $body = $('body');
 
@@ -16,7 +17,7 @@ export function init() {
 }
 
 export function preventInactivityTimeout() {
-  console.log('prevent timeout');
+  console.log(`prevent timeout: ${util.getTime()}`);
 
   clearTimeout(window.kan.inactivityTimeout);
 
