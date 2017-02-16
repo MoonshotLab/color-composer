@@ -259,6 +259,12 @@ function panEnd(event) {
     id: group.id
   });
 
+  truedShape.visible = false;
+  const outline = shape.getOutline(truedShape);
+  outline.fillColor = window.kan.currentColor;
+  group.addChild(outline);
+  outline.sendToBack();
+
   ui.unditherUndoButton();
 
   if (window.kan.userHasDrawnFirstShape !== true) {
