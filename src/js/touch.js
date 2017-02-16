@@ -22,6 +22,11 @@ const hitOptions = {
 };
 
 const minShapeSize = 50;
+let outerPath;
+let sizes = [];
+let size;
+let cumSize;
+let prevPoint;
 
 export let hammerManager;
 
@@ -114,6 +119,11 @@ function doubleTap(event) {
 function panStart(event) {
   // paper.project.activeLayer.removeChildren(); // REMOVE
 
+  outerPath = new Path();
+  outerPath.fillColor = window.kan.currentColor;
+  
+  sizes = [];
+  
   // ignore other touch inputs
   if (window.kan.pinching) return;
   if (!(event.changedPointers && event.changedPointers.length > 0)) return;
@@ -134,7 +144,7 @@ function panStart(event) {
     strokeColor: window.kan.currentColor,
     name: 'shapePath',
     strokeWidth: 5,
-    visible: true,
+    visible: false,
     strokeCap: 'round'
   });
 
@@ -189,6 +199,46 @@ function panMove(event) {
 
   // side.push(point);
 
+  while (sizes.length > 10) {
+    sizes.shift();
+  }
+  if (sizes.length > 0) {
+    const dist = prevPoint.getDistance(point);
+
+    // These are based on acceleration
+    // size = 30 - Math.min(dist * 0.3, 30);
+    // size = dist * 3 + 5;
+    size = Math.random() * 10; // This is just random variance
+
+    cumSize = 0;
+    for (let j = 0; j < sizes.length; j++) {
+      cumSize += sizes[j];
+    }
+    // const avgSize = ((cumSize / sizes.length) + size) / 2;
+    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
+
+    const halfPointX = (point.x + prevPoint.x) / 2;
+    const halfPointY = (point.y + prevPoint.y) / 2;
+    const halfPoint = new Point(halfPointX, halfPointY);
+    
+    const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
+    const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
+    const top = new Point(topX, topY);
+    
+    const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
+    const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
+    const bottom = new Point(bottomX, bottomY);
+
+    outerPath.add(top);
+    outerPath.insert(0, bottom);
+    outerPath.smooth();
+  } else {
+    size = 5;
+  }
+
+  sizes.push(size);
+  prevPoint = point;
+
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
     speed: Math.abs(event.overallVelocity),
@@ -218,6 +268,7 @@ function panEnd(event) {
   // let corners = window.kan.corners;
 
   shapePath.add(point);
+  outerPath.visible = false;
 
   if (shapePath.length < minShapeSize) {
     console.log('path is too short');
@@ -232,7 +283,7 @@ function panEnd(event) {
 
   let truedShape = shape.getTruedShape(shapePath);
   shapePath.remove();
-  truedShape.visible = true;
+  truedShape.visible = false;
   window.kan.shapePath = truedShape;
 
   // side.push(point);
@@ -262,6 +313,7 @@ function panEnd(event) {
   truedShape.visible = false;
   const outline = shape.getOutline(truedShape);
   outline.fillColor = window.kan.currentColor;
+  // outline.fillColor = new Color(1, 1, 0, 0.5);
   group.addChild(outline);
   outline.sendToBack();
 

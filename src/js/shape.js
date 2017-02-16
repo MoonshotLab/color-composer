@@ -34,13 +34,8 @@ export function getOutline(truedShape) {
 
     let angle = 0;
     if (nextPoint != null) {
-      // angle = point.getAngleInRadians(nextPoint);
       angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
-      // angle = point.getDirectedAngle(nextPoint);
     }
-    console.log('point', point);
-    console.log('nextPoint', nextPoint);
-    console.log('angle', util.deg(angle));
 
     const topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
     const topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
