@@ -21,7 +21,7 @@ export function init() {
 function newPressed() {
   console.log('new pressed');
   window.kan.composition = [];
-  window.kan.numClosedShapes = 0;
+  window.kan.userHasDrawnFirstShape = false;
   paper.project.activeLayer.removeChildren();
   tutorial.resetContextualTuts();
 }
@@ -31,6 +31,7 @@ function undoPressed() {
   console.log('undo pressed');
   if (!(window.kan.moves.length > 0)) {
     console.log('no moves yet');
+    window.kan.userHasDrawnFirstShape = false;
     return;
   }
 
@@ -81,6 +82,7 @@ function undoPressed() {
 function playPressed() {
   console.log('play pressed');
   overlays.closeAndResetOverlays();
+  clearTimeout(window.kan.playPromptTimeout);
   if (window.kan.playing) {
     sound.stopPlaying(true);
   } else {

@@ -6,6 +6,8 @@ const color = require('./color');
 const shape = require('./shape');
 const util = require('./util');
 const tutorial = require('./tutorial');
+const timing = require('./timing');
+const overlays = require('./overlays');
 
 const canvas = document.getElementById(config.canvasId);
 
@@ -106,6 +108,7 @@ function doubleTap(event) {
 
 function panStart(event) {
   // paper.project.activeLayer.removeChildren(); // REMOVE
+  timing.preventInactivityTimeout();
 
   // ignore other touch inputs
   if (window.kan.pinching) return;
@@ -246,6 +249,16 @@ function panEnd(event) {
     id: group.id
   });
 
+  if (window.kan.userHasDrawnFirstShape !== true) {
+    // first shape!
+    // set play prompt timeout
+    window.kan.playPromptTimeout = setTimeout(() => {
+      overlays.openOverlayPlay();
+    }, timing.playPromptDelay);
+
+    window.kan.userHasDrawnFirstShape = true;
+  }
+
   if (config.runAnimations) {
     const scaleFactor = 0.9;
     group.animate(
@@ -310,6 +323,7 @@ function hitTestGroupBounds(point) {
 }
 
 function pinchStart(event) {
+  timing.preventInactivityTimeout();
   if (!eventTargetIsOnCanvas(event)) return;
 
   console.log('pinchStart', event.center);

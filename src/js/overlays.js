@@ -1,6 +1,8 @@
 const config = require('./../../config');
 
 const touch = require('./touch');
+const video = require('./video');
+
 const hammerManager = touch.hammerManager;
 
 const $body = $('body');
@@ -46,6 +48,17 @@ function cardNavNext() {
   setTimeout(() => {
     $old.removeClass();
   }, 600);
+}
+
+export function openContinueModal() {
+  const tutorialDelay = 30 * 1000; // ms
+
+  console.log('continue modal');
+  clearTimeout(window.kan.inactivityTimeout);
+
+  window.kan.inactivityTimeout = setTimeout(() => {
+    video.enterTutorialMode();
+  }, tutorialDelay);
 }
 
 // open the tips

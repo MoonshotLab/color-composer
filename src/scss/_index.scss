@@ -658,7 +658,7 @@ article {
 }
 
 // video
-#video {
+#video-wrap {
   position: fixed;
   top: 0;
   left: 0;
@@ -670,9 +670,9 @@ article {
   z-index: -1;
 }
 
-.play-video {
+body.video-playing {
   // wrapper
-  #video {
+  #video-wrap {
     opacity: 1;
     z-index: 10;
   }
@@ -684,6 +684,7 @@ article {
     left: 50%;
     min-width: 100vw;
     width: auto;
+    // width: 100%;
     min-height: 100vh;
     height: auto;
     transform: translate(-50%, -50%);

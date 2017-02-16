@@ -29,6 +29,8 @@ window.kan = {
     "swipe": false
   },
   inactivityTimeout: null,
+  playPromptTimeout: null,
+  userHasDrawnFirstShape: false,
 };
 
 $(document).ready(function() {
@@ -36,7 +38,6 @@ $(document).ready(function() {
     ui.init();
     touch.init();
     overlays.init();
-    video.init();
     timing.init();
   }
 

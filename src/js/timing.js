@@ -3,35 +3,24 @@ const video = require('./video');
 
 const $body = $('body');
 
+export const drawInactivityDelay = 40 * 1000; // ms
+export const continueInactivityDelay = 30 * 1000; // ms
+export const playPromptDelay = 6 * 1000; // ms;
+
 export function init() {
-  setPlayPrompt();
+  if ( window.location.hash.length > 0 && window.location.hash == '#video' ) {
+    video.enterTutorialMode();
+  } else {
+    video.exitTutorialMode();
+  }
 }
-
-function setPlayPrompt() {
-  const playDelay = 40 * 1000; // ms
-  return setTimeout(() => {
-    overlays.openOverlayPlay();
-  }, playDelay);
-}
-
-// export function preventVideoTimeout() {
-//   if (window.kan.inactivityTimeout !== null) {
-//     clearTimeout(window.kan.inactivityTimeout);
-//   }
-
-//   window.kan.inactivityTimeout = setTimeout(() => {
-//     $body.addClass(videoPlayingClass)
-//   }, )
-// }
 
 export function preventInactivityTimeout() {
-  const inactivityThreshold = 30 * 1000; // ms
+  console.log('prevent timeout');
 
-  if (window.kan.inactivityTimeout !== null) {
-    clearTimeout(window.kan.inactivityTimeout);
-  }
+  clearTimeout(window.kan.inactivityTimeout);
 
   window.kan.inactivityTimeout = setTimeout(() => {
-    console.log('')
-  }, inactivityThreshold);
+    overlays.openContinueModal();
+  }, drawInactivityDelay);
 }
