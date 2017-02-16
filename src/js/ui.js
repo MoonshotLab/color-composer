@@ -22,6 +22,7 @@ function newPressed() {
   console.log('new pressed');
   window.kan.composition = [];
   paper.project.activeLayer.removeChildren();
+  tutorial.hideContextualTuts();
   // window.kan.userHasDrawnFirstShape = false;
   // tutorial.resetContextualTuts();
 }
