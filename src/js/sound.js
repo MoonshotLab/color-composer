@@ -36,6 +36,9 @@ export function getShapeSoundObj(path) {
   soundObj.duration = quantizedSoundDuration;
   soundObj.pathId = path.id;
   soundObj.spriteName = colorName;
+  if (!!path.parent && path.parent.className === 'Group') {
+    soundObj.groupId = path.parent.id;
+  }
 
   return soundObj;
 }
@@ -123,8 +126,8 @@ function animateNote(shape) {
       return (el.id === shape.pathId);
     }
   });
-  let group = item.parent;
-  try {
+  if (!!item) {
+    let group = item.parent;
     group.animate([
       {
         properties: {
@@ -160,8 +163,31 @@ function animateNote(shape) {
         }
       },
     ]);
-  } catch(e) {
-    console.error('Error animating shape:', e);
+  }
+}
+
+export function removeShapeFromComposition(shapeGroup) {
+  for (let i = 0; i < window.kan.composition.length; i++) {
+    let sound = window.kan.composition[i];
+    console.log(shapeGroup, sound);
+    if ('groupId' in sound) {
+      if (sound.groupId === shapeGroup.id) {
+        window.kan.composition.splice(i);
+        return;
+      }
+    } else if ('pathId' in sound) {
+      let item = getItems({
+        match: function(el) {
+          return el.id === sound.pathId
+        }
+      });
+      if (item.length > 0) {
+        if (!!item.parent && item.parent.className === 'Group' && item.parent.id === shapeGroup.id) {
+          window.kan.composition.splice(i);
+          return;
+        }
+      }
+    }
   }
 }
 

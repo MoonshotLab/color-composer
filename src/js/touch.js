@@ -8,6 +8,7 @@ const util = require('./util');
 const tutorial = require('./tutorial');
 const timing = require('./timing');
 const overlays = require('./overlays');
+const ui = require('./ui');
 
 const canvas = document.getElementById(config.canvasId);
 
@@ -234,9 +235,6 @@ function panEnd(event) {
   truedShape.visible = true;
   window.kan.shapePath = truedShape;
 
-  let shapeSoundObj = sound.getShapeSoundObj(truedShape);
-  window.kan.composition.push(shapeSoundObj);
-
   // side.push(point);
   // sides.push(side);
   // corners.push(point);
@@ -246,6 +244,9 @@ function panEnd(event) {
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
   group.addChild(truedShape);
+
+  let shapeSoundObj = sound.getShapeSoundObj(truedShape);
+  window.kan.composition.push(shapeSoundObj);
 
   let enclosedLoops = shape.findInteriorCurves(truedShape);
   Base.each(enclosedLoops, (loop, i) => {
@@ -257,6 +258,8 @@ function panEnd(event) {
     type: 'newGroup',
     id: group.id
   });
+
+  ui.unditherUndoButton();
 
   if (window.kan.userHasDrawnFirstShape !== true) {
     // first shape!

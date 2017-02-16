@@ -3,6 +3,7 @@ const config = require('./../../config');
 const touch = require('./touch');
 const video = require('./video');
 const timing = require('./timing');
+const tutorial = require('./tutorial');
 
 const hammerManager = touch.hammerManager;
 
@@ -25,6 +26,7 @@ const overlayActiveClass = 'overlay-active';
 export function openOverlay(overlayName) {
   if (allOverlays.includes(overlayName)) {
     closeAndResetOverlays();
+    tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
 
     switch (overlayName) {

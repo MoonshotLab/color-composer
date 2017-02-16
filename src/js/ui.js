@@ -31,7 +31,19 @@ function unditherAllButtons() {
   $(`.controls .${ditheredClass}`).removeClass(ditheredClass);
 }
 
-function ditherPlayAndShareButtons(undither = false) {
+export function unditherUndoButton() {
+  ditherUndoButton(true);
+}
+
+export function ditherUndoButton(undither = false) {
+  if (undither !== true) {
+    $undoButton.addClass(ditheredClass);
+  } else {
+    $undoButton.removeClass(ditheredClass);
+  }
+}
+
+export function ditherPlayAndShareButtons(undither = false) {
   if (undither !== true) {
     $playButton.addClass(ditheredClass);
     $shareButton.addClass(ditheredClass);
@@ -41,7 +53,7 @@ function ditherPlayAndShareButtons(undither = false) {
   }
 }
 
-function unditherPlayAndShareButtons() {
+export function unditherPlayAndShareButtons() {
   ditherPlayAndShareButtons(true);
 }
 
@@ -58,7 +70,7 @@ function newPressed() {
 function undoPressed() {
   const transparent = new Color(0, 0);
   console.log('undo pressed');
-  if (!(window.kan.moves.length > 0) || !$undoButton.hasClass(ditheredClass)) {
+  if (!(window.kan.moves.length > 0)) {
     console.log('no moves yet');
     window.kan.userHasDrawnFirstShape = false;
     return;
@@ -74,7 +86,19 @@ function undoPressed() {
     switch(lastMove.type) {
       case 'newGroup':
         console.log('removing group');
+        sound.removeShapeFromComposition(item);
         item.remove();
+        const numMoves = window.kan.moves.length;
+        if (numMoves <= 0) {
+          ditherUndoButton();
+        }
+
+        if (numMoves < 3) {
+          ditherPlayAndShareButtons();
+          $body.removeClass(sound.playEnabledClass);
+        } else {
+          $body.addClass(sound.playEnabledClass);
+        }
         break;
       case 'fillChange':
         if (lastMove.transparent) {
