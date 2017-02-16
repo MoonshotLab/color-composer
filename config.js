@@ -33,6 +33,6 @@ exports.contextualTuts = [
   },
   {
     type: "swipe",
-    cop: "To <strong>remove</strong> shapes, <strong>pinch</strong> with <strong>two fingers</strong> then <strong>swipe</strong> or hit <strong>undo</strong>."
+    copy: "To <strong>remove</strong> shapes, <strong>pinch</strong> with <strong>two fingers</strong> then <strong>swipe</strong> or hit <strong>undo</strong>."
   },
 ];
