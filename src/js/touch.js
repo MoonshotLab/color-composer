@@ -108,7 +108,6 @@ function doubleTap(event) {
 
 function panStart(event) {
   // paper.project.activeLayer.removeChildren(); // REMOVE
-  timing.preventInactivityTimeout();
 
   // ignore other touch inputs
   if (window.kan.pinching) return;
@@ -323,7 +322,6 @@ function hitTestGroupBounds(point) {
 }
 
 function pinchStart(event) {
-  timing.preventInactivityTimeout();
   if (!eventTargetIsOnCanvas(event)) return;
 
   console.log('pinchStart', event.center);
