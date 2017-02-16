@@ -28,6 +28,8 @@ export function allTutsCompleted() {
 
 export function addContextualTut(tutName) {
   if (!!window.kan.shapePath && window.kan.shapePath.length > 0) {
+    hideContextualTuts();
+
     let shapePath = window.kan.shapePath;
     let shapeCenter = shapePath.bounds.center;
 
