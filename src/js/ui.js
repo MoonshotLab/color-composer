@@ -21,9 +21,9 @@ export function init() {
 function newPressed() {
   console.log('new pressed');
   window.kan.composition = [];
-  window.kan.userHasDrawnFirstShape = false;
   paper.project.activeLayer.removeChildren();
-  tutorial.resetContextualTuts();
+  // window.kan.userHasDrawnFirstShape = false;
+  // tutorial.resetContextualTuts();
 }
 
 function undoPressed() {
@@ -84,8 +84,10 @@ function playPressed() {
   overlays.closeAndResetOverlays();
   clearTimeout(window.kan.playPromptTimeout);
   if (window.kan.playing) {
+    console.log('starting playing');
     sound.stopPlaying(true);
   } else {
+    console.log('starting playing');
     sound.startPlaying();
   }
 }

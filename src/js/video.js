@@ -1,5 +1,6 @@
 const config = require('./../../config');
 
+const main = require('./main');
 const overlays = require('./overlays');
 const timing = require('./timing');
 
@@ -17,6 +18,7 @@ export function enterTutorialMode() {
   clearTimeout(window.kan.inactivityTimeout);
   $body.off(tapEvent, timing.preventInactivityTimeout);
   $body.on(tapEvent, exitTutorialMode);
+  main.resetWindow();
 }
 
 export function exitTutorialMode() {

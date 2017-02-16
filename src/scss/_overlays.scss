@@ -39,8 +39,8 @@
     }
   }
 
-  &.play-prompt-active {
-    .overlay.play-prompt {
+  &.share-prompt-active {
+    .overlay.share-prompt {
       opacity: 1;
       z-index: 3;
     }

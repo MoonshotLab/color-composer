@@ -50,10 +50,10 @@ export function init() {
 }
 
 function singleTap(event) {
-  sound.stopPlaying();
-
   if (!eventTargetIsOnCanvas(event)) return;
   console.log(event);
+
+  sound.stopPlaying();
 
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),

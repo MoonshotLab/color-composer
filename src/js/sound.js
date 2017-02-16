@@ -3,6 +3,7 @@ require('howler');
 const ui = require('./ui');
 const shape = require('./shape');
 const color = require('./color');
+const overlays = require('./overlays');
 
 const sounds = initShapeSounds();
 
@@ -41,7 +42,15 @@ export function startPlaying() {
     Howler.mute(false);
 
     window.kan.playing = true;
-    window.kan.compositionInterval = startComposition(window.kan.composition);
+
+    if (window.kan.firstTimePlaying === true) {
+      window.kan.firstTimePlaying = false;
+      window.kan.compositionInterval = startComposition(window.kan.composition, false);
+    } else {
+      window.kan.compositionInterval = startComposition(window.kan.composition, true);
+    }
+  } else {
+    console.log('cannot play, no children');
   }
 }
 
@@ -53,7 +62,7 @@ export function stopPlaying(mute = false) {
   $('body').removeClass(ui.playingClass);
 
   window.kan.playing = false;
-  stopComposition(window.kan.compositionInterval);
+  stopComposition();
 }
 
 export function initShapeSounds() {
@@ -151,25 +160,36 @@ function animateNote(shape) {
   }
 }
 
-export function startComposition(composition) {
-  function playCompositionOnce() {
-    console.log('repeat');
-    Base.each(composition, (shape, i) => {
-      setTimeout(() => {
-        if (!window.kan.playing) {
-          return;
-        }
+export function startComposition(composition, loop = false) {
+  let iterations = 0;
 
-        shape.sound.play(shape.spriteName);
-        animateNote(shape);
-      }, shape.startTime);
-    });
+  function playCompositionOnce() {
+    if (loop !== true && iterations >= 2) {
+      stopPlaying();
+      overlays.openOverlay('share-prompt');
+    } else {
+      console.log('repeat');
+      console.log(composition);
+      console.log(window.kan.playing);
+      Base.each(composition, (shape, i) => {
+        setTimeout(() => {
+          if (!window.kan.playing) {
+            console.log('not playing, returing');
+            return;
+          }
+
+          shape.sound.play(shape.spriteName);
+          animateNote(shape);
+        }, shape.startTime);
+      });
+      iterations++;
+    }
   }
 
   playCompositionOnce();
   return setInterval(playCompositionOnce, compositionLength);
 }
 
-export function stopComposition(interval) {
-  clearInterval(interval);
+export function stopComposition() {
+  clearInterval(window.kan.compositionInterval);
 }

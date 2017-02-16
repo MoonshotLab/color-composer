@@ -4,37 +4,41 @@ const overlays = require('./overlays');
 const video = require('./video');
 const timing = require('./timing');
 
-window.kan = {
-  currentColor: '#2B5E2E',
-  composition: [],
-  compositionInterval: null,
-  lastEvent: null,
-  moves: [],
-  playing: false,
-  pinching: false,
-  pinchedGroup: null,
-  pinchedTut: null,
-  pathData: {},
-  shapePath: null,
-  prevAngle: null,
-  sides: [],
-  side: [],
-  corners: [],
-  lastScale: 1,
-  lastRotation: 0,
-  originalPosition: null,
-  tutorialCompletion: {
-    "fill": false,
-    "pinch": false,
-    "swipe": false
-  },
-  inactivityTimeout: null,
-  playPromptTimeout: null,
-  userHasDrawnFirstShape: false,
-};
+export function resetWindow() {
+  window.kan = {
+    currentColor: '#2B5E2E',
+    composition: [],
+    compositionInterval: null,
+    lastEvent: null,
+    moves: [],
+    playing: false,
+    pinching: false,
+    pinchedGroup: null,
+    pinchedTut: null,
+    pathData: {},
+    shapePath: null,
+    prevAngle: null,
+    sides: [],
+    side: [],
+    corners: [],
+    lastScale: 1,
+    lastRotation: 0,
+    originalPosition: null,
+    tutorialCompletion: {
+      "fill": false,
+      "pinch": false,
+      "swipe": false
+    },
+    inactivityTimeout: null,
+    playPromptTimeout: null,
+    userHasDrawnFirstShape: false,
+    firstTimePlaying: true
+  };
+}
 
 $(document).ready(function() {
   function run() {
+    resetWindow();
     ui.init();
     touch.init();
     overlays.init();
