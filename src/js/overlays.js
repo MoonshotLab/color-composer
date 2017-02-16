@@ -28,6 +28,9 @@ export function openOverlay(overlayName) {
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
+    $body.find('.overlay:not(.tips)').on(tapEvent, () => {
+      closeAndResetOverlays();
+    });
 
     switch (overlayName) {
       case 'intro':
