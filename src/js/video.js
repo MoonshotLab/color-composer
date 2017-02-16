@@ -15,6 +15,7 @@ const $video = $videoWrapper.find('video');
 
 export function enterTutorialMode() {
   console.log('entering tutorial mode');
+  $video.get(0).play();
   $body.addClass(videoPlayingClass);
   clearTimeout(window.kan.inactivityTimeout);
   $body.off(tapEvent, timing.preventInactivityTimeout);
@@ -26,6 +27,7 @@ export function enterTutorialMode() {
 export function exitTutorialMode() {
   console.log('exiting tutorial mode');
 
+  $video.get(0).pause();
   $body.off(tapEvent, exitTutorialMode);
   $body.on(tapEvent, timing.preventInactivityTimeout);
   $body.removeClass(videoPlayingClass);
