@@ -16,6 +16,10 @@ const hitOptions = {
 };
 
 let hammerManager;
+let outerPath;
+let sizes;
+let cumSize;
+let prevPoint;
 
 export function init() {
   hammerManager = new Hammer.Manager(canvas);
@@ -98,6 +102,22 @@ function doubleTap(event) {
 function panStart(event) {
   console.log('---------------PANSTART---------------');
   paper.project.activeLayer.removeChildren(); // REMOVE
+  outerPath = new Path();
+  // outerPath.selected = true;
+  outerPath.fillColor = new Color(0, 0, 0, 0.2);
+  // outerPath.fillColor = {
+  //       gradient: {
+  //           stops: ['yellow', 'red', 'blue']
+  //       },
+  //       origin: new Point(0, 0),
+  //       destination: new Point(500, 500)
+  //   };
+  outerPath.shadowColor = new Color(0, 0, 0, 0.5);
+  outerPath.shadowBlur = 2;
+  outerPath.shadowOffset = -1;
+  // outerPath.fillColor = window.kan.currentColor;
+
+  sizes = [];
 
   // ignore other touch inputs
   if (window.kan.pinching) return;
@@ -122,6 +142,7 @@ function panStart(event) {
   });
 
   shapePath.add(point);
+  outerPath.add(point);
 
   window.kan.corners = [point];
 
@@ -137,6 +158,7 @@ function panStart(event) {
 }
 
 function panMove(event) {
+  let size;
   event.preventDefault();
   if (window.kan.pinching) return;
 
@@ -145,7 +167,7 @@ function panMove(event) {
 
   const pointer = event.center;
   let point = new Point(pointer.x, pointer.y);
-
+  
   let angle = Math.atan2(event.velocityY, event.velocityX);
   let prevAngle = window.kan.prevAngle;
   let angleDelta = util.angleDelta(angle, prevAngle);
@@ -153,19 +175,70 @@ function panMove(event) {
 
   let side = window.kan.side;
   let sides = window.kan.sides;
+  
+  while (sizes.length > 10) {
+    sizes.shift();
+  }
+  if (sizes.length > 0) {
+    const dist = prevPoint.getDistance(point);
+    
+    if (dist < 5)
+      return;
+
+    // size = 30 - Math.min(dist * 0.3, 30);
+    size = dist * 1.5 + 5;
+
+    cumSize = 0;
+    for (let j = 0; j < sizes.length; j++) {
+      cumSize += sizes[j];
+    }
+    // const avgSize = ((cumSize / sizes.length) + size) / 2;
+    const avgSize = Math.max(5, 50 - ((cumSize / sizes.length) + size) / 2);
+    console.log('event', event);
+
+    const halfPointX = (point.x + prevPoint.x) / 2;
+    const halfPointY = (point.y + prevPoint.y) / 2;
+    const halfPoint = new Point(halfPointX, halfPointY);
+    
+    const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
+    const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
+    const top = new Point(topX, topY);
+    
+    const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
+    const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
+    const bottom = new Point(bottomX, bottomY);
+
+    outerPath.add(top);
+    outerPath.insert(0, bottom);
+    outerPath.smooth();
+    
+    // // Debug info
+    // const connectorLine = new Path.Line(top, bottom);
+    // connectorLine.strokeWidth = 1;
+    // connectorLine.strokeColor = 'red';
+    // const arrowStart = halfPoint;
+    // const arrowEndX = halfPoint.x + Math.cos(angle) * 10;
+    // const arrowEndY = halfPoint.y + Math.sin(angle) * 10;
+    // const arrowEnd = new Point(arrowEndX, arrowEndY);
+    // const arrow = new Path.Line(arrowStart, arrowEnd);
+    // arrow.strokeWidth = 1;
+    // arrow.strokeColor = 'green';
+  } else {
+    size = 5;
+  }
 
   const pointDistance = point.getDistance(window.kan.corners[window.kan.corners.length - 1]);
   if ((angleDelta > thresholdAngleRad)) {
     if (side.length > 0) {
       // console.log('corner');
       let cornerPoint = point;
-      // Debug: draw a circle when a corner has been detected
-      // new Path.Circle({
-      //   center: cornerPoint,
-      //   radius: 5,
-      //   fillColor: new Color(0, 1, 0, 0.5)
-      // });
       if (pointDistance > thresholdLength) {
+        // Debug: draw a circle when a corner has been detected
+        new Path.Circle({
+          center: cornerPoint,
+          radius: 5,
+          fillColor: new Color(0, 1, 0, 0.5)
+        });
         window.kan.corners.push(cornerPoint);
         sides.push(side);
         side = [];
@@ -174,6 +247,9 @@ function panMove(event) {
   }
 
   side.push(point);
+  
+  prevPoint = point;
+  sizes.push(size);
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -205,10 +281,23 @@ function panEnd(event) {
   let corners = window.kan.corners;
 
   shapePath.add(point);
+  outerPath.add(point);
+  outerPath.closed = true;
+  outerPath.smooth();
+  outerPath.simplify();
+  // TODO: define proper gradients
+  outerPath.fillColor = {
+        gradient: {
+            stops: ['yellow', 'red', 'blue']
+        },
+        origin: new Point(0, 0),
+        destination: new Point(500, 500)
+    };
+  // outerPath.fillColor = new Color(0, 0, 0, 0.4);
 
   let truedShape = shape.getTruedShape(shapePath);
   shapePath.remove();
-  truedShape.visible = true;
+  truedShape.visible = false;
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
   window.kan.composition.push(shapeSoundObj);
@@ -218,10 +307,20 @@ function panEnd(event) {
   corners.push(point);
 
   let group = new Group();
-  group.data.color = truedShape.strokeColor;
+  group.data.color = {
+        gradient: {
+            stops: ['yellow', 'red', 'blue']
+        },
+        origin: new Point(0, 0),
+        destination: new Point(500, 500)
+    };
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
 
+  // group.addChild(outerPath);
+  
+  truedShape.fillColor = group.data.color;
+  truedShape.strokeColor = group.data.color;
   group.addChild(truedShape);
   let enclosedLoops = shape.findInteriorCurves(truedShape);
   Base.each(enclosedLoops, (loop, i) => {
@@ -239,7 +338,16 @@ function panEnd(event) {
     last: true
   };
   
-  shape.addTestShape(truedShape);
+  // outerPath.fillColor = new Color(0, 0, 0, 0.1);
+  // group.addChild(outerPath);
+  // outerPath.sendToBack();
+
+  // TODO: run through this to true the straight edges
+  outerPath.fillColor = new Color(0, 0, 0, 0.1);
+  const truedOuterPath = shape.getTruedOuterPath(truedShape);
+  truedOuterPath.fillColor = 'red';
+  group.addChild(truedOuterPath);
+  truedOuterPath.sendToBack();
 
   window.kan.moves.push({
     type: 'newGroup',
@@ -267,7 +375,7 @@ function panEnd(event) {
           easing: "easeIn",
         }
       },
-      { // FIXME: I added this to bounce it back to 1 ^bc
+      {
         properties: {
           scale: 1
         },
