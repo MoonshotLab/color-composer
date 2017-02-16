@@ -43,7 +43,7 @@ html
             li.tut(data-tut-type= tut.type)
               div.tut-close-wrap
                 img.tut-close(src='img/close.svg' alt='Close Contextual Tutorial')
-              span.tut-copy #{tut.copy}
+              span.tut-copy !{tut.copy}
         canvas(id=config.canvasId)
       img#canvas-bg(src='img/canvas-bg.jpg', style='display: none;')
     div#video-wrap

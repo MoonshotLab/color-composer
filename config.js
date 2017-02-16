@@ -25,14 +25,14 @@ exports.palette = {
 exports.contextualTuts = [
   {
     type: "fill",
-    copy: "Tap twice to fill or unfill a shape.",
+    copy: "<strong>Double-tap</strong> a filled shape to <strong>UNFILL</strong> it. Repeat to <strong>FILL</strong> an unfilled shape.",
   },
   {
     type: "pinch",
-    copy: "Pinch shapes with two fingers to resize and move them.",
+    copy: "<strong>Pinch</strong> shapes with <strong>TWO FINGERS</strong> to <strong>resize</strong> and <strong>move</strong> them.",
   },
   {
     type: "swipe",
-    copy: "Swipe with two fingers to remove shapes from the canvas."
+    copy: "<strong>Pinch</strong> shapes with <strong>two fingers</strong> then <strong>swipe</strong> to <strong>remove</strong> them from the canvas."
   },
 ];

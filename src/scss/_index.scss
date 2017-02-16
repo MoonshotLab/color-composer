@@ -193,11 +193,10 @@ path {
     min-width: 22rem;
     max-width: 28rem;
     padding: 2rem 1.8rem;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     margin: 0;
     color: white;
-    text-transform: uppercase;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 1.4rem;
 
     &:after {
@@ -209,9 +208,14 @@ path {
       top: 100%;
       left: 50%;
       border: solid transparent;
-      border-top-color: rgba(0, 0, 0, 0.5);
+      border-top-color: rgba(0, 0, 0, 0.7);
       border-width: 16px;
       margin-left: -16px;
+    }
+
+    strong {
+      font-weight: 800;
+      text-transform: uppercase;
     }
   }
 

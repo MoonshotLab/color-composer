@@ -55,6 +55,7 @@ export function openContinueModal() {
 
   console.log('continue modal');
   clearTimeout(window.kan.inactivityTimeout);
+  clearTimeout(window.kan.playPromptTimeout);
 
   window.kan.inactivityTimeout = setTimeout(() => {
     video.enterTutorialMode();
