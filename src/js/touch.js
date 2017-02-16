@@ -232,11 +232,11 @@ function panMove(event) {
       let cornerPoint = point;
       if (pointDistance > thresholdLength) {
         // Debug: draw a circle when a corner has been detected
-        new Path.Circle({
-          center: cornerPoint,
-          radius: 20,
-          fillColor: new Color(0, 1, 0, 0.5)
-        });
+        // new Path.Circle({
+        //   center: cornerPoint,
+        //   radius: 20,
+        //   fillColor: new Color(0, 1, 0, 0.5)
+        // });
         window.kan.corners.push(cornerPoint);
         sides.push(side);
         side = [];
@@ -280,7 +280,7 @@ function panEnd(event) {
 
   shapePath.add(point);
   outerPath.add(point);
-  // outerPath.visible = false;
+  outerPath.visible = false;
   // outerPath.closed = true;
   // outerPath.smooth();
   // outerPath.simplify();
@@ -313,7 +313,7 @@ function panEnd(event) {
   //       origin: new Point(0, 0),
   //       destination: new Point(500, 500)
   //   };
-  group.data.color = new Color(1, 1, 1, 0.5);
+  group.data.color = new Color(1, 1, 1, 0.2);
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
 
@@ -342,14 +342,19 @@ function panEnd(event) {
   // group.addChild(outerPath);
   // outerPath.sendToBack();
 
-  // TODO: run through this to true the straight edges
   outerPath.fillColor = new Color(0, 0, 0, 0.1);
-  const truedOuterPath = shape.getTruedOuterPath(truedShape);
+  // const truedOuterPath = shape.getTruedOuterPath(truedShape);
   // truedOuterPath.fillColor = 'red';
-  group.addChild(truedOuterPath);
-  truedOuterPath.sendToBack();
+  // group.addChild(truedOuterPath);
+  // truedOuterPath.sendToBack();
   // truedOuterPath.fullySelected = true;
-  truedOuterPath.selected = true;
+  // truedOuterPath.selected = true;
+
+  const outline = shape.getOutline(truedShape);
+  outline.fillColor = 'red';
+  group.addChild(outline);
+  outline.sendToBack();
+  // outline.selected = true;
 
   window.kan.moves.push({
     type: 'newGroup',

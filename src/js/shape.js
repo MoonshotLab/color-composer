@@ -27,6 +27,54 @@ export const shapeNames = {
   }
 };
 
+export function getOutline(truedShape) {
+  console.log('truedShape', truedShape);
+  let outerPath = new Path();
+  let sizes = [];
+  
+  for (let i = 0; i < truedShape.length; i += 20) {
+    while (sizes.length > 10) {
+      sizes.shift();
+    }
+
+    const size = Math.random() * 10; // This is just random variance
+    sizes.push(size);
+
+    let cumSize = 0;
+    for (let j = 0; j < sizes.length; j++) {
+      cumSize += sizes[j];
+    }
+    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
+
+    const point = truedShape.getPointAt(i);
+    const nextPoint = truedShape.getPointAt(i + 20);
+
+    let angle = 0;
+    if (nextPoint != null) {
+      // angle = point.getAngleInRadians(nextPoint);
+      angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
+      // angle = point.getDirectedAngle(nextPoint);
+    }
+    console.log('point', point);
+    console.log('nextPoint', nextPoint);
+    console.log('angle', util.deg(angle));
+
+    const topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
+    const topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
+    const top = new Point(topX, topY);
+
+    const bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
+    const bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
+    const bottom = new Point(bottomX, bottomY);
+
+    outerPath.add(top);
+    outerPath.insert(0, bottom);
+  }
+
+  outerPath.smooth();
+  return outerPath;
+}
+
 export function getTruedOuterPath(truedShape) {
   let shapeJSON = truedShape.exportJSON();
   let shapeData = processShapeData(shapeJSON);
