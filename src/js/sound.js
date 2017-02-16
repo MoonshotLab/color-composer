@@ -53,9 +53,9 @@ export function startPlaying() {
 
     if (window.kan.firstTimePlaying === true) {
       window.kan.firstTimePlaying = false;
-      window.kan.compositionInterval = startComposition(window.kan.composition, false);
+      startComposition(window.kan.composition, false);
     } else {
-      window.kan.compositionInterval = startComposition(window.kan.composition, true);
+      startComposition(window.kan.composition, true);
     }
   } else {
     console.log('play is not enabled');
@@ -194,33 +194,98 @@ export function removeShapeFromComposition(shapeGroup) {
 export function startComposition(composition, loop = false) {
   let iterations = 0;
 
-  function playCompositionOnce() {
-    if (loop !== true && iterations >= 2) {
-      stopPlaying();
-      overlays.openOverlay('share-prompt');
-    } else {
-      console.log('repeat');
-      console.log(composition);
-      console.log(window.kan.playing);
-      Base.each(composition, (shape, i) => {
-        setTimeout(() => {
-          if (!window.kan.playing) {
-            console.log('not playing, returing');
-            return;
-          }
+  function playCompositionFirstTime() {
+    console.log('playing composition first time');
+    let trimmedCompositionObj = getTrimmedCompositionObj(composition);
 
-          shape.sound.play(shape.spriteName);
-          animateNote(shape);
-        }, shape.startTime);
-      });
-      iterations++;
+    Base.each(trimmedCompositionObj.composition, (shape, i) => {
+      setTimeout(() => {
+        if (!window.kan.playing) {
+          console.log('not playing, returing');
+          return;
+        }
+
+        shape.sound.play(shape.spriteName);
+        animateNote(shape);
+      }, shape.startTime);
+    });
+
+    iterations++;
+    return setTimeout(repeatComposition, compositionLength - trimmedCompositionObj.startTime);
+  }
+
+  function playCompositionOnce() {
+    console.log('repeat');
+    Base.each(composition, (shape, i) => {
+      setTimeout(() => {
+        if (!window.kan.playing) {
+          console.log('not playing, returing');
+          return;
+        }
+
+        shape.sound.play(shape.spriteName);
+        animateNote(shape);
+      }, shape.startTime);
+    });
+    iterations++;
+  }
+
+  function repeatComposition() {
+    if (loop === true) {
+      playCompositionOnce();
+      window.kan.compositionInterval = setInterval(playCompositionOnce, compositionLength);
+    } else {
+      if (iterations < 2) {
+        playCompositionOnce();
+        setTimeout(repeatComposition, compositionLength);
+      } else {
+        stopPlaying();
+        overlays.openOverlay('share-prompt');
+      }
     }
   }
 
-  playCompositionOnce();
-  return setInterval(playCompositionOnce, compositionLength);
+  playCompositionFirstTime();
 }
 
 export function stopComposition() {
-  clearInterval(window.kan.compositionInterval);
+  clearTimeout(window.kan.compositionInterval);
+}
+
+export function getTrimmedCompositionObj(composition) {
+  let firstTime = 0;
+  let trimmedComposition = [];
+  let startTime = getCompositionStartTime(composition);
+
+  composition.forEach((sound) => {
+    let modifiedSound = sound;
+    modifiedSound.startTime -= startTime;
+    if (modifiedSound.startTime < 0) modifiedSound.startTime = 0; // this shouldn't happen
+    trimmedComposition.push(modifiedSound);
+  });
+
+  return {
+    composition: trimmedComposition,
+    startTime: startTime
+  }
+}
+
+function getCompositionStartTime(composition) {
+  let startTime = compositionLength;
+
+  composition.forEach((sound) => {
+    console.log(sound);
+    console.log(sound.startTime)
+    if ('startTime' in sound && sound.startTime < startTime) {
+      startTime = sound.startTime;
+    }
+  });
+
+  console.log('start time', startTime);
+
+  if (startTime !== compositionLength) {
+    return startTime;
+  } else {
+    return 0;
+  }
 }
