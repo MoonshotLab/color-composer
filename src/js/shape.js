@@ -40,7 +40,7 @@ export function getTruedOuterPath(truedShape) {
 
   let sides = window.kan.sides;
   console.log('sides', sides);
-
+  
   // Split paths at each corner
   const sidePaths = [];
   let pathRemainder = truedShape.clone({insert: true});
@@ -70,7 +70,10 @@ export function getTruedOuterPath(truedShape) {
   // End splitting path at corners
   
   // Start recreating a shape based on the sides
-  const guessedSides = [];
+  // const guessedSides = [];
+  // let outerPath = new CompoundPath();
+  let outerPath = new Path();
+
   sidePaths.forEach((sidePath, sidePathIndex) => {
     console.log('------- sidePath -----');
     const firstPoint = sidePath.firstSegment.point;
@@ -84,66 +87,32 @@ export function getTruedOuterPath(truedShape) {
     if (sidePath.length > (calcLength * 0.9) && sidePath.length < (calcLength * 1.1)) {
       // This is probably a straight line
       // console.log('Guessed a straight line between', firstPoint, lastPoint);
-      var path = new Path.Line(firstPoint, lastPoint);
+      const path = new Path.Line(firstPoint, lastPoint);
+      const newPath = path.clone();
+      newPath.strokeColor = new Color(1, 0, 0, 0.5);
+      newPath.strokeWidth = 20;
       
-      guessedSides.push({
-        type: 'line',
-        path: path,
-      });
+      // guessedSides.push({
+      //   type: 'line',
+      //   path: path,
+      // });
+      // console.log('outerPath', outerPath);
+      // outerPath.add(firstPoint, lastPoint);
+      // outerPath.addChild(path);
+      // outerPath = outerPath.unite(path);
+      outerPath.join(path);
     } else {
       // Assume this is a curve
-      if (sidePath.layer === null) {
-        // no idea why the clone sometimes gets separated from the layer, but it happens if the curve does not self intersect
-        window.kan.canvasLayer.addChild(sidePath);
-      }
-
-      // console.log('Guessed a curve. sidePath:', sidePath, sidePath.length);
-
-      var path = sidePath.clone({insert: true});
-      guessedSides.push({
-        type: 'curve',
-        path: path,
-      });
+      const path = sidePath.clone({insert: true});
+      // sidePath.segments.forEach((segment, segmentIndex) => {
+      //   outerPath.add(segment.point);
+      // });
+      // outerPath = outerPath.unite(path);
+      // outerPath.addChild(path);
+      outerPath.join(path);
     }
   });
-  // console.log('guessedSides', guessedSides);
-  // End recreating the shape
-
-  const outerPath = new Path();
-  // outerPath.selected = true;
-
-  guessedSides.forEach((guessedSide, guessedSideIndex) => {
-    // outerPath.unite(guessedSide.path);
-    if (guessedSide.type == 'line') {
-      // Line
-      const straightLine = new Path.Line(guessedSide.path.segments[0].point, guessedSide.path.segments[1].point);
-      straightLine.strokeWidth = 10;
-      straightLine.strokeColor = new Color(1, 1, 1, 0.4);
-
-      const angle = guessedSide.path.segments[0].point.getAngleInRadians(guessedSide.path.segments[1].point);
-      guessedSide.path.segments.forEach((segment, segmentIndex) => {
-      // console.log('segment', segment);
-
-        const avgSize = 20;
-        const topX = segment.point.x + Math.cos(angle - Math.PI/2) * avgSize;
-        const topY = segment.point.y + Math.sin(angle - Math.PI/2) * avgSize;
-        const top = new Point(topX, topY);
-        
-        const bottomX = segment.point.x + Math.cos(angle + Math.PI/2) * avgSize;
-        const bottomY = segment.point.y + Math.sin(angle + Math.PI/2) * avgSize;
-        const bottom = new Point(bottomX, bottomY);
-        
-        outerPath.add(top);
-        outerPath.insert(0, bottom);
-      });
-    } else {
-      // Curve
-      outerPath.unite(guessedSide.path);
-    }
-    outerPath.closed = true;
-    // outerPath.smooth();
-  });
-  
+  // outerPath = outerPath.unite(outerPath);
   return outerPath;
 }
 
@@ -345,7 +314,7 @@ export function addTestShape(truedShape) {
   // }
   outerPath.unite(outerPath);
   // outerPath.unite(truedShape);
-  // outerPath.selected = true;
+  outerPath.selected = true;
   outerPath.closed = true;
   outerPath.flatten(4);
   outerPath.smooth();

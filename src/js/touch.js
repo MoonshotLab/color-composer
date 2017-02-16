@@ -181,20 +181,18 @@ function panMove(event) {
   }
   if (sizes.length > 0) {
     const dist = prevPoint.getDistance(point);
-    
-    if (dist < 5)
-      return;
 
+    // These are based on acceleration
     // size = 30 - Math.min(dist * 0.3, 30);
-    size = dist * 1.5 + 5;
+    // size = dist * 3 + 5;
+    size = Math.random() * 10; // This is just random variance
 
     cumSize = 0;
     for (let j = 0; j < sizes.length; j++) {
       cumSize += sizes[j];
     }
     // const avgSize = ((cumSize / sizes.length) + size) / 2;
-    const avgSize = Math.max(5, 50 - ((cumSize / sizes.length) + size) / 2);
-    console.log('event', event);
+    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
 
     const halfPointX = (point.x + prevPoint.x) / 2;
     const halfPointY = (point.y + prevPoint.y) / 2;
@@ -236,7 +234,7 @@ function panMove(event) {
         // Debug: draw a circle when a corner has been detected
         new Path.Circle({
           center: cornerPoint,
-          radius: 5,
+          radius: 20,
           fillColor: new Color(0, 1, 0, 0.5)
         });
         window.kan.corners.push(cornerPoint);
@@ -282,18 +280,19 @@ function panEnd(event) {
 
   shapePath.add(point);
   outerPath.add(point);
-  outerPath.closed = true;
-  outerPath.smooth();
-  outerPath.simplify();
+  // outerPath.visible = false;
+  // outerPath.closed = true;
+  // outerPath.smooth();
+  // outerPath.simplify();
   // TODO: define proper gradients
-  outerPath.fillColor = {
-        gradient: {
-            stops: ['yellow', 'red', 'blue']
-        },
-        origin: new Point(0, 0),
-        destination: new Point(500, 500)
-    };
-  // outerPath.fillColor = new Color(0, 0, 0, 0.4);
+  // outerPath.fillColor = {
+  //       gradient: {
+  //           stops: ['yellow', 'red', 'blue']
+  //       },
+  //       origin: new Point(0, 0),
+  //       destination: new Point(500, 500)
+  //   };
+  outerPath.fillColor = new Color(0, 0, 0, 0.4);
 
   let truedShape = shape.getTruedShape(shapePath);
   shapePath.remove();
@@ -307,13 +306,14 @@ function panEnd(event) {
   corners.push(point);
 
   let group = new Group();
-  group.data.color = {
-        gradient: {
-            stops: ['yellow', 'red', 'blue']
-        },
-        origin: new Point(0, 0),
-        destination: new Point(500, 500)
-    };
+  // group.data.color = {
+  //       gradient: {
+  //           stops: ['yellow', 'red', 'blue']
+  //       },
+  //       origin: new Point(0, 0),
+  //       destination: new Point(500, 500)
+  //   };
+  group.data.color = new Color(1, 1, 1, 0.5);
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
 
@@ -345,9 +345,11 @@ function panEnd(event) {
   // TODO: run through this to true the straight edges
   outerPath.fillColor = new Color(0, 0, 0, 0.1);
   const truedOuterPath = shape.getTruedOuterPath(truedShape);
-  truedOuterPath.fillColor = 'red';
+  // truedOuterPath.fillColor = 'red';
   group.addChild(truedOuterPath);
   truedOuterPath.sendToBack();
+  // truedOuterPath.fullySelected = true;
+  truedOuterPath.selected = true;
 
   window.kan.moves.push({
     type: 'newGroup',
