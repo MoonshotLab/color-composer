@@ -3,6 +3,7 @@ const config = require('./../../config');
 const main = require('./main');
 const overlays = require('./overlays');
 const timing = require('./timing');
+const ui = require('./ui');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -19,6 +20,7 @@ export function enterTutorialMode() {
   $body.off(tapEvent, timing.preventInactivityTimeout);
   $body.on(tapEvent, exitTutorialMode);
   main.resetWindow();
+  ui.resetCanvas();
 }
 
 export function exitTutorialMode() {

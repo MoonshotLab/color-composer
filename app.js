@@ -22,7 +22,8 @@ app.listen(port, function() {
 
 app.get('/', function (req, res) {
   res.render('index', {
-    config: config
+    config: config,
+    range: require('array-range')
   });
 });
 

@@ -15,7 +15,7 @@ export function init() {
   initTipsButton();
   initShareButton();
   initContextualTuts();
-  addCanvasBackground();
+  resetCanvas();
 }
 
 function newPressed() {
@@ -179,12 +179,18 @@ function initContextualTuts() {
   });
 }
 
-function addCanvasBackground() {
+export function resetCanvas() {
+  paper.project.clear();
+
+  // add random background
   paper.project.activeLayer.name = 'background';
-  const canvasBg = new Raster('canvas-bg');
+  const numCanvasses = 10;
+  const randomCanvasIndex = Math.round(Math.random() * numCanvasses - 1) + 1; // [1, numCanvasses]
+  const canvasBg = new Raster(`canvas-${randomCanvasIndex}`);
   canvasBg.name = 'canvasBg';
   canvasBg.position = paper.view.center;
 
+  // add canvas layer
   const scaleFactorHorizontal = paper.view.viewSize.width / canvasBg.size.width;
   const scaleFactorVertical = paper.view.viewSize.height / canvasBg.size.height;
   canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
