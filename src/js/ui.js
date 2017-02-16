@@ -185,7 +185,7 @@ export function resetCanvas() {
   // add random background
   paper.project.activeLayer.name = 'background';
   const numCanvasses = 10;
-  const randomCanvasIndex = Math.round(Math.random() * numCanvasses - 1) + 1; // [1, numCanvasses]
+  const randomCanvasIndex = Math.round(Math.random() * (numCanvasses - 1)) + 1; // [1, numCanvasses]
   const canvasBg = new Raster(`canvas-${randomCanvasIndex}`);
   canvasBg.name = 'canvasBg';
   canvasBg.position = paper.view.center;
