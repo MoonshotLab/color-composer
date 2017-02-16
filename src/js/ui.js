@@ -62,7 +62,7 @@ function newPressed() {
   window.kan.composition = [];
   paper.project.activeLayer.removeChildren();
   tutorial.hideContextualTuts();
-  ui.ditherPlayAndShareButtons();
+  ditherPlayAndShareButtons();
   // window.kan.userHasDrawnFirstShape = false;
   // tutorial.resetContextualTuts();
 }
