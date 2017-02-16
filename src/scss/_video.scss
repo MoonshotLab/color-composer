@@ -1,0 +1,44 @@
+// video
+#video-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: opacity 2s;
+  z-index: -1;
+}
+
+body.video-playing {
+  // wrapper
+  #video-wrap {
+    opacity: 1;
+    z-index: 10;
+  }
+
+  video {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100vw;
+    width: auto;
+    // width: 100%;
+    min-height: 100vh;
+    height: auto;
+    transform: translate(-50%, -50%);
+  }
+
+  .contents {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 45vw;
+    border: 1px solid white;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    z-index: 15;
+  }
+}
