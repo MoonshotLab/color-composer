@@ -4,6 +4,7 @@ const touch = require('./touch');
 const video = require('./video');
 const timing = require('./timing');
 const tutorial = require('./tutorial');
+const util = require('./util');
 
 const hammerManager = touch.hammerManager;
 
@@ -37,7 +38,13 @@ export function openOverlay(overlayName) {
         openIntroOverlay();
         break;
       case 'play-prompt':
-        openPlayPromptOverlay();
+        if (util.anyShapesOnCanvas()) {
+          openPlayPromptOverlay();
+        } else {
+          window.kan.playPromptTimeout = setTimeout(() => {
+            openOverlay('play-prompt');
+          }, timing.playPromptDelay / 2);
+        }
         break;
       case 'share-prompt':
         openSharePromptOverlay();

@@ -29,3 +29,8 @@ export function getAllGroups() {
     match: (el) => el.className === 'Group'
   });
 }
+
+export function anyShapesOnCanvas() {
+  const groups = getAllGroups();
+  return groups.length > 0;
+}

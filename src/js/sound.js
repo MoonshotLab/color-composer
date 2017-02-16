@@ -193,6 +193,9 @@ export function removeShapeFromComposition(shapeGroup) {
 
 export function startComposition(composition, loop = false) {
   let iterations = 0;
+  clearInterval(window.kan.compositionInterval);
+  clearTimeout(window.kan.compositionTimeout);
+  playCompositionFirstTime();
 
   function playCompositionFirstTime() {
     console.log('playing composition first time');
@@ -211,7 +214,7 @@ export function startComposition(composition, loop = false) {
     });
 
     iterations++;
-    return setTimeout(repeatComposition, compositionLength - trimmedCompositionObj.startTime);
+    window.kan.compositionTimeout = setTimeout(repeatComposition, compositionLength - trimmedCompositionObj.startTime);
   }
 
   function playCompositionOnce() {
@@ -244,8 +247,6 @@ export function startComposition(composition, loop = false) {
       }
     }
   }
-
-  playCompositionFirstTime();
 }
 
 export function stopComposition() {

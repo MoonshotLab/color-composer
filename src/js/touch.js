@@ -30,13 +30,13 @@ export function init() {
   hammerManager = new Hammer.Manager(body);
   // hammerManager = new Hammer.Manager(canvas);
 
-  hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
+  hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
   hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
   hammerManager.add(new Hammer.Pinch());
 
   hammerManager.get('doubletap').recognizeWith('singletap');
-  hammerManager.get('singletap').requireFailure('doubletap');
+  // hammerManager.get('singletap').requireFailure('doubletap');
   hammerManager.get('pan').requireFailure('pinch');
 
   hammerManager.on('singletap', singleTap);
@@ -55,6 +55,7 @@ export function init() {
 function singleTap(event) {
   if (!eventTargetIsOnCanvas(event)) return;
   console.log(event);
+  tutorial.hideContextualTuts();
 
   sound.stopPlaying();
 
