@@ -514,6 +514,7 @@ function throwPinchedGroup() {
       pinchedGroup.position.y >= viewHeight + pinchedGroup.bounds.height) {
         pinchedGroup.data.offScreen = true;
         pinchedGroup.visible = false;
+        sound.removeShapeFromComposition(pinchedGroup);
     return;
   }
   requestAnimationFrame(throwPinchedGroup);

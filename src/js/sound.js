@@ -169,10 +169,10 @@ function animateNote(shape) {
 export function removeShapeFromComposition(shapeGroup) {
   for (let i = 0; i < window.kan.composition.length; i++) {
     let sound = window.kan.composition[i];
-    console.log(shapeGroup, sound);
+
     if ('groupId' in sound) {
       if (sound.groupId === shapeGroup.id) {
-        window.kan.composition.splice(i);
+        window.kan.composition.splice(i, 1);
         return;
       }
     } else if ('pathId' in sound) {
@@ -183,7 +183,7 @@ export function removeShapeFromComposition(shapeGroup) {
       });
       if (item.length > 0) {
         if (!!item.parent && item.parent.className === 'Group' && item.parent.id === shapeGroup.id) {
-          window.kan.composition.splice(i);
+          window.kan.composition.splice(i, 1);
           return;
         }
       }
