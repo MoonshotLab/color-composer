@@ -22,7 +22,7 @@ html
               ul.palette-colors
                 each color, index in config.palette.colors
                   li
-                    if index == 0
+                    if index == config.palette.colors.length - 1
                       svg.palette-color.palette-selected(width=config.palette.selectedColorSize, height=config.palette.selectedColorSize)
                         rect(width='100%', height='100%', fill=color, rx=config.palette.selectedColorSize / 2, ry=config.palette.selectedColorSize / 2)
                     else

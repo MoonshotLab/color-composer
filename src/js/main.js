@@ -5,7 +5,7 @@ const video = require('./video');
 const timing = require('./timing');
 
 window.kan = {
-  currentColor: '#20171C',
+  currentColor: '#2B5E2E',
   composition: [],
   compositionInterval: null,
   lastEvent: null,
