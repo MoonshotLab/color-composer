@@ -389,6 +389,7 @@ function panEnd(event) {
   //   radius: 5,
   //   fillColor: 'green',
   // }));
+  group.data.originalColor = window.kan.currentColor;
   group.data.color = {
     gradient: {
       stops: config.palette.gradients[window.kan.currentColor],

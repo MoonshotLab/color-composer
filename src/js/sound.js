@@ -224,6 +224,12 @@ export function startComposition(composition, loop = false) {
           return;
         }
 
+        if (shape.spriteName === null) {
+          console.log('%cshape is null', 'color:red', shape);
+          return;
+        } else {
+          console.log('not null', shape);
+        }
         shape.sound.play(shape.spriteName);
         animateNote(shape);
       }, shape.startTime);
