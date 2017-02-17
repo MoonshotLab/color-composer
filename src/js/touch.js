@@ -363,11 +363,11 @@ function panEnd(event) {
     point: point,
     last: true
   };
-  
+
   // side.push(point);
   // sides.push(side);
   // corners.push(point);
-  
+
   let group = new Group();
 
   let truedShape = shape.getTruedShape(shapePath);

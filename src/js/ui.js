@@ -19,6 +19,7 @@ const $tipsButton = $('.controls .tips');
 const ditheredClass = 'dithered';
 
 export function init() {
+  initLogoRefresh();
   initColorPalette();
   initNewButton();
   initUndoButton();
@@ -180,6 +181,12 @@ function sharePressed() {
   if ($body.hasClass(sound.playEnabledClass)) {
     overlays.openOverlay('share');
   }
+}
+
+function initLogoRefresh() {
+  $('.main-logo').on(tapEvent, function() {
+    location.reload();
+  });
 }
 
 function initColorPalette() {
