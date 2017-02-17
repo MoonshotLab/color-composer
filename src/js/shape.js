@@ -14,7 +14,7 @@ export function getOutline(truedShape) {
   console.log('truedShape', truedShape);
   let outerPath = new Path();
   let sizes = [];
-  
+
   for (let i = 0; i < truedShape.length; i += 20) {
     while (sizes.length > 10) {
       sizes.shift();
@@ -88,7 +88,7 @@ export function getCompletedPath(path) {
     let extendedPath = getExtendedPath(pathClone);
     let intersections = extendedPath.getIntersections();
 
-    pathClone.remove();
+    // pathClone.remove();
 
     if (intersections.length > 0) {
       // trim extra extended path
@@ -97,6 +97,16 @@ export function getCompletedPath(path) {
       return trimmedPath;
     } else {
       // extended path does not intersect, return the original path
+      extendedPath.remove();
+      extendedPath = getBruteExtendedPath(pathClone);
+      let intersections = extendedPath.getIntersections();
+
+      if (intersections.length > 0) {
+        let trimmedPath = getTrimmedPath(extendedPath);
+        extendedPath.remove();
+        return trimmedPath;
+      }
+
       return pathClone;
     }
   }
@@ -240,7 +250,7 @@ export function findInteriorCurves(path) {
   return interiorCurves;
 }
 
-export function getExtendedPath(path) {
+export function getExtendedPath(path, bruteForce = false) {
   let extendedPath = path.clone();
   extendedPath.visible = false;
 
@@ -262,6 +272,23 @@ export function getExtendedPath(path) {
   return extendedPath;
 }
 
+export function getBruteExtendedPath(path) {
+  let extendedPath = path.clone();
+  extendedPath.visible = false;
+
+  const thresholdDist = thresholdDistMultiplier * extendedPath.length;
+  const firstPoint = extendedPath.firstSegment.point;
+  const lastPoint = extendedPath.lastSegment.point;
+
+  if (firstPoint.getDistance(lastPoint) < thresholdDist) {
+    extendedPath.insert(0, lastSegment.point);
+    extendedPath.add(firstSegment.point);
+  }
+
+
+  return extendedPath;
+}
+
 export function getTrimmedPath(path) {
   let pathClone = path.clone();
   pathClone.visible = false;
@@ -272,7 +299,7 @@ export function getTrimmedPath(path) {
 
   let intersections = pathClone.getIntersections();
 
-  if (intersections.length > 0) {
+  if (intersections.length == 1) {
     for (let i = 0; i < intersections.length; i++) {
       let intersectionPoint = intersections[i].point;
 
@@ -296,6 +323,7 @@ export function getTrimmedPath(path) {
         dividedPath.selected = true;
 
         let trimmedPath = pathClone.subtract(dividedPath);
+        if (trimmedPath.length === 0) return pathClone;
         if (trimmedPath.className === 'CompoundPath' && trimmedPath.children.length > 0) {
           let closedChildren = [];
           trimmedPath.children.forEach((child, i) => {
