@@ -294,6 +294,7 @@ function panEnd(event) {
   shapePath.remove();
   truedShape.visible = false;
   window.kan.shapePath = truedShape;
+  truedShape.name = 'shapePath';
 
   // side.push(point);
   // sides.push(side);
@@ -532,6 +533,15 @@ function pinchEnd(event) {
 
     if (pinchedGroup.data.scale != originalScale) {
       move.scale = originalScale / pinchedGroup.data.scale;
+    }
+
+    if (pinchedGroup._namedChildren.length > 0 && pinchedGroup._namedChildren['shapePath']) {
+      // update shapePath sound object if possible
+      sound.removeShapeFromComposition(pinchedGroup); // sound is now wrong
+
+      let shapePath = pinchedGroup._namedChildren['shapePath'];
+      let shapeSoundObj = sound.getShapeSoundObj(shapePath);
+      window.kan.composition.push(shapeSoundObj);
     }
 
     console.log('final scale', pinchedGroup.data.scale);
