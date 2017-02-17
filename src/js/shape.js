@@ -281,8 +281,8 @@ export function getBruteExtendedPath(path) {
   const lastPoint = extendedPath.lastSegment.point;
 
   if (firstPoint.getDistance(lastPoint) < thresholdDist) {
-    extendedPath.insert(0, lastSegment.point);
-    extendedPath.add(firstSegment.point);
+    extendedPath.insert(0, lastPoint);
+    extendedPath.add(firstPoint);
   }
 
 
@@ -378,6 +378,12 @@ export function getTrimmedPath(path) {
   } else {
     return pathClone;
   }
+}
+
+
+export function hitTestGroupBounds(point) {
+  let groups = util.getAllGroups();
+  return hitTestBounds(point, groups);
 }
 
 export function hitTestBounds(point, children) {
