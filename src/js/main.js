@@ -10,7 +10,10 @@ export function resetWindow() {
     currentColor: '#2B5E2E',
     composition: [],
     compositionInterval: null,
+    compositionTimeout: null,
+    soundTimeouts: [],
     lastEvent: null,
+    interaction: false,
     moves: [],
     playing: false,
     pinching: false,
@@ -33,7 +36,8 @@ export function resetWindow() {
     inactivityTimeout: null,
     playPromptTimeout: null,
     userHasDrawnFirstShape: false,
-    firstTimePlaying: true
+    firstTimePlaying: true,
+    shapesSinceTut: 0
   };
 }
 

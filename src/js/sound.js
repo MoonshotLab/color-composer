@@ -191,15 +191,29 @@ export function removeShapeFromComposition(shapeGroup) {
   }
 }
 
+export function clearSoundTimeouts() {
+  if (window.kan.soundTimeouts.length > 0) {
+    window.kan.soundTimeouts.forEach((soundTimeout) => {
+      clearTimeout(soundTimeout);
+    });
+  }
+
+  window.kan.soundTimeouts = [];
+}
+
 export function startComposition(composition, loop = false) {
+  stopComposition();
+
   let iterations = 0;
+  playCompositionFirstTime();
 
   function playCompositionFirstTime() {
+    clearSoundTimeouts();
     console.log('playing composition first time');
     let trimmedCompositionObj = getTrimmedCompositionObj(composition);
 
     Base.each(trimmedCompositionObj.composition, (shape, i) => {
-      setTimeout(() => {
+      let soundTimeout = setTimeout(() => {
         if (!window.kan.playing) {
           console.log('not playing, returing');
           return;
@@ -208,16 +222,18 @@ export function startComposition(composition, loop = false) {
         shape.sound.play(shape.spriteName);
         animateNote(shape);
       }, shape.startTime);
+      window.kan.soundTimeouts.push(soundTimeout);
     });
 
     iterations++;
-    return setTimeout(repeatComposition, compositionLength - trimmedCompositionObj.startTime);
+    window.kan.compositionTimeout = setTimeout(repeatComposition, compositionLength - trimmedCompositionObj.startTime);
   }
 
   function playCompositionOnce() {
+    clearSoundTimeouts();
     console.log('repeat');
     Base.each(composition, (shape, i) => {
-      setTimeout(() => {
+      let soundTimeout = setTimeout(() => {
         if (!window.kan.playing) {
           console.log('not playing, returing');
           return;
@@ -226,6 +242,7 @@ export function startComposition(composition, loop = false) {
         shape.sound.play(shape.spriteName);
         animateNote(shape);
       }, shape.startTime);
+      window.kan.soundTimeouts.push(soundTimeout);
     });
     iterations++;
   }
@@ -244,12 +261,12 @@ export function startComposition(composition, loop = false) {
       }
     }
   }
-
-  playCompositionFirstTime();
 }
 
 export function stopComposition() {
-  clearTimeout(window.kan.compositionInterval);
+  clearInterval(window.kan.compositionInterval);
+  clearTimeout(window.kan.compositionTimeout);
+  clearSoundTimeouts();
 }
 
 export function getTrimmedCompositionObj(composition) {

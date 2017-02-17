@@ -4,6 +4,7 @@ const touch = require('./touch');
 const video = require('./video');
 const timing = require('./timing');
 const tutorial = require('./tutorial');
+const util = require('./util');
 
 const hammerManager = touch.hammerManager;
 
@@ -24,6 +25,7 @@ const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).joi
 const overlayActiveClass = 'overlay-active';
 
 export function openOverlay(overlayName) {
+  if (window.kan.overlays === false) return;
   if (allOverlays.includes(overlayName)) {
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
@@ -37,7 +39,13 @@ export function openOverlay(overlayName) {
         openIntroOverlay();
         break;
       case 'play-prompt':
-        openPlayPromptOverlay();
+        if (util.anyShapesOnCanvas()) {
+          openPlayPromptOverlay();
+        } else {
+          window.kan.playPromptTimeout = setTimeout(() => {
+            openOverlay('play-prompt');
+          }, timing.playPromptDelay / 2);
+        }
         break;
       case 'share-prompt':
         openSharePromptOverlay();
@@ -91,7 +99,7 @@ function openShareOverlay() {
 
 
 // card slider navigation
-function cardNavNext() {
+export function cardNavNext() {
   let $old = $body.find('.card-wrap .current');
   let $new = ($old.next().length) ? $old.next() : $cardItems.first();
   let $next = ($new.next().length) ? $new.next() : $cardItems.first();
@@ -109,6 +117,7 @@ function cardNavNext() {
 
 // tips card interactions
 function cardInteractions() {
+
   $body.find('.overlay').on(tapEvent, e => {
     if ( $(e.target).closest('.card-wrap').length == 1 ) {
       // directly on a card, navigate to the next one

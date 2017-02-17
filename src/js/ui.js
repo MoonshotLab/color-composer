@@ -1,6 +1,7 @@
 const sound = require('./sound');
 const tutorial = require('./tutorial');
 const overlays = require('./overlays');
+const util = require('./util');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -31,30 +32,38 @@ function unditherAllButtons() {
   $(`.controls .${ditheredClass}`).removeClass(ditheredClass);
 }
 
-export function unditherUndoButton() {
-  ditherUndoButton(true);
-}
-
-export function ditherUndoButton(undither = false) {
-  if (undither !== true) {
-    $undoButton.addClass(ditheredClass);
-  } else {
-    $undoButton.removeClass(ditheredClass);
+export function ditherButtonsByName(buttonNames, undither = false) {
+  if (buttonNames.length > 0) {
+    if ($.isArray(buttonNames)) {
+      buttonNames.forEach((name) => ditherButtonByName(name, undither));
+    } else {
+      ditherButtonByName(buttonNames, undither);
+    }
   }
 }
 
-export function ditherPlayAndShareButtons(undither = false) {
-  if (undither !== true) {
-    $playButton.addClass(ditheredClass);
-    $shareButton.addClass(ditheredClass);
-  } else {
-    $playButton.removeClass(ditheredClass);
-    $shareButton.removeClass(ditheredClass);
+export function unditherButtonsByName(buttonNames) {
+  ditherButtonsByName(buttonNames, true);
+}
+
+export function ditherButtonByName(buttonName, undither = false) {
+  let $button = $(`.controls .${buttonName}`);
+  console.log($button);
+  if ($button.length > 0) {
+    if (undither !== true) {
+      $button.addClass(ditheredClass);
+    } else {
+      $button.removeClass(ditheredClass);
+    }
   }
 }
 
-export function unditherPlayAndShareButtons() {
-  ditherPlayAndShareButtons(true);
+export function unditherButtonByName(buttonName) {
+  ditherButtonByName(buttonName, true);
+}
+
+function unditherButtonsByName(buttonNames) {
+  ditherButtonsByName(buttonNames, true);
 }
 
 function newPressed() {
@@ -62,12 +71,16 @@ function newPressed() {
   window.kan.composition = [];
   paper.project.activeLayer.removeChildren();
   tutorial.hideContextualTuts();
-  ditherPlayAndShareButtons();
+  ditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
+  sound.stopPlaying();
   // window.kan.userHasDrawnFirstShape = false;
   // tutorial.resetContextualTuts();
 }
 
 function undoPressed() {
+  sound.stopPlaying();
+  tutorial.hideContextualTuts();
+
   const transparent = new Color(0, 0);
   console.log('undo pressed');
   if (!(window.kan.moves.length > 0)) {
@@ -88,15 +101,19 @@ function undoPressed() {
         console.log('removing group');
         sound.removeShapeFromComposition(item);
         item.remove();
-        const numMoves = window.kan.moves.length;
-        if (numMoves <= 0) {
-          ditherUndoButton();
+
+        const numGroups = util.getNumGroups();
+        console.log('numGroups', numGroups);
+
+        if (numGroups <= 0) {
+          ditherButtonsByName(['undo', 'new']);
         }
 
-        if (numMoves < 3) {
-          ditherPlayAndShareButtons();
+        if (numGroups < 3) {
+          ditherButtonsByName(['play-stop', 'share']);
           $body.removeClass(sound.playEnabledClass);
         } else {
+          unditherButtonsByName(['play-stop', 'share']);
           $body.addClass(sound.playEnabledClass);
         }
         break;
@@ -134,7 +151,10 @@ function undoPressed() {
 
 function playPressed() {
   console.log('play pressed');
+  stopComposition();
   overlays.closeAndResetOverlays();
+  tutorial.hideContextualTuts();
+
   clearTimeout(window.kan.playPromptTimeout);
   if (window.kan.playing) {
     console.log('starting playing');
@@ -147,11 +167,13 @@ function playPressed() {
 
 function tipsPressed() {
   overlays.openOverlay('tips');
+  sound.stopPlaying();
   console.log('tips pressed');
 }
 
 function sharePressed() {
   console.log('share pressed');
+  sound.stopPlaying();
   if ($body.hasClass(sound.playEnabledClass)) {
     overlays.openOverlay('share');
   }
@@ -202,7 +224,7 @@ function initNewButton() {
 function initUndoButton() {
   $('.main-controls .undo').on(tapEvent, function() {
     if (!$body.hasClass(playingClass)) {
-      undoPressed()
+      undoPressed();
     }
   });
 }

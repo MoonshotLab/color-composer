@@ -15,7 +15,7 @@ const $video = $videoWrapper.find('video');
 
 export function enterTutorialMode() {
   console.log('entering tutorial mode');
-  $video.get(0).play();
+  playVideo();
   $body.addClass(videoPlayingClass);
   clearTimeout(window.kan.inactivityTimeout);
   $body.off(tapEvent, timing.preventInactivityTimeout);
@@ -27,7 +27,7 @@ export function enterTutorialMode() {
 export function exitTutorialMode() {
   console.log('exiting tutorial mode');
 
-  $video.get(0).pause();
+  pauseVideo();
   $body.off(tapEvent, exitTutorialMode);
   $body.on(tapEvent, timing.preventInactivityTimeout);
   $body.removeClass(videoPlayingClass);
@@ -38,4 +38,12 @@ export function exitTutorialMode() {
   window.kan.inactivityTimeout = setTimeout(() => {
     overlays.openOverlay('continue');
   }, timing.continueInactivityDelay);
+}
+
+export function pauseVideo() {
+  $video.get(0).pause();
+}
+
+export function playVideo() {
+  $video.get(0).play();
 }

@@ -35,13 +35,13 @@ export function init() {
   hammerManager = new Hammer.Manager(body);
   // hammerManager = new Hammer.Manager(canvas);
 
-  hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
+  hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
   hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
   hammerManager.add(new Hammer.Pinch());
 
   hammerManager.get('doubletap').recognizeWith('singletap');
-  hammerManager.get('singletap').requireFailure('doubletap');
+  // hammerManager.get('singletap').requireFailure('doubletap');
   hammerManager.get('pan').requireFailure('pinch');
 
   hammerManager.on('singletap', singleTap);
@@ -60,6 +60,7 @@ export function init() {
 function singleTap(event) {
   if (!eventTargetIsOnCanvas(event)) return;
   console.log(event);
+  tutorial.hideContextualTuts();
 
   sound.stopPlaying();
 
@@ -121,9 +122,9 @@ function panStart(event) {
 
   outerPath = new Path();
   outerPath.fillColor = window.kan.currentColor;
-  
+
   sizes = [];
-  
+
   // ignore other touch inputs
   if (window.kan.pinching) return;
   if (!(event.changedPointers && event.changedPointers.length > 0)) return;
@@ -131,7 +132,15 @@ function panStart(event) {
     console.log('event.changedPointers > 1');
   }
 
-  if (!eventTargetIsOnCanvas(event)) return;
+  if (!eventTargetIsOnCanvas(event)) {
+    timing.preventInactivityTimeout();
+    // check if tips modal is up
+    if ($body.hasClass('overlay-active tips-active')) {
+      // if so, go to next tip card
+      overlays.cardNavNext();
+    }
+    return;
+  }
 
   sound.stopPlaying();
 
@@ -220,11 +229,11 @@ function panMove(event) {
     const halfPointX = (point.x + prevPoint.x) / 2;
     const halfPointY = (point.y + prevPoint.y) / 2;
     const halfPoint = new Point(halfPointX, halfPointY);
-    
+
     const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
     const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
     const top = new Point(topX, topY);
-    
+
     const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
     const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
     const bottom = new Point(bottomX, bottomY);
@@ -319,7 +328,7 @@ function panEnd(event) {
   group.addChild(outline);
   outline.sendToBack();
 
-  ui.unditherUndoButton();
+  ui.unditherButtonsByName(['new', 'undo']);
 
   if (window.kan.userHasDrawnFirstShape !== true) {
     // first shape!
@@ -331,9 +340,9 @@ function panEnd(event) {
     window.kan.userHasDrawnFirstShape = true;
   } else {
     const groups = util.getAllGroups();
-    if (groups.length >= 3 && !$body.hasClass(sound.playEnabledClass)) {
+    if (groups.length >= 3) {
       $body.addClass(sound.playEnabledClass);
-      ui.unditherPlayAndShareButtons();
+      ui.unditherButtonsByName(['play-stop', 'share']);
     }
     console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
