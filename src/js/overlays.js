@@ -99,7 +99,7 @@ function openShareOverlay() {
 
 
 // card slider navigation
-function cardNavNext() {
+export function cardNavNext() {
   let $old = $body.find('.card-wrap .current');
   let $new = ($old.next().length) ? $old.next() : $cardItems.first();
   let $next = ($new.next().length) ? $new.next() : $cardItems.first();
@@ -117,6 +117,7 @@ function cardNavNext() {
 
 // tips card interactions
 function cardInteractions() {
+
   $body.find('.overlay').on(tapEvent, e => {
     if ( $(e.target).closest('.card-wrap').length == 1 ) {
       // directly on a card, navigate to the next one

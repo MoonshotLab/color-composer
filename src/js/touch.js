@@ -132,7 +132,14 @@ function panStart(event) {
     console.log('event.changedPointers > 1');
   }
 
-  if (!eventTargetIsOnCanvas(event)) return;
+  if (!eventTargetIsOnCanvas(event)) {
+    // check if tips modal is up
+    if ($body.hasClass('overlay-active tips-active')) {
+      // if so, go to next tip card
+      overlays.cardNavNext();
+    }
+    return;
+  }
 
   sound.stopPlaying();
 
