@@ -156,8 +156,8 @@ function playPressed() {
   tutorial.hideContextualTuts();
 
   clearTimeout(window.kan.playPromptTimeout);
-  if (window.kan.playing) {
-    console.log('starting playing');
+  if (window.kan.playing && util.getNumGroups() <= 2) {
+    console.log('stopping playing');
     sound.stopPlaying(true);
   } else {
     console.log('starting playing');
