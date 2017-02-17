@@ -151,7 +151,7 @@ function undoPressed() {
 
 function playPressed() {
   console.log('play pressed');
-  stopComposition();
+  sound.stopComposition();
   overlays.closeAndResetOverlays();
   tutorial.hideContextualTuts();
 
