@@ -22,7 +22,7 @@ export function init() {
 
 export function preventInactivityTimeout() {
   console.log(`prevent timeout: ${util.getTime()}`);
-  overlays.closeAndResetOverlays();
+  // overlays.closeAndResetOverlays();
 
   clearTimeout(window.kan.inactivityTimeout);
 
