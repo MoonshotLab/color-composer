@@ -9,7 +9,11 @@ export const continueInactivityDelay = 30 * 1000; // ms
 export const playPromptDelay = 60 * 1000; // ms;
 
 export function init() {
-  if ( window.location.hash.length > 0 && window.location.hash == '#video' ) {
+  if (window.location.hash.length > 0 && window.location.hash == '#dev') {
+    window.kan.overlays = false;
+    video.pauseVideo();
+    video.exitTutorialMode();
+  } else if (window.location.hash.length > 0 && window.location.hash == '#video') {
     video.enterTutorialMode();
   } else {
     video.exitTutorialMode();

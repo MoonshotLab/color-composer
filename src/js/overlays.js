@@ -25,6 +25,7 @@ const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).joi
 const overlayActiveClass = 'overlay-active';
 
 export function openOverlay(overlayName) {
+  if (window.kan.overlays === false) return;
   if (allOverlays.includes(overlayName)) {
     closeAndResetOverlays();
     tutorial.hideContextualTuts();

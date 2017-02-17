@@ -34,3 +34,8 @@ export function anyShapesOnCanvas() {
   const groups = getAllGroups();
   return groups.length > 0;
 }
+
+export function getNumGroups() {
+  const groups = getAllGroups();
+  return groups.length;
+}
