@@ -169,8 +169,8 @@ function playPressed() {
 }
 
 function tipsPressed() {
-  overlays.openOverlay('tips');
   sound.stopPlaying();
+  overlays.openOverlay('tips');
   console.log('tips pressed');
 }
 

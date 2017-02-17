@@ -180,6 +180,7 @@ function panStart(event) {
       // if so, go to next tip card
       overlays.cardNavNext();
     }
+    event.srcEvent.stopPropagation();
     return;
   }
 
@@ -236,7 +237,10 @@ function panStart(event) {
 function panMove(event) {
   console.log('panmove');
   // event.preventDefault();
-  if (!eventTargetIsOnCanvas(event)) return;
+  if (!eventTargetIsOnCanvas(event)) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
   if (window.kan.panning !== true) return;
 
   const thresholdAngleRad = util.rad(shape.cornerThresholdDeg);
@@ -325,7 +329,10 @@ function panMove(event) {
 function panEnd(event) {
   console.log('panend');
   // event.preventDefault();
-  if (!eventTargetIsOnCanvas(event)) return;
+  if (!eventTargetIsOnCanvas(event)) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
   if (window.kan.panning !== true) return;
 
   const pointer = event.center;
