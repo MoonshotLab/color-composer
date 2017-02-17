@@ -10,6 +10,7 @@ export function resetWindow() {
     composition: [],
     compositionInterval: null,
     compositionTimeout: null,
+    soundTimeouts: [],
     lastEvent: null,
     interaction: false,
     moves: [],

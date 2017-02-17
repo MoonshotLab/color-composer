@@ -148,7 +148,10 @@ function undoPressed() {
 
 function playPressed() {
   console.log('play pressed');
+  sound.stopComposition();
   overlays.closeAndResetOverlays();
+  tutorial.hideContextualTuts();
+
   clearTimeout(window.kan.playPromptTimeout);
   if (window.kan.playing) {
     console.log('starting playing');
