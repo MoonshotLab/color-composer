@@ -101,10 +101,10 @@ function disablePinchEvents() {
 }
 
 function singleTap(event) {
-  event.preventDefault();
+  // event.preventDefault();
   // if (!eventTargetIsOnCanvas(event)) return;
   tutorial.hideContextualTuts();
-  sound.stopPlaying();
+  // sound.stopPlaying();
   // if (!eventTargetIsOnCanvas(event)) return;
   // console.log(event);
   // tutorial.hideContextualTuts();
@@ -396,7 +396,6 @@ function panEnd(event) {
   //   radius: 5,
   //   fillColor: 'green',
   // }));
-  group.data.originalColor = window.kan.currentColor;
   group.data.color = {
     gradient: {
       stops: config.palette.gradients[window.kan.currentColor],
