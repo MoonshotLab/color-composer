@@ -71,14 +71,14 @@ function newPressed() {
   window.kan.composition = [];
   paper.project.activeLayer.removeChildren();
   tutorial.hideContextualTuts();
-  ditherButtonsByName(['play-stop', 'share']);
+  ditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
   sound.stopPlaying();
   // window.kan.userHasDrawnFirstShape = false;
   // tutorial.resetContextualTuts();
 }
 
 function undoPressed() {
-  sound.stopComposition();
+  sound.stopPlaying();
   tutorial.hideContextualTuts();
 
   const transparent = new Color(0, 0);
@@ -151,7 +151,7 @@ function undoPressed() {
 
 function playPressed() {
   console.log('play pressed');
-  sound.stopComposition();
+  stopComposition();
   overlays.closeAndResetOverlays();
   tutorial.hideContextualTuts();
 
@@ -167,13 +167,13 @@ function playPressed() {
 
 function tipsPressed() {
   overlays.openOverlay('tips');
-  sound.stopComposition();
+  sound.stopPlaying();
   console.log('tips pressed');
 }
 
 function sharePressed() {
   console.log('share pressed');
-  sound.stopComposition();
+  sound.stopPlaying();
   if ($body.hasClass(sound.playEnabledClass)) {
     overlays.openOverlay('share');
   }
@@ -224,7 +224,7 @@ function initNewButton() {
 function initUndoButton() {
   $('.main-controls .undo').on(tapEvent, function() {
     if (!$body.hasClass(playingClass)) {
-      undoPressed()
+      undoPressed();
     }
   });
 }
