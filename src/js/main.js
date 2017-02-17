@@ -49,5 +49,13 @@ $(document).ready(function() {
     timing.init();
   }
 
-  run();
+  try {
+    run();
+  } catch(e) {
+    console.error(e);
+    // setTimeout(() => {
+    //   // wait 5 seconds then reload
+    //   location.reload();
+    // }, 5 * 1000);
+  }
 });
