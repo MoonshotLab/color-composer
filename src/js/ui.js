@@ -78,6 +78,9 @@ function newPressed() {
 }
 
 function undoPressed() {
+  sound.stopComposition();
+  tutorial.hideContextualTuts();
+
   const transparent = new Color(0, 0);
   console.log('undo pressed');
   if (!(window.kan.moves.length > 0)) {
@@ -164,11 +167,13 @@ function playPressed() {
 
 function tipsPressed() {
   overlays.openOverlay('tips');
+  sound.stopComposition();
   console.log('tips pressed');
 }
 
 function sharePressed() {
   console.log('share pressed');
+  sound.stopComposition();
   if ($body.hasClass(sound.playEnabledClass)) {
     overlays.openOverlay('share');
   }
