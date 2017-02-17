@@ -37,5 +37,6 @@ export function anyShapesOnCanvas() {
 
 export function getNumGroups() {
   const groups = getAllGroups();
+  console.log('numgroups', groups.length);
   return groups.length;
 }

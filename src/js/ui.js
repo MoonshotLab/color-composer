@@ -151,17 +151,19 @@ function undoPressed() {
 
 function playPressed() {
   console.log('play pressed');
-  sound.stopComposition();
-  overlays.closeAndResetOverlays();
-  tutorial.hideContextualTuts();
+  // sound.stopComposition();
+  // overlays.closeAndResetOverlays();
+  // tutorial.hideContextualTuts();
+  let playing = window.kan.playing;
+  console.log(playing, util.getNumGroups() > 2, !playing && util.getNumGroups() > 2, $body);
 
   clearTimeout(window.kan.playPromptTimeout);
-  if (window.kan.playing && util.getNumGroups() <= 2) {
-    console.log('stopping playing');
-    sound.stopPlaying(true);
-  } else {
+  if (!playing && util.getNumGroups() > 2) {
     console.log('starting playing');
     sound.startPlaying();
+  } else {
+    console.log('stopping playing');
+    sound.stopPlaying(true);
   }
 }
 
@@ -230,7 +232,8 @@ function initUndoButton() {
 }
 
 function initPlayButton() {
-  $('.main-controls .play-stop').on(tapEvent, playPressed);
+  $('.main-controls .play-stop .play').on(tapEvent, sound.startPlaying);
+  $('.main-controls .play-stop .stop').on(tapEvent, sound.stopPlaying);
 }
 
 function initTipsButton() {
