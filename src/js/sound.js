@@ -136,7 +136,7 @@ function animateNote(shape) {
           rotate: -10,
         },
         settings: {
-          duration: 100,
+          duration: 250,
           easing: "easeInOut",
         }
       },
@@ -147,7 +147,7 @@ function animateNote(shape) {
           rotate: 10,
         },
         settings: {
-          duration: 100,
+          duration: 125,
           easing: "easeInOut",
         }
       },
@@ -158,7 +158,7 @@ function animateNote(shape) {
           rotate: 0,
         },
         settings: {
-          duration: 100,
+          duration: 125,
           easing: "easeInOut",
         }
       },
