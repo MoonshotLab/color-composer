@@ -133,6 +133,7 @@ function panStart(event) {
   }
 
   if (!eventTargetIsOnCanvas(event)) {
+    timing.preventInactivityTimeout();
     // check if tips modal is up
     if ($body.hasClass('overlay-active tips-active')) {
       // if so, go to next tip card
