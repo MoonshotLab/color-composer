@@ -117,8 +117,15 @@ export function cardNavNext() {
 
 // tips card interactions
 function cardInteractions() {
-
+  let timeOfLastInteraction = 0;
+  
   $body.find('.overlay').on(tapEvent, e => {
+    const currentTime = Date.now();
+    if (timeOfLastInteraction > (currentTime - 250)) {
+      return;
+    }
+    timeOfLastInteraction = currentTime;
+
     if ( $(e.target).closest('.card-wrap').length == 1 ) {
       // directly on a card, navigate to the next one
       cardNavNext();

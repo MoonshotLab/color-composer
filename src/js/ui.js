@@ -2,6 +2,7 @@ const sound = require('./sound');
 const tutorial = require('./tutorial');
 const overlays = require('./overlays');
 const util = require('./util');
+const color = require('./color');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -210,6 +211,7 @@ function initColorPalette() {
           .attr('ry', paletteSelectedColorSize / 2)
 
         window.kan.currentColor = $svg.find('rect').attr('fill');
+        console.log('%ccolor', 'color:red', color.getColorName(window.kan.currentColor));
       }
     };
   });

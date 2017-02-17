@@ -363,21 +363,56 @@ function panEnd(event) {
     point: point,
     last: true
   };
-
-  let truedShape = shape.getTruedShape(shapePath);
-  shapePath.remove();
-  truedShape.visible = false;
-  window.kan.shapePath = truedShape;
-  truedShape.name = 'shapePath';
-
+  
   // side.push(point);
   // sides.push(side);
   // corners.push(point);
-
+  
   let group = new Group();
-  group.data.color = truedShape.strokeColor;
+
+  let truedShape = shape.getTruedShape(shapePath);
+
+  // group.data.color = truedShape.strokeColor;
+  console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
+
+  const shapeSize = truedShape.strokeBounds;
+  const centerPoint = new Point(shapeSize.width / 2, shapeSize.height / 2);
+  const angle = util.rad(Math.random() * 360);
+  const gradientSize = (shapeSize.width + shapeSize.height) / 4;
+  const originX = centerPoint.x + Math.cos(angle - Math.PI/2) * gradientSize;
+  const originY = centerPoint.y + Math.sin(angle - Math.PI/2) * gradientSize;
+  const destinationX = centerPoint.x + Math.cos(angle + Math.PI/2) * gradientSize;
+  const destinationY = centerPoint.y + Math.sin(angle + Math.PI/2) * gradientSize;
+
+  const origin = new Point(originX + shapeSize.x, originY + shapeSize.y);
+  const destination = new Point(destinationX + shapeSize.x, destinationY + shapeSize.y);
+  // group.addChild(new Path.Circle({
+  //   center: origin,
+  //   radius: 5,
+  //   fillColor: 'red',
+  // }));
+  // group.addChild(new Path.Circle({
+  //   center: destination,
+  //   radius: 5,
+  //   fillColor: 'green',
+  // }));
+  group.data.color = {
+    gradient: {
+      stops: config.palette.gradients[window.kan.currentColor],
+    },
+    origin: origin,
+    destination: destination,
+  };
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
+
+  shapePath.remove();
+  truedShape.visible = false;
+  // truedShape.strokeColor = window.kan.currentColor;
+  truedShape.strokeColor = new Color(0, 0);
+  window.kan.shapePath = truedShape;
+  truedShape.name = 'shapePath';
+
   group.addChild(truedShape);
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
@@ -386,6 +421,7 @@ function panEnd(event) {
   let enclosedLoops = shape.findInteriorCurves(truedShape);
   Base.each(enclosedLoops, (loop, i) => {
     group.addChild(loop);
+    loop.fillColor = group.data.color;
     loop.sendToBack();
   });
 
@@ -397,8 +433,12 @@ function panEnd(event) {
   truedShape.visible = false;
   const outline = shape.getOutline(truedShape);
   outline.fillColor = window.kan.currentColor;
+  outline.fillColor = group.data.color;
   // outline.fillColor = new Color(1, 1, 0, 0.5);
   group.addChild(outline);
+  // outline.shadowColor = new Color(0, 0, 0, 0.2);
+  // outline.shadowBlur = 0.25;
+  // outline.shadowOffset = -1;
   outline.sendToBack();
 
   ui.unditherButtonsByName(['new', 'undo']);
