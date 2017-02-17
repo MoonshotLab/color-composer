@@ -44,8 +44,9 @@ export function getShapeSoundObj(path) {
 }
 
 export function startPlaying() {
+  console.log('first time', window.kan.firstTimePlaying);
   if ($body.hasClass(playEnabledClass)) {
-    $('body').addClass(playingClass);
+    $body.addClass(playingClass);
 
     Howler.mute(false);
 
@@ -58,6 +59,8 @@ export function startPlaying() {
       startComposition(window.kan.composition, true);
     }
   } else {
+    window.kan.playing = false;
+    $body.removeClass(playingClass);
     console.log('play is not enabled');
   }
 }
@@ -67,9 +70,9 @@ export function stopPlaying(mute = false) {
     Howler.mute(true);
   }
 
-  $('body').removeClass(playingClass);
-
   window.kan.playing = false;
+  $body.removeClass(playingClass);
+
   stopComposition();
 }
 
@@ -204,6 +207,8 @@ export function clearSoundTimeouts() {
 export function startComposition(composition, loop = false) {
   stopComposition();
 
+  console.log($body);
+
   let iterations = 0;
   playCompositionFirstTime();
 
@@ -256,6 +261,7 @@ export function startComposition(composition, loop = false) {
         playCompositionOnce();
         setTimeout(repeatComposition, compositionLength);
       } else {
+        console.log('stoppppping');
         stopPlaying();
         overlays.openOverlay('share-prompt');
       }

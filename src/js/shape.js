@@ -280,10 +280,9 @@ export function getBruteExtendedPath(path) {
   const firstPoint = extendedPath.firstSegment.point;
   const lastPoint = extendedPath.lastSegment.point;
 
-  // FIXME: undefined `lastSegment` - changed to extendedPath.lastSegment
   if (firstPoint.getDistance(lastPoint) < thresholdDist) {
-    extendedPath.insert(0, extendedPath.lastSegment.point);
-    extendedPath.add(extendedPath.firstSegment.point);
+    extendedPath.insert(0, lastPoint);
+    extendedPath.add(firstPoint);
   }
 
 
@@ -379,6 +378,12 @@ export function getTrimmedPath(path) {
   } else {
     return pathClone;
   }
+}
+
+
+export function hitTestGroupBounds(point) {
+  let groups = util.getAllGroups();
+  return hitTestBounds(point, groups);
 }
 
 export function hitTestBounds(point, children) {
