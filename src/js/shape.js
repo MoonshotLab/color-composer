@@ -14,7 +14,7 @@ export function getOutline(truedShape) {
   console.log('truedShape', truedShape);
   let outerPath = new Path();
   let sizes = [];
-  
+
   for (let i = 0; i < truedShape.length; i += 20) {
     while (sizes.length > 10) {
       sizes.shift();
@@ -351,6 +351,12 @@ export function getTrimmedPath(path) {
     return pathClone;
   }
 }
+
+export function hitTestGroupBounds(point) {
+  let groups = util.getAllGroups();
+  return hitTestBounds(point, groups);
+}
+
 
 export function hitTestBounds(point, children) {
   if (!point) return null;

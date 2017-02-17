@@ -33,6 +33,7 @@ export let hammerManager;
 export function init() {
   const body = document.getElementById('body');
   hammerManager = new Hammer.Manager(body);
+  window.kan.hammerManager = hammerManager;
   // hammerManager = new Hammer.Manager(canvas);
 
   hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
@@ -43,6 +44,7 @@ export function init() {
   hammerManager.get('doubletap').recognizeWith('singletap');
   // hammerManager.get('singletap').requireFailure('doubletap');
   hammerManager.get('pan').requireFailure('pinch');
+  hammerManager.get('pinch').requireFailure('pan');
 
   hammerManager.on('singletap', singleTap);
   hammerManager.on('doubletap', doubleTap);
@@ -50,32 +52,65 @@ export function init() {
   hammerManager.on('panstart', panStart);
   hammerManager.on('panmove', panMove);
   hammerManager.on('panend', panEnd);
+  hammerManager.on('pancancel', panCancel);
 
   hammerManager.on('pinchstart', pinchStart);
   hammerManager.on('pinchmove', pinchMove);
   hammerManager.on('pinchend', pinchEnd);
-  hammerManager.on('pinchcancel', function() { hammerManager.get('pan').set({enable: true}); }); // make sure it's reenabled
+  hammerManager.on('pinchcancel', pinchCancel);
+}
+
+function enablePanAndPinchEvents() {
+  enablePanEvents();
+  enablePinchEvents();
+}
+
+function enableTapEvents(enable = true) {
+  enable = enable === true;
+  hammerManager.get('singletap').set({enable: enable});
+  hammerManager.get('doubletap').set({enable: enable});
+}
+
+function disableTapEvents() {
+  enableTapEvents(false);
+}
+
+function enablePanEvents(enable = true) {
+  enable = enable === true;
+
+  hammerManager.get('pan').set({enable: enable});
+  // hammerManager.get('panstart').set({enable: enable});
+  // hammerManager.get('panmove').set({enable: enable});
+  // hammerManager.get('panend').set({enable: enable});
+}
+
+function disablePanEvents() {
+  enablePanEvents(false);
+}
+
+function enablePinchEvents(enable = true) {
+  enable = enable === true;
+
+  hammerManager.get('pinch').set({enable: enable});
+  // hammerManager.get('pinchstart').set({enable: enable});
+  // hammerManager.get('pinchmove').set({enable: enable});
+  // hammerManager.get('pinchend').set({enable: enable});
+}
+
+function disablePinchEvents() {
+  enablePinchEvents(false);
 }
 
 function singleTap(event) {
-  if (!eventTargetIsOnCanvas(event)) return;
-  console.log(event);
+  event.preventDefault();
+  // if (!eventTargetIsOnCanvas(event)) return;
   tutorial.hideContextualTuts();
-
   sound.stopPlaying();
-
-  const pointer = event.center,
-      point = new Point(pointer.x, pointer.y),
-      hitResult = paper.project.hitTest(point, hitOptions);
-
-  if (hitResult) {
-    let item = hitResult.item;
-    // item.selected = !item.selected;
-    console.log(item);
-  }
 }
 
 function doubleTap(event) {
+  event.preventDefault();
+
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
       hitResult = paper.project.hitTest(point, hitOptions);
@@ -118,21 +153,15 @@ function doubleTap(event) {
 }
 
 function panStart(event) {
-  // paper.project.activeLayer.removeChildren(); // REMOVE
-
-  outerPath = new Path();
-  outerPath.fillColor = window.kan.currentColor;
-
-  sizes = [];
-
-  // ignore other touch inputs
-  if (window.kan.pinching) return;
-  if (!(event.changedPointers && event.changedPointers.length > 0)) return;
-  if (event.changedPointers.length > 1) {
-    console.log('event.changedPointers > 1');
+  if (window.kan.pinching === true || window.kan.panning === true) {
+    event.srcEvent.stopPropagation();
+    return;
   }
 
+  event.preventDefault();
+
   if (!eventTargetIsOnCanvas(event)) {
+    window.kan.panning = false;
     timing.preventInactivityTimeout();
     // check if tips modal is up
     if ($body.hasClass('overlay-active tips-active')) {
@@ -141,6 +170,31 @@ function panStart(event) {
     }
     return;
   }
+
+  console.log(event.target);
+
+  console.log('hi');
+  window.kan.panning = true;
+  tutorial.hideContextualTuts();
+
+
+  hammerManager.off('panstart');
+  // hammerManager.get('pan').set({enable: false});
+  disablePinchEvents();
+  disableTapEvents();
+
+  // if (!(event.changedPointers && event.changedPointers.length > 0)) return;
+  // if (event.changedPointers.length > 1) {
+  //   console.log('event.changedPointers > 1');
+  // }
+
+  console.log('panstart', event);
+  // paper.project.activeLayer.removeChildren(); // REMOVE
+
+  outerPath = new Path();
+  outerPath.fillColor = window.kan.currentColor;
+
+  sizes = [];
 
   sound.stopPlaying();
 
@@ -173,9 +227,12 @@ function panStart(event) {
 }
 
 function panMove(event) {
+  if (window.kan.pinching === true) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
+  console.log('panmove', event);
   event.preventDefault();
-  if (window.kan.pinching) return;
-
   if (!eventTargetIsOnCanvas(event)) return;
 
   const thresholdAngleRad = util.rad(shape.cornerThresholdDeg);
@@ -262,8 +319,17 @@ function panMove(event) {
 }
 
 function panEnd(event) {
-  if (window.kan.pinching) return;
+  if (window.kan.pinching === true || window.kan.panning !== true) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
+  // window.kan.interaction = false;
+  console.log('panend');
+  event.preventDefault();
+
+
   if (!eventTargetIsOnCanvas(event)) return;
+
 
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
@@ -400,28 +466,64 @@ function panEnd(event) {
   // window.kan.side = side;
   // window.kan.sides = sides;
   // window.kan.corners = corners;
+
+  // if an overlay was interrupted, open it up now
+  if (window.kan.scheduledOverlay !== null) {
+    window.kan.scheduledOverlay = null;
+
+    setTimeout(() => {
+      overlays.openOverlay(window.kan.scheduledOverlay);
+    }, timing.overlayDelay);
+  }
+
+  hammerManager.on('panstart', panStart);
+  enablePanAndPinchEvents();
+  enableTapEvents();
+
+  window.kan.panning = false;
 }
 
-function hitTestGroupBounds(point) {
-  let groups = paper.project.getItems({
-    className: 'Group'
-  });
-  return shape.hitTestBounds(point, groups);
+function panCancel(event) {
+  console.log('pan')
+  event.preventDefault();
+
+  hammerManager.on('panstart', panStart);
+  enablePanAndPinchEvents();
+  enableTapEvents();
+  window.kan.panning = false;
 }
 
 function pinchStart(event) {
+  let pinching = window.kan.pinching;
+  console.log(pinching);
+  if (window.kan.panning === true || window.kan.pinching === true || window.kan.pinchedGroup !== null) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
+
+  tutorial.hideContextualTuts();
+  window.kan.interacting = true;
+  event.preventDefault();
+
+  // hammerManager.get('pinchstart').set({enable: false});
+  hammerManager.off('pinchstart');
+  disablePanEvents();
+  disableTapEvents();
+
+
+  window.kan.pinching = true;
+
   if (!eventTargetIsOnCanvas(event)) return;
 
   console.log('pinchStart', event.center);
   sound.stopPlaying();
 
-  hammerManager.get('pan').set({enable: false});
+  // hammerManager.get('pan').set({enable: false});
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
-      hitResult = hitTestGroupBounds(point);
+      hitResult = shape.hitTestGroupBounds(point);
 
   if (hitResult) {
-    window.kan.pinching = true;
     window.kan.pinchedGroup = hitResult;
     window.kan.lastScale = 1;
     window.kan.lastRotation = event.rotation;
@@ -462,7 +564,15 @@ function pinchStart(event) {
 }
 
 function pinchMove(event) {
+  let pinching = window.kan.pinching;
+  console.log(pinching, window.kan.pinching);
+  if (window.kan.panning === true) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
   event.preventDefault();
+
+  console.log('pinchmove');
 
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
@@ -512,6 +622,13 @@ function pinchMove(event) {
 }
 
 function pinchEnd(event) {
+  if (window.kan.panning === true) {
+    event.srcEvent.stopPropagation();
+    return;
+  }
+
+  console.log('pinchEnd');
+  window.kan.interaction = false;
   window.kan.lastEvent = event;
   let pinchedGroup = window.kan.pinchedGroup;
   let $pinchedTut = window.kan.pinchedTut;
@@ -548,6 +665,7 @@ function pinchEnd(event) {
 
     console.log('final scale', pinchedGroup.data.scale);
     console.log(move);
+    console.log(event.velocity);
 
     window.kan.moves.push(move);
 
@@ -558,6 +676,7 @@ function pinchEnd(event) {
       if (!!$pinchedTut) {
         tutorial.hideContextualTut($pinchedTut);
       }
+
       // dispose of group offscreen
       throwPinchedGroup();
     }
@@ -574,18 +693,42 @@ function pinchEnd(event) {
     //   });
     // }
   }
+
+  // if an overlay was interrupted, open it up now
+  if (window.kan.scheduledOverlay !== null) {
+    window.kan.scheduledOverlay = null;
+
+    setTimeout(() => {
+      overlays.openOverlay(window.kan.scheduledOverlay);
+    }, timing.overlayDelay);
+  }
+
+  hammerManager.on('pinchstart', pinchStart);
+  enablePanAndPinchEvents();
   window.kan.pinching = false;
-  setTimeout(function() {
-    hammerManager.get('pan').set({enable: true});
-  }, 250);
+  window.kan.pinchedGroup = null;
+}
+
+function pinchCancel(event) {
+  event.preventDefault();
+
+  hammerManager.on('pinchstart', pinchStart);
+  enablePanAndPinchEvents();
+  enableTapEvents();
+
+  window.kan.pinching = false;
 }
 
 function throwPinchedGroup() {
+  console.log(window.kan);
+  console.log('throw');
   const velocityMultiplier = 25;
   const lastEvent = window.kan.lastEvent;
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
   let pinchedGroup = window.kan.pinchedGroup;
+
+  if (pinchedGroup === null) return;
 
   if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
       pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||

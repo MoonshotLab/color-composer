@@ -12,10 +12,11 @@ export function resetWindow() {
     compositionTimeout: null,
     soundTimeouts: [],
     lastEvent: null,
-    interaction: false,
+    interacting: false,
     moves: [],
     playing: false,
     pinching: false,
+    panning: false,
     pinchedGroup: null,
     pinchedTut: null,
     pathData: {},
@@ -36,7 +37,8 @@ export function resetWindow() {
     playPromptTimeout: null,
     userHasDrawnFirstShape: false,
     firstTimePlaying: true,
-    shapesSinceTut: 0
+    shapesSinceTut: 0,
+    scheduledOverlay: null,
   };
 }
 

@@ -7,6 +7,7 @@ const $body = $('body');
 export const drawInactivityDelay = 40 * 1000; // ms
 export const continueInactivityDelay = 30 * 1000; // ms
 export const playPromptDelay = 60 * 1000; // ms;
+export const overlayDelay = 500;
 
 export function init() {
   if (window.location.hash.length > 0 && window.location.hash == '#dev') {

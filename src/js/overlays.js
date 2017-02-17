@@ -27,6 +27,12 @@ const overlayActiveClass = 'overlay-active';
 export function openOverlay(overlayName) {
   if (window.kan.overlays === false) return;
   if (allOverlays.includes(overlayName)) {
+    if (window.kan.interacting) {
+      // schedule overlay if user is currently interacting
+      window.kan.scheduledOverlay = overlayName;
+      return;
+    }
+
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
