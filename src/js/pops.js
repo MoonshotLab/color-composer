@@ -21,8 +21,12 @@ export function init() {
     pops[pop].path.fillColor = config.palette.pops[pop];
     // pops[pop].path.fillColor = new Color(1, 0, 0, 0.5);
 
-    pops[pop].clipPath = new Path();
+    const clipRect = new Path.Rectangle([50,50], [150,150]);
+    pops[pop].clipPath = new CompoundPath();
+    pops[pop].clipPath.addChild(clipRect);
+    pops[pop].clipPath.selected = true;
     pops[pop].group = new Group(pops[pop].clipPath, pops[pop].path);
+    pops[pop].group.clipped = true;
   }
   
   paper.view.onFrame = drawPops;
@@ -33,33 +37,43 @@ function drawPops(event) {
   if (curFrame < updateFrames)
     return;
   curFrame = 0;
-
+  
+  if (!util.anyShapesOnCanvas()) {
+    console.log('no shapes');
+    return;
+  }
+  
   const shapes = util.getShapes();
   console.log('shapes', shapes);
 
   let pop1Overlap = new CompoundPath();
+  pops['yellow'].clipPath.remove();
+
   // Loop over all shapes
   shapes.forEach((shape, shapeIndex) => {
-    pops['yellow'].clipPath.remove();
+    if (shape._name !== 'actualShape')
+      return;
+
     let overlapPath = new CompoundPath();
-    // let overlapPath = new Path();
     // Loop over all other shapes
     shapes.forEach((otherShape, otherShapeIndex) => {
-      // if (otherShapeIndex == shapeIndex)
-      if ((otherShapeIndex == shapeIndex) || (shape.isGroupedWith(otherShape)))
-      return;
+      // if (otherShape._name !== 'outlineShape')
+        // return;
+      // if ((otherShapeIndex == shapeIndex) || (shape.isGroupedWith(otherShape)))
+      if (otherShapeIndex == shapeIndex)
+        return;
       overlapPath.addChild(shape.intersect(otherShape));
-      // overlapPath = shape.intersect(otherShape);
       // console.log('%coverlapPath', 'color: red', overlapPath);
     });
-    
-    pop1Overlap.addChild(overlapPath);
 
-    pops['yellow'].clipPath = pop1Overlap;
-    pops['yellow'].clipPath.selected = true;
-    pops['yellow'].group.insertChild(0, pops['yellow'].clipPath);
-    pops['yellow'].group.clipped = true;
+    pop1Overlap.addChild(overlapPath);
   });
+
+  pops['yellow'].clipPath = pop1Overlap;
+  pops['yellow'].clipPath.selected = true;
+  pops['yellow'].group.insertChild(0, pops['yellow'].clipPath);
+  pops['yellow'].group.clipped = true;
+  pops['yellow'].group.bringToFront();
 }
 
 // Sketch demo with clip path

@@ -30,7 +30,7 @@ export function getOutline(truedShape) {
     const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
 
     const point = truedShape.getPointAt(i);
-    const nextPoint = truedShape.getPointAt(i + 20);
+    const nextPoint = truedShape.getPointAt(Math.min(i + 20, truedShape.length));
 
     let angle = 0;
     if (nextPoint != null) {

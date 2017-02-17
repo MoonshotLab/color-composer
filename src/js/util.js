@@ -25,8 +25,9 @@ export function getTime() {
 }
 
 export function getAllGroups() {
+  // NOTE: I added a check to see if this is a drawn shape since the pops show up otherwise - could affect some other spots
   return paper.project.getItems({
-    match: (el) => el.className === 'Group'
+    match: (el) => (el.className === 'Group' && typeof(el._namedChildren.actualShape) !== 'undefined')
   });
 }
 
