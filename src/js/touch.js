@@ -314,6 +314,14 @@ function panEnd(event) {
     group.addChild(loop);
     loop.sendToBack();
   });
+  
+  if (enclosedLoops.length > 0 || truedShape.closed) {
+    console.log('%chas filled shapes', 'color: blue');
+    group.data.hasFilledShapes = true;
+  } else {
+    console.log('%cno filled shapes', 'color: red');
+    group.data.hasFilledShapes = false;
+  }
 
   window.kan.moves.push({
     type: 'newGroup',
@@ -322,8 +330,8 @@ function panEnd(event) {
 
   truedShape.visible = false;
   const outline = shape.getOutline(truedShape);
-  // outline.fillColor = window.kan.currentColor;
-  outline.fillColor = new Color(1, 0, 0, 0.25);
+  outline.fillColor = window.kan.currentColor;
+  // outline.fillColor = new Color(1, 0, 0, 0.25);
   outline.name = 'outlineShape';
   group.addChild(outline);
   outline.sendToBack();

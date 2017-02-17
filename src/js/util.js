@@ -37,9 +37,14 @@ export function getShapes() {
   }});
   
   for (let group in groups) {
+    if ((typeof(groups[group].data.hasFilledShapes) != 'undefined') && !groups[group].data.hasFilledShapes) {
+      continue;
+    }
+
     if (typeof(groups[group]._children.actualShape) === 'undefined') {
       continue;
     } else {
+      // console.log('%cstyle', 'color:red', groups[group]._children.actualShape);
       shapes.push(groups[group]._children.actualShape);
     }
     if (typeof(groups[group]._children.outlineShape) === 'undefined') {
