@@ -430,6 +430,8 @@ function pinchStart(event) {
     window.kan.originalRotation = hitResult.data.rotation;
     window.kan.originalScale = hitResult.data.scale;
 
+    hitResult.bringToFront();
+
     if (hitResult.data.tut && hitResult.data.tut.length > 0) {
       let $tut = $(`.tut[data-tut-type='${hitResult.data.tut}']`);
       if ($tut) {
