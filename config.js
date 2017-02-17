@@ -17,7 +17,13 @@ exports.palette = {
     "#7F7D31": "green",
     "#2B5E2E": "green"
   },
-  pops: ["#00ADEF", "#F285A5", "#7DC57F", "#F6EB16", "#F4EAE0"],
+  pops: {
+    cyan: "#00ADEF",
+    pink: "#F285A5",
+    green: "#7DC57F",
+    yellow: "#F6EB16",
+    tan: "#F4EAE0"
+  },
   colorSize: 20,
   selectedColorSize: 30
 };

@@ -284,6 +284,7 @@ function panEnd(event) {
   let truedShape = shape.getTruedShape(shapePath);
   shapePath.remove();
   truedShape.visible = false;
+  truedShape.name = 'actualShape';
   window.kan.shapePath = truedShape;
 
   // side.push(point);
@@ -312,8 +313,9 @@ function panEnd(event) {
 
   truedShape.visible = false;
   const outline = shape.getOutline(truedShape);
-  outline.fillColor = window.kan.currentColor;
-  // outline.fillColor = new Color(1, 1, 0, 0.5);
+  // outline.fillColor = window.kan.currentColor;
+  outline.fillColor = new Color(1, 0, 0, 0.25);
+  outline.name = 'outlineShape';
   group.addChild(outline);
   outline.sendToBack();
 

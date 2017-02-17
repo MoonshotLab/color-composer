@@ -3,6 +3,7 @@ const ui = require('./ui');
 const overlays = require('./overlays');
 const video = require('./video');
 const timing = require('./timing');
+const pops = require('./pops');
 
 export function resetWindow() {
   window.kan = {
@@ -43,6 +44,7 @@ $(document).ready(function() {
     touch.init();
     overlays.init();
     timing.init();
+    pops.init();
   }
 
   run();

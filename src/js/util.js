@@ -29,3 +29,25 @@ export function getAllGroups() {
     match: (el) => el.className === 'Group'
   });
 }
+
+export function getShapes() {
+  const shapes = [];
+  let groups = paper.project.getItems({match: function(el) {
+    return el.className === 'Group';
+  }});
+  
+  for (let group in groups) {
+    if (typeof(groups[group]._children.actualShape) === 'undefined') {
+      continue;
+    } else {
+      shapes.push(groups[group]._children.actualShape);
+    }
+    if (typeof(groups[group]._children.outlineShape) === 'undefined') {
+      continue;
+    } else {
+      shapes.push(groups[group]._children.outlineShape);
+    }
+  }
+
+  return shapes;
+}
