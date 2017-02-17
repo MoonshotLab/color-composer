@@ -280,9 +280,10 @@ export function getBruteExtendedPath(path) {
   const firstPoint = extendedPath.firstSegment.point;
   const lastPoint = extendedPath.lastSegment.point;
 
+  // FIXME: undefined `lastSegment` - changed to extendedPath.lastSegment
   if (firstPoint.getDistance(lastPoint) < thresholdDist) {
-    extendedPath.insert(0, lastSegment.point);
-    extendedPath.add(firstSegment.point);
+    extendedPath.insert(0, extendedPath.lastSegment.point);
+    extendedPath.add(extendedPath.firstSegment.point);
   }
 
 
