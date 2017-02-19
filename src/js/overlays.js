@@ -6,7 +6,7 @@ const timing = require('./timing');
 const tutorial = require('./tutorial');
 const util = require('./util');
 
-const hammerManager = touch.hammerManager;
+const hammerCanvas = touch.hammerCanvas;
 
 const $body = $('body');
 const tapEvent = 'click tap touch';

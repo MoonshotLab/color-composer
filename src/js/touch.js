@@ -28,35 +28,35 @@ let size;
 let cumSize;
 let prevPoint;
 
-export let hammerManager;
+export let hammerCanvas;
 
 export function init() {
   // const body = document.getElementById('body');
-  // hammerManager = new Hammer.Manager(body);
-  hammerManager = new Hammer.Manager(canvas);
+  // hammerCanvas = new Hammer.Manager(body);
+  hammerCanvas = new Hammer.Manager(canvas);
 
-  hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
-  hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
-  hammerManager.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
-  hammerManager.add(new Hammer.Pinch());
+  hammerCanvas.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
+  hammerCanvas.add(new Hammer.Tap({ event: 'singletap' }));
+  hammerCanvas.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
+  hammerCanvas.add(new Hammer.Pinch());
 
-  hammerManager.get('doubletap').recognizeWith('singletap');
-  // hammerManager.get('singletap').requireFailure('doubletap');
-  hammerManager.get('pan').requireFailure('pinch');
-  hammerManager.get('pinch').requireFailure('pan');
+  hammerCanvas.get('doubletap').recognizeWith('singletap');
+  // hammerCanvas.get('singletap').requireFailure('doubletap');
+  hammerCanvas.get('pan').requireFailure('pinch');
+  hammerCanvas.get('pinch').requireFailure('pan');
 
-  // hammerManager.on('singletap', singleTap);
-  hammerManager.on('doubletap', doubleTap);
+  // hammerCanvas.on('singletap', singleTap);
+  hammerCanvas.on('doubletap', doubleTap);
 
-  hammerManager.on('panstart', panStart);
-  hammerManager.on('panmove', panMove);
-  hammerManager.on('panend', panEnd);
-  // hammerManager.on('pancancel', panCancel);
+  hammerCanvas.on('panstart', panStart);
+  hammerCanvas.on('panmove', panMove);
+  hammerCanvas.on('panend', panEnd);
+  // hammerCanvas.on('pancancel', panCancel);
 
-  hammerManager.on('pinchstart', pinchStart);
-  hammerManager.on('pinchmove', pinchMove);
-  hammerManager.on('pinchend', pinchEnd);
-  // hammerManager.on('pinchcancel', pinchCancel);
+  hammerCanvas.on('pinchstart', pinchStart);
+  hammerCanvas.on('pinchmove', pinchMove);
+  hammerCanvas.on('pinchend', pinchEnd);
+  // hammerCanvas.on('pinchcancel', pinchCancel);
 }
 
 function enablePanAndPinchEvents() {
@@ -66,8 +66,8 @@ function enablePanAndPinchEvents() {
 
 function enableTapEvents(enable = true) {
   enable = enable === true;
-  hammerManager.get('singletap').set({enable: enable});
-  hammerManager.get('doubletap').set({enable: enable});
+  hammerCanvas.get('singletap').set({enable: enable});
+  hammerCanvas.get('doubletap').set({enable: enable});
 }
 
 function disableTapEvents() {
@@ -77,10 +77,10 @@ function disableTapEvents() {
 function enablePanEvents(enable = true) {
   enable = enable === true;
 
-  hammerManager.get('pan').set({enable: enable});
-  // hammerManager.get('panstart').set({enable: enable});
-  // hammerManager.get('panmove').set({enable: enable});
-  // hammerManager.get('panend').set({enable: enable});
+  hammerCanvas.get('pan').set({enable: enable});
+  // hammerCanvas.get('panstart').set({enable: enable});
+  // hammerCanvas.get('panmove').set({enable: enable});
+  // hammerCanvas.get('panend').set({enable: enable});
 }
 
 function disablePanEvents() {
@@ -90,10 +90,10 @@ function disablePanEvents() {
 function enablePinchEvents(enable = true) {
   enable = enable === true;
 
-  hammerManager.get('pinch').set({enable: enable});
-  // hammerManager.get('pinchstart').set({enable: enable});
-  // hammerManager.get('pinchmove').set({enable: enable});
-  // hammerManager.get('pinchend').set({enable: enable});
+  hammerCanvas.get('pinch').set({enable: enable});
+  // hammerCanvas.get('pinchstart').set({enable: enable});
+  // hammerCanvas.get('pinchmove').set({enable: enable});
+  // hammerCanvas.get('pinchend').set({enable: enable});
 }
 
 function disablePinchEvents() {
@@ -190,8 +190,8 @@ function panStart(event) {
   window.kan.panning = true;
   tutorial.hideContextualTuts();
 
-  hammerManager.off('panstart');
-  // hammerManager.get('pan').set({enable: false});
+  hammerCanvas.off('panstart');
+  // hammerCanvas.get('pan').set({enable: false});
   disablePinchEvents();
   disableTapEvents();
 
@@ -356,7 +356,7 @@ function panEnd(event) {
   if (shapePath.length < minShapeSize) {
     console.log('path is too short');
     shapePath.remove();
-    hammerManager.on('panstart', panStart);
+    hammerCanvas.on('panstart', panStart);
     enablePanAndPinchEvents();
     enableTapEvents();
     window.kan.panning = false;
@@ -540,11 +540,11 @@ function panEnd(event) {
   }
 
   console.log('pan done');
-  hammerManager.set({ enable: false });
+  hammerCanvas.set({ enable: false });
   setTimeout(() => {
-    hammerManager.set({ enable: true });
+    hammerCanvas.set({ enable: true });
     console.log('touch enabled');
-    hammerManager.on('panstart', panStart);
+    hammerCanvas.on('panstart', panStart);
     enablePanAndPinchEvents();
     enableTapEvents();
 
@@ -557,8 +557,8 @@ function panCancel(event) {
   event.srcEvent.stopPropagation();
   // event.preventDefault();
 
-  hammerManager.set({ enable: true });
-  hammerManager.on('panstart', panStart);
+  hammerCanvas.set({ enable: true });
+  hammerCanvas.on('panstart', panStart);
   enablePanAndPinchEvents();
   enableTapEvents();
   window.kan.panning = false;
@@ -571,8 +571,8 @@ function pinchStart(event) {
   window.kan.pinching = true;
   // event.preventDefault();
 
-  // hammerManager.get('pinchstart').set({enable: false});
-  hammerManager.off('pinchstart');
+  // hammerCanvas.get('pinchstart').set({enable: false});
+  hammerCanvas.off('pinchstart');
   disablePanEvents();
   disableTapEvents();
 
@@ -758,14 +758,14 @@ function pinchEnd(event) {
   window.kan.pinching = false;
 
   console.log('pinch done');
-  // hammerManager.set({ enable: false });
+  // hammerCanvas.set({ enable: false });
   setTimeout(() => {
     console.log('touch enabled');
-    hammerManager.on('pinchstart', pinchStart);
+    hammerCanvas.on('pinchstart', pinchStart);
     enablePanAndPinchEvents();
     enableTapEvents();
-    // hammerManager.set({ enable: true });
-    // hammerManager.on('pinchstart', pinchStart);
+    // hammerCanvas.set({ enable: true });
+    // hammerCanvas.on('pinchstart', pinchStart);
     // enablePanAndPinchEvents();
     // enableTapEvents();
     // window.kan.pinching = false;
@@ -779,8 +779,8 @@ function pinchCancel(event) {
   console.log('pinchcancel');
   // event.preventDefault();
 
-  hammerManager.set({ enable: true });
-  hammerManager.on('pinchstart', pinchStart);
+  hammerCanvas.set({ enable: true });
+  hammerCanvas.on('pinchstart', pinchStart);
   enablePanAndPinchEvents();
   enableTapEvents();
 
