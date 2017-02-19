@@ -172,7 +172,7 @@ function doubleTap(event) {
 function panStart(event) {
   // console.log(event);
   // console.log('panstart');
-  // paper.project.activeLayer.removeChildren(); // REMOVE
+  paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
 
   if (!eventTargetIsOnCanvas(event)) {
@@ -210,7 +210,8 @@ function panStart(event) {
   const point = new Point(pointer.x, pointer.y);
 
   outerPath = new Path();
-  outerPath.fillColor = window.kan.currentColor;
+  // outerPath.fillColor = window.kan.currentColor;
+  outerPath.fillColor = new Color(0, 0.5);
 
   sizes = [];
 
@@ -421,28 +422,41 @@ function panEnd(event) {
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
   window.kan.composition.push(shapeSoundObj);
 
-  let enclosedLoops = shape.findInteriorCurves(truedShape);
-  Base.each(enclosedLoops, (loop, i) => {
-    group.addChild(loop);
-    loop.fillColor = group.data.color;
-    loop.sendToBack();
-  });
-
-  window.kan.moves.push({
-    type: 'newGroup',
-    id: group.id
-  });
-
   truedShape.visible = false;
-  const outline = shape.getOutline(truedShape);
+  const outlineGroup = shape.getOutlineGroup(truedShape);
+  console.log('outlineGroup', outlineGroup);
+  const outline = outlineGroup._namedChildren.outer[0];
   outline.fillColor = window.kan.currentColor;
   outline.fillColor = group.data.color;
+
+  const outlineCenter = outlineGroup._namedChildren.middle[0];
+  outlineCenter.strokeColor = group.data.color;
+  outlineCenter.visible = false;
   // outline.fillColor = new Color(1, 1, 0, 0.5);
   group.addChild(outline);
   // outline.shadowColor = new Color(0, 0, 0, 0.2);
   // outline.shadowBlur = 0.25;
   // outline.shadowOffset = -1;
   outline.sendToBack();
+
+  // truedShape = truedShape.intersect(outline); // make sure that the trued shape is within the outline
+  // console.log('truedShape after', truedShape);
+  // truedShape.selected = true;
+
+  let enclosedLoops = shape.findInteriorCurves(outlineCenter);
+  console.log('enclosedLoops', enclosedLoops)
+  Base.each(enclosedLoops, (loop, i) => {
+    group.addChild(loop);
+    loop.sendToBack();
+  });
+
+  // outlineCenter.remove();
+
+  window.kan.moves.push({
+    type: 'newGroup',
+    id: group.id
+  });
+
 
   ui.unditherButtonsByName(['new', 'undo']);
 

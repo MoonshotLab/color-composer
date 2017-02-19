@@ -10,12 +10,20 @@ export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
 export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 
-export function getOutline(truedShape) {
+export function getOutlineGroup(truedShape) {
   console.log('truedShape', truedShape);
   let outerPath = new Path();
+  let middlePath = new Path();
   let sizes = [];
+  let angle;
 
-  for (let i = 0; i < truedShape.length; i += 20) {
+  let firstTop, firstBottom;
+  let lastTop, lastBottom;
+
+  // outerPath.add(truedShape.firstSegment.point);
+  middlePath.add(truedShape.firstSegment.point);
+
+  for (let i = 10; i < truedShape.length - 10; i += 20) {
     while (sizes.length > 10) {
       sizes.shift();
     }
@@ -29,13 +37,11 @@ export function getOutline(truedShape) {
     }
     const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
 
-    const point = truedShape.getPointAt(i);
-    const nextPoint = truedShape.getPointAt(i + 20);
+    const prevPoint = truedShape.getPointAt(i - 10);
+    const nextPoint = truedShape.getPointAt(i + 10);
+    const point = new Point((prevPoint.x + nextPoint.x) / 2, (prevPoint.y + nextPoint.y) / 2);
 
-    let angle = 0;
-    if (nextPoint != null) {
-      angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
-    }
+    angle = Math.atan2(nextPoint.y - prevPoint.y, nextPoint.x - prevPoint.x);
 
     const topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
     const topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
@@ -47,10 +53,94 @@ export function getOutline(truedShape) {
 
     outerPath.add(top);
     outerPath.insert(0, bottom);
+    middlePath.add(point);
+
+    if (i == 10) {
+      firstTop = top;
+      firstBottom = bottom;
+      // new Path.Line({
+      //   from: bottom,
+      //   to: top,
+      //   strokeWidth: 5,
+      //   strokeColor: 'red'
+      // });
+    } else {
+      lastTop = top;
+      lastBottom = bottom;
+      // new Path.Line({
+      //   from: bottom,
+      //   to: top,
+      //   strokeWidth: 5,
+      //   strokeColor: new Color(0, i / truedShape.length)
+      // });
+    }
   }
 
+  // new Path.Line({
+  //   from: lastBottom,
+  //   to: lastTop,
+  //   strokeWidth: 5,
+  //   strokeColor: 'blue'
+  // });
+
+  if (truedShape.closed === true) {
+    const centerTop = new Point((firstTop.x + lastTop.x) / 2, (firstTop.y + lastTop.y) / 2);
+    const centerBottom = new Point((firstBottom.x + lastBottom.x) / 2, (firstBottom.y + lastBottom.y) / 2);
+    const center = new Point((centerTop.x + centerBottom.x) / 2, (centerTop.y + centerBottom.y) / 2);
+
+    outerPath.add(centerTop);
+    outerPath.insert(0, centerBottom);
+    middlePath.add(center);
+    // new Path.Line({
+    //   from: centerBottom,
+    //   to: centerTop,
+    //   strokeWidth: 5,
+    //   strokeColor: 'yellow'
+    // });
+    outerPath.add(firstTop);
+    outerPath.insert(0, firstBottom);
+    middlePath.closed = true;
+    // middlePath.add(point);
+    // console.log('closed');
+  }
+  //  else {
+  //   const lastCenter = ((lastTop.x + lastBottom.x) / 2, (lastTop.y + lastBottom.y) / 2);
+  //   const lastPoint = truedShape.lastSegment.point;
+  //   const adjustedLastPoint = new Point((lastCenter.x + lastPoint.x) / 2, (lastCenter.y + lastPoint.y) / 2);
+  //   // outerPath.add(adjustedLastPoint);
+  //   // outerPath.lastSegment.smooth();
+  // }
+
+  // outerPath.selected = true;
+
+  // new Path.Circle({
+  //   center: outerPath.firstSegment.point,
+  //   radius: 3,
+  //   fillColor: 'red'
+  // });
+  // new Path.Circle({
+  //   center: outerPath.firstSegment.next.point,
+  //   radius: 3,
+  //   fillColor: 'red'
+  // });
+  //
+  // new Path.Circle({
+  //   center: outerPath.lastSegment.point,
+  //   radius: 3,
+  //   fillColor: 'blue'
+  // });
+  // new Path.Circle({
+  //   center: outerPath.lastSegment.previous.point,
+  //   radius: 3,
+  //   fillColor: 'blue'
+  // });
+
   outerPath.smooth();
-  return outerPath;
+  middlePath.smooth();
+  outerPath.name = 'outer';
+  middlePath.name = 'middle';
+  const returnGroup = new Group(outerPath, middlePath);
+  return returnGroup;
 }
 
 export function getTruedShape(path) {
@@ -320,7 +410,7 @@ export function getTrimmedPath(path) {
           }
         }
 
-        dividedPath.selected = true;
+        // dividedPath.selected = true;
 
         let trimmedPath = pathClone.subtract(dividedPath);
         if (trimmedPath.length === 0) return pathClone;
