@@ -13,8 +13,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "autoprefixer": "^6.5.3",
     "array-range": "^1.0.1",
+    "autoprefixer": "^6.5.3",
     "babel": "^6.5.2",
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.9",

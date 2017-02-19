@@ -10,7 +10,7 @@ const timing = require('./timing');
 const overlays = require('./overlays');
 const ui = require('./ui');
 
-const canvas = document.getElementById(config.canvasId);
+const canvas = ui.canvas;
 
 const $body = $('body');
 
@@ -31,9 +31,9 @@ let prevPoint;
 export let hammerManager;
 
 export function init() {
-  const body = document.getElementById('body');
-  hammerManager = new Hammer.Manager(body);
-  // hammerManager = new Hammer.Manager(canvas);
+  // const body = document.getElementById('body');
+  // hammerManager = new Hammer.Manager(body);
+  hammerManager = new Hammer.Manager(canvas);
 
   hammerManager.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerManager.add(new Hammer.Tap({ event: 'singletap' }));
@@ -45,7 +45,7 @@ export function init() {
   hammerManager.get('pan').requireFailure('pinch');
   hammerManager.get('pinch').requireFailure('pan');
 
-  hammerManager.on('singletap', singleTap);
+  // hammerManager.on('singletap', singleTap);
   hammerManager.on('doubletap', doubleTap);
 
   hammerManager.on('panstart', panStart);
@@ -101,9 +101,12 @@ function disablePinchEvents() {
 }
 
 function singleTap(event) {
+  // console.log(event.target);
   // event.preventDefault();
   // if (!eventTargetIsOnCanvas(event)) return;
   tutorial.hideContextualTuts();
+  // $(event.target).click();
+
   // sound.stopPlaying();
   // if (!eventTargetIsOnCanvas(event)) return;
   // console.log(event);

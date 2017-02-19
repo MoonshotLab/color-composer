@@ -16,6 +16,8 @@ const $playButton = $('.controls .play-stop');
 const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
 
+export const canvas = $('#canvas')[0];
+
 const ditheredClass = 'dithered';
 
 export function init() {
