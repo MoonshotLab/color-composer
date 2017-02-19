@@ -17,6 +17,7 @@ const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
 
 export const canvas = $('#canvas')[0];
+export const tipsOverlay = $('.overlay.tips')[0];
 
 const ditheredClass = 'dithered';
 

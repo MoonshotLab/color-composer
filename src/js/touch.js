@@ -10,8 +10,6 @@ const timing = require('./timing');
 const overlays = require('./overlays');
 const ui = require('./ui');
 
-const canvas = ui.canvas;
-
 const $body = $('body');
 
 const hitOptions = {
@@ -28,13 +26,15 @@ let size;
 let cumSize;
 let prevPoint;
 
+export let hammerTips;
 export let hammerCanvas;
 
 export function init() {
-  // const body = document.getElementById('body');
-  // hammerCanvas = new Hammer.Manager(body);
-  hammerCanvas = new Hammer.Manager(canvas);
+  hammerTips = new Hammer.Manager(ui.tipsOverlay);
+  hammerTips.add(new Hammer.Swipe({ direction: Hammer.DIRECTION_ALL }));
+  hammerTips.on('swipe', overlays.cardNavNext);
 
+  hammerCanvas = new Hammer.Manager(ui.canvas);
   hammerCanvas.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerCanvas.add(new Hammer.Tap({ event: 'singletap' }));
   hammerCanvas.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
@@ -172,7 +172,7 @@ function doubleTap(event) {
 function panStart(event) {
   // console.log(event);
   // console.log('panstart');
-  paper.project.activeLayer.removeChildren(); // REMOVE
+  // paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
 
   if (!eventTargetIsOnCanvas(event)) {
@@ -815,7 +815,7 @@ function throwPinchedGroup() {
 
 function eventTargetIsOnCanvas(event) {
   if (!event) return false;
-  if (event.target != canvas) return false;
+  if (event.target != ui.canvas) return false;
   return true;
 
 }
