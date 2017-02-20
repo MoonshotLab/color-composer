@@ -22,8 +22,6 @@ export function getShapeSoundObj(path) {
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
 
-  console.log('shape sound obj path', path);
-
   let shapePrediction = shape.getShapePrediction(path);
   let colorName = color.getPathColorName(path);
   if (colorName === null) colorName = 'black'; // just in case

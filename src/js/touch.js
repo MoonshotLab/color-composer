@@ -707,17 +707,14 @@ function pinchEnd(event) {
       move.scale = originalScale / pinchedGroup.data.scale;
     }
 
-    if (pinchedGroup._namedChildren.length > 0 && pinchedGroup._namedChildren['shapePath']) {
+    if (pinchedGroup.children.length > 0 && pinchedGroup._namedChildren.shapePath && pinchedGroup._namedChildren.shapePath.length > 0) {
       // update shapePath sound object if possible
       sound.removeShapeFromComposition(pinchedGroup); // sound is now wrong
 
-      let shapePath = pinchedGroup._namedChildren['shapePath'];
+      let shapePath = pinchedGroup._namedChildren.shapePath[0];
       let shapeSoundObj = sound.getShapeSoundObj(shapePath);
       window.kan.composition.push(shapeSoundObj);
     }
-
-    console.log('final scale', pinchedGroup.data.scale);
-    console.log(move);
 
     window.kan.moves.push(move);
 
