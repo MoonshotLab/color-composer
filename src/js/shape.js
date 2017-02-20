@@ -10,8 +10,36 @@ export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
 export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 
+function clearPops() {
+  const pops = util.getAllPops();
+  pops.forEach((pop) => pop.remove());
+}
+
+export function updatePops() {
+  const freshGroups = util.getFreshGroups();
+  const allGroups = util.getAllGroups();
+  console.log('freshGroups', freshGroups);
+  console.log('allGroups', allGroups);
+  // clearPops();
+
+  freshGroups.forEach((freshGroup) => {
+    console.log('freshGroup', freshGroup);
+    const freshOuter = freshGroup._namedChildren.mask[0];
+    allGroups.forEach((otherGroup) => {
+      const otherGroupOuter = otherGroup._namedChildren.mask[0];
+      if (freshGroup.id !== otherGroup.id) {
+        console.log('otherGroup', otherGroup);
+        let intersection = freshOuter.intersect(otherGroupOuter);
+        intersection.data.pop = true;
+        intersection.fillColor = color.getRandomPop();
+      }
+    })
+    freshGroup.data.fresh = false;
+  });
+}
+
 export function getOutlineGroup(truedShape) {
-  console.log('truedShape', truedShape);
+  // console.log('truedShape', truedShape);
   let outerPath = new Path();
   let middlePath = new Path();
   let sizes = [];
@@ -395,7 +423,7 @@ export function getTrimmedPath(path) {
 
       // if the average of the distance between the first and last points and the intersection point is within the threshold, trim
       if (firstPoint.getDistance(intersectionPoint) + lastPoint.getDistance(intersectionPoint) < 2 * thresholdDist) {
-        console.log('trimming path');
+        // console.log('trimming path');
         let dividedPath = pathClone.clone(); // resolve crossings seems to modify the path it was passed, so make an extra clone to be safe
         dividedPath.visible = false;
         let pathCrossings = dividedPath.resolveCrossings();
@@ -434,7 +462,7 @@ export function getTrimmedPath(path) {
               }
 
               if (accumulator.length > 0 && accumulator.className === 'Path') {
-                console.log('trimmed accumulator', accumulator);
+                // console.log('trimmed accumulator', accumulator);
                 let newPath = new Path();
                 newPath.copyContent(accumulator);
                 newPath.copyAttributes(pathClone);
@@ -449,14 +477,14 @@ export function getTrimmedPath(path) {
             pathClone.remove();
             dividedPath.remove();
             trimmedPath.remove();
-            console.log('trimmed closedChildren[0]', closedChildren[0]);
+            // console.log('trimmed closedChildren[0]', closedChildren[0]);
             return closedChildren[0];
           }
         }
 
-        console.log('trimmed path return', trimmedPath);
-        console.log('path clone', pathClone);
-        console.log('dividedPath', dividedPath);
+        // console.log('trimmed path return', trimmedPath);
+        // console.log('path clone', pathClone);
+        // console.log('dividedPath', dividedPath);
         pathClone.remove();
         dividedPath.remove();
         return trimmedPath;

@@ -53,7 +53,7 @@ export function unditherButtonsByName(buttonNames) {
 
 export function ditherButtonByName(buttonName, undither = false) {
   let $button = $(`.controls .${buttonName}`);
-  console.log($button);
+  // console.log($button);
   if ($button.length > 0) {
     if (undither !== true) {
       $button.addClass(ditheredClass);
@@ -103,12 +103,12 @@ function undoPressed() {
     item.visible = true; // make sure
     switch(lastMove.type) {
       case 'newGroup':
-        console.log('removing group');
+        // console.log('removing group');
         sound.removeShapeFromComposition(item);
         item.remove();
 
         const numGroups = util.getNumGroups();
-        console.log('numGroups', numGroups);
+        // console.log('numGroups', numGroups);
 
         if (numGroups <= 0) {
           ditherButtonsByName(['undo', 'new']);
@@ -147,10 +147,10 @@ function undoPressed() {
         }
         break;
       default:
-        console.log('unknown case');
+        // console.log('unknown case');
     }
   } else {
-    console.log('could not find matching item');
+    // console.log('could not find matching item');
   }
 }
 
@@ -160,7 +160,7 @@ function playPressed() {
   // overlays.closeAndResetOverlays();
   // tutorial.hideContextualTuts();
   let playing = window.kan.playing;
-  console.log(playing, util.getNumGroups() > 2, !playing && util.getNumGroups() > 2, $body);
+  // console.log(playing, util.getNumGroups() > 2, !playing && util.getNumGroups() > 2, $body);
 
   clearTimeout(window.kan.playPromptTimeout);
   if (!playing && util.getNumGroups() > 2) {

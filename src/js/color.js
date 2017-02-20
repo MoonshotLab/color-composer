@@ -20,3 +20,8 @@ export function getColorName(color) {
     return null;
   }
 }
+
+export function getRandomPop() {
+  const pops = config.palette.pops;
+  return pops[Math.floor(Math.random() * pops.length)];
+}

@@ -26,7 +26,7 @@ export function getTime() {
 
 export function getAllGroups() {
   return paper.project.getItems({
-    match: (el) => el.className === 'Group'
+    className: 'Group'
   });
 }
 
@@ -37,6 +37,19 @@ export function anyShapesOnCanvas() {
 
 export function getNumGroups() {
   const groups = getAllGroups();
-  console.log('numgroups', groups.length);
+  // console.log('numgroups', groups.length);
   return groups.length;
+}
+
+export function getFreshGroups() {
+  return paper.project.getItems({
+    className: 'Group',
+    match: (el) => el.data && el.data.fresh === true
+  });
+}
+
+export function getAllPops() {
+  return paper.project.getItems({
+    match: (el) => el.data && el.data.pop === true
+  });
 }

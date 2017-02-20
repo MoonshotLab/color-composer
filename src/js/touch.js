@@ -377,7 +377,7 @@ function panEnd(event) {
   let truedShape = shape.getTruedShape(shapePath);
 
   // group.data.color = truedShape.strokeColor;
-  console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
+  // console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
 
   const shapeSize = truedShape.strokeBounds;
   const centerPoint = new Point(shapeSize.width / 2, shapeSize.height / 2);
@@ -410,6 +410,7 @@ function panEnd(event) {
   };
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
+  group.data.fresh = true;
 
   shapePath.remove();
   truedShape.visible = false;
@@ -425,12 +426,13 @@ function panEnd(event) {
 
   truedShape.visible = false;
   const outlineGroup = shape.getOutlineGroup(truedShape);
-  console.log('outlineGroup', outlineGroup);
-  const outline = outlineGroup._namedChildren.outer[0];
+  // console.log('outlineGroup', outlineGroup);
+  const outline = outlineGroup._namedChildren.outer[0].clone();
+  outline.name = 'outer';
   outline.fillColor = window.kan.currentColor;
   outline.fillColor = group.data.color;
 
-  const outlineCenter = outlineGroup._namedChildren.middle[0];
+  const outlineCenter = outlineGroup._namedChildren.middle[0].clone();
   outlineCenter.strokeColor = group.data.color;
   outlineCenter.visible = false;
   // outline.fillColor = new Color(1, 1, 0, 0.5);
@@ -440,6 +442,15 @@ function panEnd(event) {
   // outline.shadowOffset = -1;
   outline.sendToBack();
 
+  outlineGroup.remove();
+
+  let shapeMask = outline.clone();
+  shapeMask.fillColor = outline.fillColor;
+  shapeMask.strokeColor = outline.strokeColor;
+  shapeMask.visible = true;
+  shapeMask.name = 'mask';
+  shapeMask.data.mask = true;
+
   // truedShape = truedShape.intersect(outline); // make sure that the trued shape is within the outline
   // console.log('truedShape after', truedShape);
   // truedShape.selected = true;
@@ -447,11 +458,18 @@ function panEnd(event) {
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
   console.log('enclosedLoops', enclosedLoops)
   Base.each(enclosedLoops, (loop, i) => {
+    shapeMask = shapeMask.unite(loop);
     group.addChild(loop);
     loop.sendToBack();
   });
 
+
+  console.log(shapeMask);
   // outlineCenter.remove();
+  // group.addChild(shapeMask);
+  // shapeMask.bringToFront();
+  // shapeMask.fillColor = 'pink';
+  // shapeMask.selected = true;
 
   window.kan.moves.push({
     type: 'newGroup',
@@ -551,6 +569,8 @@ function panEnd(event) {
 
     window.kan.panning = false;
   }, timing.inputDelay);
+
+  shape.updatePops();
 }
 
 function panCancel(event) {
@@ -690,7 +710,7 @@ function pinchEnd(event) {
   let originalScale = window.kan.originalScale;
 
   if (!!pinchedGroup) {
-    pinchedGroup.data.update = true;
+    pinchedGroup.data.fresh = true;
     let move = {
       id: pinchedGroup.id,
       type: 'transform'
