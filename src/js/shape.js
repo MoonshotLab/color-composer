@@ -28,7 +28,7 @@ export function getOutlineGroup(truedShape) {
       sizes.shift();
     }
 
-    const size = Math.random() * 10; // This is just random variance
+    const size = Math.random() * 8; // This is just random variance
     sizes.push(size);
 
     let cumSize = 0;
