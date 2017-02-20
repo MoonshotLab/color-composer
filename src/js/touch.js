@@ -210,8 +210,8 @@ function panStart(event) {
   const point = new Point(pointer.x, pointer.y);
 
   outerPath = new Path();
-  // outerPath.fillColor = window.kan.currentColor;
-  outerPath.fillColor = new Color(0, 0.5);
+  outerPath.fillColor = window.kan.currentColor;
+  // outerPath.fillColor = new Color(0, 0.5);
 
   sizes = [];
 
