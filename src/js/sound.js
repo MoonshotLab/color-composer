@@ -26,6 +26,7 @@ export function getShapeSoundObj(path) {
 
   let shapePrediction = shape.getShapePrediction(path);
   let colorName = color.getPathColorName(path);
+  if (colorName === null) colorName = 'black'; // just in case
 
   const quantizedSoundStartTime = quantizeLength(path.bounds.x / viewWidth * compositionLength); // ms
   const quantizedSoundDuration = quantizeLength(path.bounds.width / viewWidth * compositionLength); // ms
