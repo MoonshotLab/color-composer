@@ -116,19 +116,20 @@ function singleTap(event) {
   //
   // sound.stopPlaying();
   //
-  // const pointer = event.center,
-  //     point = new Point(pointer.x, pointer.y),
-  //     hitResult = paper.project.hitTest(point, hitOptions);
-  //
-  // if (hitResult) {
-  //   let item = hitResult.item;
-  //   // item.selected = !item.selected;
-  //   console.log(item);
-  // }
+  const pointer = event.center,
+      point = new Point(pointer.x, pointer.y),
+      hitResult = paper.project.hitTest(point, hitOptions);
+
+  if (hitResult) {
+    let item = hitResult.item;
+    item.selected = !item.selected;
+    console.log(item);
+  }
 }
 
 function doubleTap(event) {
   event.preventDefault();
+  console.log('doubletap');
 
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
@@ -139,18 +140,25 @@ function doubleTap(event) {
   const transparent = color.transparent;
 
   if (hitResult) {
+    console.log('hit');
     let item = hitResult.item;
     let parent = item.parent;
+
+    console.log('hit item', item);
+    console.log('hit parent', parent);
 
     tutorial.hideContextualTutByName('fill');
 
     if (item.data.interior) {
+      console.log('interior');
       item.data.transparent = !item.data.transparent;
 
       if (item.data.transparent) {
+        console.log('transparent');
         item.fillColor = transparent;
         item.strokeColor = transparent;
       } else {
+        console.log('not transparent');
         item.fillColor = parent.data.color;
         item.strokeColor = parent.data.color;
       }
@@ -456,10 +464,8 @@ function panEnd(event) {
   let shapeMask = outline.clone();
   shapeMask.fillColor = outline.fillColor;
   shapeMask.strokeColor = outline.strokeColor;
-  shapeMask.visible = true;
+  // shapeMask.visible = true;
   // shapeMask.fillColor = color.transparent;
-  shapeMask.name = 'mask';
-  shapeMask.data.mask = true;
   shapeMask.closed = true;
 
   // truedShape = truedShape.intersect(outline); // make sure that the trued shape is within the outline
@@ -477,47 +483,99 @@ function panEnd(event) {
   enclosedLoops.forEach((loop) => {
     console.log('loop before', loop);
     console.log('shapeMask before', shapeMask);
-    shapeMask = shapeMask.unite(loop);
     console.log('loop after', loop);
     console.log('shapeMask after', shapeMask);
-    group.addChild(loop);
     loop.sendToBack();
+    shapeMask.unite(loop);
+    shapeMask.sendToBack();
+    loop.name = 'loop';
+    group.addChild(loop);
+    // loop.remove();
   });
 
-  // shapeMask.selected = true;
-  shapeMask = shapeMask.unite(shapeMask);
-  shapeMask.simplify();
-  if (shapeMask.className === 'CompoundPath') {
-    let longestChild = null, longestLength = 0;
-    if (shapeMask.children.length > 0) {
-      shapeMask.children.forEach((child, i) => {
-        if (child.length > longestLength) {
-          longestChild = child;
-          longestLength = child.length;
-        }
-      });
 
-      if (longestChild !== null) {
-        shapeMask = longestChild;
-      } else {
-        shapeMask = shapeMask.children[0];
+  // shapeMask.selected = true;
+  shapeMask.unite();
+  let crossings = shapeMask.resolveCrossings();
+  // console.log(shapeMask.getIntersections());
+  console.log('crossings', crossings);
+  if (!!crossings && !!crossings.children && crossings.children.length > 0) {
+    let maxArea = 0, maxChild = null;
+    crossings.children.forEach((child) => {
+      if (child.area > maxArea) {
+        maxChild = child;
+        maxArea = child.area;
       }
-    }
+    });
+
+    shapeMask = maxChild;
+    // maxChild.fillColor = 'blue';
+    // maxChild.selected = true;
   }
-  shapeMask.fullySelected = true;
-  console.log('shapeMask', shapeMask);
-  shapeMask.segments.forEach((segment, i) => {
-    let point = segment.point;
-    new Path.Circle({
-      center: point,
-      radius: 2,
-      fillColor: new Color(0, i / shapeMask.segments.length)
-    })
-  })
+  // shapeMask.simplify();
+  // shapeMask.selected = true;
+
+  console.log('shapemask final', shapeMask);
+  // let shapeMaskData = shapeMask.exportJSON();
+  // shapeMask.remove();
+  // shapeMask = new Path();
+  // shapeMask.importJSON(shapeMaskData);
+  // // let cloneMask = shapeMask.clone();
+  // // shapeMask.replaceWith(cloneMask);
+  // if (shapeMask.className === 'CompoundPath') {
+  //   let longestChild = null, longestLength = 0;
+  //   if (shapeMask.children.length > 0) {
+  //     shapeMask.children.forEach((child, i) => {
+  //       if (child.length > longestLength) {
+  //         longestChild = child;
+  //         longestLength = child.length;
+  //       }
+  //     });
+  //
+  //     if (longestChild !== null) {
+  //       shapeMask.replaceWith(longestChild);
+  //     } else {
+  //       shapeMask.replaceWith(shapeMask.children[0]);
+  //     }
+  //   }
+  // }
+  // // shapeMask.fullySelected = true;
+  // console.log('shapeMask final', shapeMask);
+  // console.log('group before', group);
+  // if (group._namedChildren.mask.length > 0) {
+  //   group._namedChildren.mask.forEach((child) => {
+  //     child.remove();
+  //   });
+  //
+  //   group._namedChildren.mask = null;
+  // }
+  //
+  // shapeMask.segments.forEach((segment, i) => {
+  //   let point = segment.point;
+  //   new Path.Circle({
+  //     center: point,
+  //     radius: 2,
+  //     fillColor: new Color(0, i / shapeMask.segments.length)
+  //   })
+  // })
   // shapeMask.fillColor = 'pink';
   outlineCenter.remove();
-  shapeMask.bringToFront();
+  shapeMask.visible = false;
+  // shapeMask.name = 'newMask';
+  shapeMask.name = 'mask';
+  shapeMask.data.mask = true;
+  // shapeMask.selected = true;
   group.addChild(shapeMask);
+  shapeMask.sendToBack();
+  // shapeMask.bringToFront();
+  console.log('group final', group);
+  console.log('group mask final', group._namedChildren.mask);
+
+  // group = shape.cleanUpGroup(group)
+  shape.cleanUpGroup(group);
+  // console.log('group newmask final', group._namedChildren.newMask);
+
+  // make sure there is only one shape mask
   // shapeMask.sendToBack();
   // shapeMask.fillColor = 'pink';
   // shapeMask.selected = true;

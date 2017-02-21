@@ -25,3 +25,8 @@ export function getRandomPop() {
   const pops = config.palette.pops;
   return pops[Math.floor(Math.random() * pops.length)];
 }
+
+export function getIndexedPopColor(index) {
+  const pops = config.palette.pops;
+  return pops[index % pops.length];
+}

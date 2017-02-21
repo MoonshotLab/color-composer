@@ -15,31 +15,87 @@ function clearPops() {
   pops.forEach((pop) => pop.remove());
 }
 
+export function cleanUpGroup(group) {
+  const acceptableNames = ['mask', 'outer', 'shapePath', 'loop'];
+  console.log('----------------------------');
+  group.children.forEach((groupChild) => {
+    console.log(groupChild.name, groupChild);
+    if (groupChild.name === null || !acceptableNames.includes(groupChild.name)) {
+      groupChild.remove();
+    } else {
+      console.log('child can stay');
+    }
+  });
+  console.log('group after', group);
+  console.log('----------------------------');
+  // let groupClone = group.clone();
+  // console.log(groupClone);
+  // return groupClone;
+  return group;
+}
+
 export function updatePops() {
   const freshGroups = util.getFreshGroups();
   const popCandidates = util.getPopCandidates();
+  const allPops = util.getAllPops();
+  popCandidates.reverse();
   console.log('freshGroups', freshGroups);
   console.log('popCandidates', popCandidates);
   // clearPops();
 
-  freshGroups.forEach((freshGroup) => {
+  freshGroups.forEach((freshGroup, i) => {
+    if (i >= 4) return;
     console.log('freshGroup', freshGroup);
     const freshOuter = freshGroup._namedChildren.mask[0];
+    freshOuter.bringToFront();
+    // freshOuter.visible = true;
+    // freshOuter.fillColor = 'black';
+    // freshOuter.selected = true;
     console.log('freshOuter', freshOuter);
     // freshOuter.selected = true;
-    popCandidates.forEach((otherGroup) => {
+    popCandidates.forEach((otherGroup, j) => {
       const otherGroupOuter = otherGroup._namedChildren.mask[0];
-      if (freshGroup.id !== otherGroup.id) {
+      if (freshGroup.id !== otherGroup.id && freshGroup.data.originalColor !== otherGroup.data.originalColor) {
         console.log('otherGroup', otherGroup);
         console.log('otherGroupOuter', otherGroupOuter);
-        let intersection = freshOuter.intersect(otherGroupOuter);
-        intersection.data.pop = true;
-        intersection.fillColor = color.getRandomPop();
-        intersection.visible = true;
-        intersection.bringToFront();
-        console.log('intersection', intersection);
+        // otherGroupOuter.fillColor = 'white';
+        otherGroupOuter.bringToFront();
+        let thisPop = freshOuter.intersect(otherGroupOuter);
+        if (!!thisPop && thisPop.length > 0) {
+          // const popColor = color.getIndexedPopColor(i + j);
+          const popColor = color.getRandomPop();
+          thisPop.fillColor = popColor;
+          thisPop.strokeColor = popColor;
+          thisPop.data.pop = true;
+          thisPop.visible = true;
+          thisPop.closed = true;
+          thisPop.bringToFront();
+          console.log('thisPop', thisPop);
+        }
+
+        // figure out if this pop intersects any other pops
+        allPops.forEach((otherPop, k) => {
+          console.log('checking other pop', otherPop);
+          if (thisPop.id !== otherPop.id && thisPop.intersects(otherPop)) {
+            let popIntersection = thisPop.getIntersections(otherPop);
+            if (!!popIntersection && popIntersection.length > 0) {
+              popIntersection = new Path([popIntersection])
+              console.log('popIntersection', popIntersection);
+              // const popColor = color.getIndexedPopColor(i + j + k);
+              const popColor = color.getRandomPop();
+              popIntersection.data.pop = true;
+              popIntersection.fillColor = popColor
+              popIntersection.strokeColor = popColor;
+              popIntersection.visible = true;
+              popIntersection.closed = true;
+              popIntersection.bringToFront();
+            }
+          }
+        });
+
       }
-    })
+    });
+
     freshGroup.data.fresh = false;
   });
 }
@@ -240,6 +296,7 @@ export function getCompletedPath(path) {
         return trimmedPath;
       }
 
+      pathClone.visible = true;
       return pathClone;
     }
   }
@@ -401,6 +458,8 @@ export function getExtendedPath(path, bruteForce = false) {
   const endAngle = Math.atan2(lastSegment.point.y - penSegment.point.y, lastSegment.point.x - penSegment.point.x); // rad
   const extendedEndPoint = new Point(lastSegment.point.x + (Math.cos(endAngle) * thresholdDist / 2), lastSegment.point.y + (Math.sin(endAngle) * thresholdDist / 2));
   extendedPath.add(extendedEndPoint);
+
+  // extendedPath.visible = true;
 
   return extendedPath;
 }
