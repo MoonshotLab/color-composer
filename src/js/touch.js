@@ -137,41 +137,10 @@ function doubleTap(event) {
 
   if (!eventTargetIsOnCanvas(event)) return;
 
-  const transparent = color.transparent;
 
   if (hitResult) {
-    console.log('hit');
-    let item = hitResult.item;
-    let parent = item.parent;
-
-    console.log('hit item', item);
-    console.log('hit parent', parent);
-
+    shape.toggleFill(hitResult.item);
     tutorial.hideContextualTutByName('fill');
-
-    if (item.data.interior) {
-      console.log('interior');
-      item.data.transparent = !item.data.transparent;
-
-      if (item.data.transparent) {
-        console.log('transparent');
-        item.fillColor = transparent;
-        item.strokeColor = transparent;
-      } else {
-        console.log('not transparent');
-        item.fillColor = parent.data.color;
-        item.strokeColor = parent.data.color;
-      }
-
-      window.kan.moves.push({
-        type: 'fillChange',
-        id: item.id,
-        fill: parent.data.color,
-        transparent: item.data.transparent
-      });
-    } else {
-      console.log('not interior')
-    }
 
   } else {
     window.kan.pinchedGroup = null;
@@ -479,17 +448,23 @@ function panEnd(event) {
   } else {
     group.data.line = true;
   }
+
   console.log('enclosedLoops', enclosedLoops);
   enclosedLoops.forEach((loop) => {
     console.log('loop before', loop);
     console.log('shapeMask before', shapeMask);
-    console.log('loop after', loop);
-    console.log('shapeMask after', shapeMask);
-    loop.sendToBack();
     shapeMask.unite(loop);
     shapeMask.sendToBack();
     loop.name = 'loop';
+    loop.data.loop = true;
+    // loop.fullySelected = true;
+    loop.visible = true;
+    // loop.bringToFront();
+    // loop.selected = true;
+    // loop.sendToBack();
     group.addChild(loop);
+    console.log('loop after', loop);
+    console.log('shapeMask after', shapeMask);
     // loop.remove();
   });
 
@@ -572,7 +547,10 @@ function panEnd(event) {
   console.log('group mask final', group._namedChildren.mask);
 
   // group = shape.cleanUpGroup(group)
-  shape.cleanUpGroup(group);
+
+
+  shape.cleanUpGroup(group); // TODO
+
   // console.log('group newmask final', group._namedChildren.newMask);
 
   // make sure there is only one shape mask

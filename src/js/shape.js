@@ -15,8 +15,61 @@ function clearPops() {
   pops.forEach((pop) => pop.remove());
 }
 
+export function fillInGroupPopsById(groupId) {
+  const group = paper.project.getItem({
+    className: 'Group',
+    match: (el) => el.id === groupId
+  });
+
+  if (!!group && group.children.length > 0) {
+    group.children.forEach((groupChild) => {
+      if (groupChild.name === 'loop') {
+        toggleFill(groupChild);
+      }
+    });
+  }
+}
+
+export function toggleFill(item) {
+  const transparent = color.transparent;
+  console.log('hit');
+  let parent = item.parent;
+
+  console.log('hit item', item);
+  console.log('hit parent', parent);
+
+  if (item.data.interior) {
+    console.log('interior');
+    item.data.transparent = !item.data.transparent;
+
+    if (item.data.transparent) {
+      console.log('transparent');
+      item.fillColor = transparent;
+      item.strokeColor = transparent;
+    } else {
+      console.log('not transparent');
+      item.fillColor = parent.data.color;
+      item.strokeColor = parent.data.color;
+    }
+
+    window.kan.moves.push({
+      type: 'fillChange',
+      id: item.id,
+      fill: parent.data.color,
+      transparent: item.data.transparent
+    });
+  } else {
+    console.log('not interior');
+    // check if item is a pop, because then we'll fill the pop's parent
+    if (!!item.data && item.data.pop === true) {
+      fillInGroupPopsById(item.data.popGroup);
+    }
+  }
+}
+
 export function cleanUpGroup(group) {
   const acceptableNames = ['mask', 'outer', 'shapePath', 'loop'];
+  console.log('group before', group);
   console.log('----------------------------');
   group.children.forEach((groupChild) => {
     console.log(groupChild.name, groupChild);
@@ -67,6 +120,7 @@ export function updatePops() {
           thisPop.fillColor = popColor;
           thisPop.strokeColor = popColor;
           thisPop.data.pop = true;
+          thisPop.data.popGroup = freshGroup.id;
           thisPop.visible = true;
           thisPop.closed = true;
           thisPop.bringToFront();
@@ -74,24 +128,24 @@ export function updatePops() {
         }
 
         // figure out if this pop intersects any other pops
-        allPops.forEach((otherPop, k) => {
-          console.log('checking other pop', otherPop);
-          if (thisPop.id !== otherPop.id && thisPop.intersects(otherPop)) {
-            let popIntersection = thisPop.getIntersections(otherPop);
-            if (!!popIntersection && popIntersection.length > 0) {
-              popIntersection = new Path([popIntersection])
-              console.log('popIntersection', popIntersection);
-              // const popColor = color.getIndexedPopColor(i + j + k);
-              const popColor = color.getRandomPop();
-              popIntersection.data.pop = true;
-              popIntersection.fillColor = popColor
-              popIntersection.strokeColor = popColor;
-              popIntersection.visible = true;
-              popIntersection.closed = true;
-              popIntersection.bringToFront();
-            }
-          }
-        });
+        // allPops.forEach((otherPop, k) => {
+        //   console.log('checking other pop', otherPop);
+        //   if (thisPop.id !== otherPop.id && thisPop.intersects(otherPop)) {
+        //     let popIntersection = thisPop.getIntersections(otherPop);
+        //     if (!!popIntersection && popIntersection.length > 0) {
+        //       popIntersection = new Path([popIntersection])
+        //       console.log('popIntersection', popIntersection);
+        //       // const popColor = color.getIndexedPopColor(i + j + k);
+        //       const popColor = color.getRandomPop();
+        //       popIntersection.data.pop = true;
+        //       popIntersection.fillColor = popColor
+        //       popIntersection.strokeColor = popColor;
+        //       popIntersection.visible = true;
+        //       popIntersection.closed = true;
+        //       popIntersection.bringToFront();
+        //     }
+        //   }
+        // });
 
       }
     });
