@@ -3,6 +3,7 @@ const ui = require('./ui');
 const overlays = require('./overlays');
 const video = require('./video');
 const timing = require('./timing');
+const util = require('./util');
 
 export function resetWindow() {
   window.kan = {
@@ -36,13 +37,16 @@ export function resetWindow() {
     playPromptTimeout: null,
     userHasDrawnFirstShape: false,
     firstTimePlaying: true,
-    shapesSinceTut: 0
+    shapesSinceTut: 0,
+    refreshCheckInterval: null,
+    sha: null
   };
 }
 
 $(document).ready(function() {
   function run() {
     resetWindow();
+    util.setSha();
     ui.init();
     touch.init();
     overlays.init();

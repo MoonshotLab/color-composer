@@ -32,7 +32,7 @@ app.get('/demo/:demo', function(req, res) {
   res.render(req.params.demo);
 });
 
-app.get('/sha', function(req, res) {
+app.get('/hash', function(req, res) {
   git.short(function(str) {
     res.send(str);
   });

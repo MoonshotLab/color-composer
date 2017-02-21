@@ -40,3 +40,14 @@ export function getNumGroups() {
   console.log('numgroups', groups.length);
   return groups.length;
 }
+
+export function setSha() {
+  $.get('/hash')
+    .done(function(res) {
+      console.log('current hash:', res);
+      window.kan.hash = res;
+    })
+    .fail(function(e) {
+      console.error('error getting hash:', e);
+    });
+}
