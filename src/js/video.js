@@ -22,10 +22,23 @@ export function enterTutorialMode() {
   $body.on(tapEvent, exitTutorialMode);
   main.resetWindow();
   ui.resetCanvas();
+  window.kan.refreshCheckInterval = setInterval(() => {
+    $.get('/hash')
+      .done(function(res) {
+        if (res !== window.kan.hash) {
+          console.log('different hash, reloading');
+          location.reload();
+        }
+      })
+      .fail(function(e) {
+        console.error('error getting hash:', e);
+      });
+  }, timing.refreshCheckDelay);
 }
 
 export function exitTutorialMode() {
   console.log('exiting tutorial mode');
+  clearInterval(window.kan.refreshCheckInterval);
 
   pauseVideo();
   $body.off(tapEvent, exitTutorialMode);

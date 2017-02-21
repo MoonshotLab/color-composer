@@ -7,6 +7,7 @@ const express = require('express');
 const app = express();
 
 const path = require('path');
+const git = require('git-rev');
 
 const config = require('./config');
 
@@ -27,6 +28,12 @@ app.get('/', function (req, res) {
   });
 });
 
-app.get('/demo/:demo', function(req, res) {
-  res.render(req.params.demo);
-});
+app.get('/hash', function(req, res) {
+  if (!!process.env.GIT_REV) {
+    res.send(process.env.GIT_REV);
+  } else {
+    git.long(function(str) {
+      res.send(str);
+    });
+  }
+})
