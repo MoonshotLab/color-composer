@@ -420,6 +420,13 @@ function panEnd(event) {
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
 
+  if (!(truedShape.length > 0)) {
+    truedShape.remove();
+    group.remove();
+    window.kan.panning = false;
+    return;
+  }
+
   group.addChild(truedShape);
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
