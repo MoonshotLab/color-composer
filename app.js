@@ -1,5 +1,3 @@
-console.log('GIT_REV', process.env.GIT_REV);
-
 const fs = require('fs');
 if (fs.existsSync('.env')) {
   require('dotenv').config();
@@ -35,7 +33,11 @@ app.get('/demo/:demo', function(req, res) {
 });
 
 app.get('/hash', function(req, res) {
-  git.short(function(str) {
-    res.send(str);
-  });
+  if (!!process.env.GIT_REV) {
+    res.send(process.env.GIT_REV);
+  } else {
+    git.long(function(str) {
+      res.send(str);
+    });
+  }
 })
