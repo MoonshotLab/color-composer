@@ -13,12 +13,17 @@ export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 export function getOutlineGroup(truedShape) {
   console.log('truedShape', truedShape);
   let outerPath = new Path();
+  outerPath.name = 'outer';
+
   let middlePath = new Path();
+  middlePath.name = 'middle';
   let sizes = [];
   let angle;
 
-  let firstTop, firstBottom;
-  let lastTop, lastBottom;
+  let firstTop = null, firstBottom = null;
+  let lastTop = null, lastBottom = null;
+
+  if (!(truedShape.length > 0)) return new Group(outerPath, middlePath);
 
   // outerPath.add(truedShape.firstSegment.point);
   middlePath.add(truedShape.firstSegment.point);
