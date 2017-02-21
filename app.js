@@ -28,10 +28,6 @@ app.get('/', function (req, res) {
   });
 });
 
-app.get('/demo/:demo', function(req, res) {
-  res.render(req.params.demo);
-});
-
 app.get('/hash', function(req, res) {
   if (!!process.env.GIT_REV) {
     res.send(process.env.GIT_REV);

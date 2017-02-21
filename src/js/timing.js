@@ -15,10 +15,8 @@ export function init() {
     window.kan.overlays = false;
     video.pauseVideo();
     video.exitTutorialMode();
-  } else if (window.location.hash.length > 0 && window.location.hash == '#video') {
-    video.enterTutorialMode();
   } else {
-    video.exitTutorialMode();
+    video.enterTutorialMode();
   }
 }
 
