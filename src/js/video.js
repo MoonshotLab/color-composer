@@ -26,13 +26,8 @@ export function enterTutorialMode() {
     $.get('/hash')
       .done(function(res) {
         if (res !== window.kan.hash) {
-          console.log('different hash, restarting');
-          setTimeout(() => {
-            // wait 5 seconds then reload
-            location.reload();
-          }, 5 * 1000);
-        } else {
-          console.log('same hash');
+          console.log('different hash, reloading');
+          location.reload();
         }
       })
       .fail(function(e) {
