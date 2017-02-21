@@ -448,26 +448,42 @@ function panEnd(event) {
   shapeMask.fillColor = outline.fillColor;
   shapeMask.strokeColor = outline.strokeColor;
   shapeMask.visible = true;
+  // shapeMask.fillColor = color.transparent;
   shapeMask.name = 'mask';
   shapeMask.data.mask = true;
+  shapeMask.closed = true;
 
   // truedShape = truedShape.intersect(outline); // make sure that the trued shape is within the outline
   // console.log('truedShape after', truedShape);
   // truedShape.selected = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
-  console.log('enclosedLoops', enclosedLoops)
-  Base.each(enclosedLoops, (loop, i) => {
+  console.log('enclosedLoops', enclosedLoops);
+  enclosedLoops.forEach((loop) => {
+    console.log('loop before', loop);
+    console.log('shapeMask before', shapeMask);
     shapeMask = shapeMask.unite(loop);
+    console.log('loop after', loop);
+    console.log('shapeMask after', shapeMask);
     group.addChild(loop);
     loop.sendToBack();
   });
 
-
-  console.log(shapeMask);
-  // outlineCenter.remove();
-  // group.addChild(shapeMask);
-  // shapeMask.bringToFront();
+  // shapeMask.selected = true;
+  shapeMask = shapeMask.unite(shapeMask);
+  shapeMask.segments.forEach((segment, i) => {
+    let point = segment.point;
+    new Path.Circle({
+      center: point,
+      radius: 2,
+      fillColor: new Color(0, i / shapeMask.segments.length)
+    })
+  })
+  shapeMask.fillColor = 'pink';
+  outlineCenter.remove();
+  shapeMask.bringToFront();
+  group.addChild(shapeMask);
+  // shapeMask.sendToBack();
   // shapeMask.fillColor = 'pink';
   // shapeMask.selected = true;
 

@@ -25,13 +25,19 @@ export function updatePops() {
   freshGroups.forEach((freshGroup) => {
     console.log('freshGroup', freshGroup);
     const freshOuter = freshGroup._namedChildren.mask[0];
+    console.log('freshOuter', freshOuter);
+    // freshOuter.selected = true;
     allGroups.forEach((otherGroup) => {
       const otherGroupOuter = otherGroup._namedChildren.mask[0];
       if (freshGroup.id !== otherGroup.id) {
         console.log('otherGroup', otherGroup);
+        console.log('otherGroupOuter', otherGroupOuter);
         let intersection = freshOuter.intersect(otherGroupOuter);
         intersection.data.pop = true;
         intersection.fillColor = color.getRandomPop();
+        intersection.visible = true;
+        intersection.bringToFront();
+        console.log('intersection', intersection);
       }
     })
     freshGroup.data.fresh = false;
@@ -174,10 +180,14 @@ export function getOutlineGroup(truedShape) {
 export function getTruedShape(path) {
   let pathClone = path.clone();
   pathClone.visible = false;
+  console.log('pathClone', pathClone);
   let completedPath = getCompletedPath(pathClone);
+  console.log('completedPath', completedPath);
+  // completedPath.reduce();
 
   // true the path!
   let truedPath = completedPath;
+  console.log('truedPath', truedPath);
 
   truedPath.strokeWidth = pathClone.strokeWidth;
 
