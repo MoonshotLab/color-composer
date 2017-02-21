@@ -1,3 +1,5 @@
+console.log('GIT_REV', process.env.GIT_REV);
+
 const fs = require('fs');
 if (fs.existsSync('.env')) {
   require('dotenv').config();
