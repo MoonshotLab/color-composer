@@ -10,6 +10,9 @@
     "dev": "npm-run-all --parallel start watch"
   },
   "keywords": [],
+  "engines": {
+    "node": "6.9.5"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
