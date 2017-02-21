@@ -39,7 +39,8 @@ export function resetWindow() {
     firstTimePlaying: true,
     shapesSinceTut: 0,
     refreshCheckInterval: null,
-    sha: null
+    sha: null,
+    scheduledOverlay: null,
   };
 }
 

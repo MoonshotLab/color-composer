@@ -542,10 +542,10 @@ function panEnd(event) {
   // window.kan.sides = sides;
   // window.kan.corners = corners;
   if (window.kan.scheduledOverlay !== null) {
+    let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
-
     setTimeout(() => {
-      overlays.openOverlay(window.kan.scheduledOverlay);
+      overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
 
@@ -768,10 +768,10 @@ function pinchEnd(event) {
 
   // if an overlay was interrupted, open it up now
   if (window.kan.scheduledOverlay !== null) {
+    let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
-
     setTimeout(() => {
-      overlays.openOverlay(window.kan.scheduledOverlay);
+      overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
 

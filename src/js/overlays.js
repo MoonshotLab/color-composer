@@ -27,6 +27,11 @@ const overlayActiveClass = 'overlay-active';
 export function openOverlay(overlayName) {
   if (window.kan.overlays === false) return;
   if (allOverlays.includes(overlayName)) {
+    if (window.kan.pinching === true || window.kan.panning === true) {
+      console.log('scheduling overlay', overlayName);
+      window.kan.scheduledOverlay = overlayName;
+      return;
+    }
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
@@ -118,7 +123,7 @@ export function cardNavNext() {
 // tips card interactions
 function cardInteractions() {
   let timeOfLastInteraction = 0;
-  
+
   $body.find('.overlay').on(tapEvent, e => {
     const currentTime = Date.now();
     if (timeOfLastInteraction > (currentTime - 250)) {
