@@ -7,6 +7,7 @@ const express = require('express');
 const app = express();
 
 const path = require('path');
+const git = require('git-rev');
 
 const config = require('./config');
 
@@ -30,3 +31,9 @@ app.get('/', function (req, res) {
 app.get('/demo/:demo', function(req, res) {
   res.render(req.params.demo);
 });
+
+app.get('/sha', function(req, res) {
+  git.short(function(str) {
+    res.send(str);
+  });
+})

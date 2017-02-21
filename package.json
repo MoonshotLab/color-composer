@@ -55,6 +55,7 @@
     "dotenv": "^2.0.0",
     "express": "^4.14.0",
     "fs": "0.0.1-security",
+    "git-rev": "^0.2.1",
     "npm-run-all": "^3.1.2",
     "path": "^0.12.7",
     "pug": "^2.0.0-beta6"
