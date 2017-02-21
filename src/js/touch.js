@@ -19,7 +19,9 @@ const hitOptions = {
   tolerance: 5
 };
 
-const minShapeSize = 50;
+const minShapeSize = 100;
+const maxScaleFactor = 0.8;
+
 let outerPath;
 let sizes = [];
 let size;
@@ -419,6 +421,13 @@ function panEnd(event) {
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
 
+  if (!(truedShape.length > 0)) {
+    truedShape.remove();
+    group.remove();
+    window.kan.panning = false;
+    return;
+  }
+
   group.addChild(truedShape);
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
@@ -706,11 +715,11 @@ function pinchMove(event) {
 
     if (pinchedGroup.bounds.width < minShapeSize || pinchedGroup.bounds.height < minShapeSize) {
       // only allow a shape to scale down if it is larger than the minimum size
-      scaleDelta = 1.01;
+      scaleDelta = 1.1;
     } else if (pinchedGroup.bounds.width >= paper.view.viewSize.width ||
         pinchedGroup.bounds.height >= paper.view.viewSize.height) {
       // only allow shape to scale up if it fits in the viewport
-      scaleDelta = 0.99;
+      scaleDelta = 0.9;
     } else {
       scaleDelta = currentScale / window.kan.lastScale;
     }
@@ -732,6 +741,26 @@ function pinchMove(event) {
 
     if (scaleDelta !== 1) {
       pinchedGroup.scale(scaleDelta);
+
+      // check if scaling went awry, cannot be too big or too small
+      if (pinchedGroup.bounds.width >= paper.view.viewSize.width * maxScaleFactor ||
+        pinchedGroup.bounds.height >= paper.view.viewSize.height * maxScaleFactor) {
+        // shape is too big, bring it back down to size
+        const bounds = pinchedGroup.bounds;
+        if (bounds.width > bounds.height) {
+          scaleDelta = paper.view.viewSize.width * maxScaleFactor / bounds.width;
+        } else {
+          scaleDelta = paper.view.viewSize.height * maxScaleFactor / bounds.height;
+        }
+        pinchedGroup.scale(scaleDelta);
+      } else if (pinchedGroup.bounds.width <= minShapeSize || pinchedGroup.bounds.height <= minShapeSize) {
+        if (bounds.width < bounds.height) {
+          scaleDelta = minShapeSize / bounds.width;
+        } else {
+          scaleDelta = minShapeSize / bounds.width;
+        }
+        pinchedGroup.scale(scaleDelta);
+      }
     }
     pinchedGroup.rotate(rotationDelta);
 
