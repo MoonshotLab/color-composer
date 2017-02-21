@@ -44,12 +44,19 @@ export function getNumGroups() {
 export function getFreshGroups() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.data && el.data.fresh === true
+    match: (el) => el.data && el.data.fresh === true && el.data.line === false
   });
 }
 
 export function getAllPops() {
   return paper.project.getItems({
     match: (el) => el.data && el.data.pop === true
+  });
+}
+
+export function getPopCandidates() {
+  return paper.project.getItems({
+    className: 'Group',
+    match: (el) => el.data && el.data.line === false
   });
 }

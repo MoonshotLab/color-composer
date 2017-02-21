@@ -17,9 +17,9 @@ function clearPops() {
 
 export function updatePops() {
   const freshGroups = util.getFreshGroups();
-  const allGroups = util.getAllGroups();
+  const popCandidates = util.getPopCandidates();
   console.log('freshGroups', freshGroups);
-  console.log('allGroups', allGroups);
+  console.log('popCandidates', popCandidates);
   // clearPops();
 
   freshGroups.forEach((freshGroup) => {
@@ -27,7 +27,7 @@ export function updatePops() {
     const freshOuter = freshGroup._namedChildren.mask[0];
     console.log('freshOuter', freshOuter);
     // freshOuter.selected = true;
-    allGroups.forEach((otherGroup) => {
+    popCandidates.forEach((otherGroup) => {
       const otherGroupOuter = otherGroup._namedChildren.mask[0];
       if (freshGroup.id !== otherGroup.id) {
         console.log('otherGroup', otherGroup);
@@ -329,7 +329,7 @@ export function findInteriorCurves(path) {
 
   let interiorCurves = [];
 
-  let pathClone = path.clone({ insert: false });
+  let pathClone = path.clone();
   let intersections = pathClone.getIntersections();
 
   if (intersections.length > 0) {
@@ -339,7 +339,7 @@ export function findInteriorCurves(path) {
     if (dividedPath.className === 'CompoundPath') {
       Base.each(dividedPath.children, (child, i) => {
         if (child.length > 0 && child.closed) {
-          let enclosedLoop = child.clone({ insert: false });
+          let enclosedLoop = child.clone();
           if (pathClone.closed) {
             enclosedLoop.fillColor = pathClone.strokeColor;
             enclosedLoop.data.interior = true;
@@ -356,7 +356,7 @@ export function findInteriorCurves(path) {
       })
     } else {
       if (pathClone.closed) {
-        let enclosedLoop = pathClone.clone({ insert: false });
+        let enclosedLoop = pathClone.clone();
         enclosedLoop.visible = true;
         enclosedLoop.fillColor = pathClone.strokeColor;
         enclosedLoop.data.interior = true;
@@ -366,7 +366,7 @@ export function findInteriorCurves(path) {
     }
   } else {
     if (pathClone.closed) {
-      let enclosedLoop = pathClone.clone({ insert: false });
+      let enclosedLoop = pathClone.clone();
       enclosedLoop.visible = true;
       enclosedLoop.fillColor = pathClone.strokeColor;
       enclosedLoop.data.interior = true;

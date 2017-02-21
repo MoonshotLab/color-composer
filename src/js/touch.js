@@ -458,6 +458,12 @@ function panEnd(event) {
   // truedShape.selected = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
+  // console.log('truedShape', truedShape);
+  if (enclosedLoops.length > 0 || truedShape.closed === true) {
+    group.data.line = false;
+  } else {
+    group.data.line = true;
+  }
   console.log('enclosedLoops', enclosedLoops);
   enclosedLoops.forEach((loop) => {
     console.log('loop before', loop);
@@ -471,6 +477,26 @@ function panEnd(event) {
 
   // shapeMask.selected = true;
   shapeMask = shapeMask.unite(shapeMask);
+  shapeMask.simplify();
+  if (shapeMask.className === 'CompoundPath') {
+    let longestChild = null, longestLength = 0;
+    if (shapeMask.children.length > 0) {
+      shapeMask.children.forEach((child, i) => {
+        if (child.length > longestLength) {
+          longestChild = child;
+          longestLength = child.length;
+        }
+      });
+
+      if (longestChild !== null) {
+        shapeMask = longestChild;
+      } else {
+        shapeMask = shapeMask.children[0];
+      }
+    }
+  }
+  shapeMask.fullySelected = true;
+  console.log('shapeMask', shapeMask);
   shapeMask.segments.forEach((segment, i) => {
     let point = segment.point;
     new Path.Circle({
@@ -479,7 +505,7 @@ function panEnd(event) {
       fillColor: new Color(0, i / shapeMask.segments.length)
     })
   })
-  shapeMask.fillColor = 'pink';
+  // shapeMask.fillColor = 'pink';
   outlineCenter.remove();
   shapeMask.bringToFront();
   group.addChild(shapeMask);
