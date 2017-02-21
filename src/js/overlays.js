@@ -28,8 +28,12 @@ export function openOverlay(overlayName) {
   if (window.kan.overlays === false) return;
   if (allOverlays.includes(overlayName)) {
     if (window.kan.pinching === true || window.kan.panning === true) {
-      console.log('scheduling overlay', overlayName);
-      window.kan.scheduledOverlay = overlayName;
+      if (overlayName === 'continue') {
+        timing.preventInactivityTimeout();
+      } else {
+        console.log('scheduling overlay', overlayName);
+        window.kan.scheduledOverlay = overlayName;
+      }
       return;
     }
     closeAndResetOverlays();
