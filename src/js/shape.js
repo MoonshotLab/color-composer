@@ -97,7 +97,7 @@ export function updatePops() {
   // clearPops();
 
   freshGroups.forEach((freshGroup, i) => {
-    if (i >= 4) return;
+    // if (i >= 4) return;
     console.log('freshGroup', freshGroup);
     const freshOuter = freshGroup._namedChildren.mask[0];
     freshOuter.bringToFront();
