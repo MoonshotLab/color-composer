@@ -10,6 +10,10 @@ export function deg(radians) {
   return radians * 180 / Math.PI;
 };
 
+export function hypot(a, b) {
+  return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)); // pythagorean!
+}
+
 // returns absolute value of the delta of two angles in radians
 export function angleDelta(x, y) {
   return Math.abs(Math.atan2(Math.sin(y - x), Math.cos(y - x)));;

@@ -681,22 +681,15 @@ function pinchMove(event) {
       pinchedGroup.scale(scaleDelta);
 
       // check if scaling went awry, cannot be too big or too small
-      if (pinchedGroup.bounds.width >= paper.view.viewSize.width * maxScaleFactor ||
-        pinchedGroup.bounds.height >= paper.view.viewSize.height * maxScaleFactor) {
+      // hypotenuse must fit within view bounds
+      const hypot = util.hypot(pinchedGroup.bounds.width, pinchedGroup.bounds.height);
+      const viewHypot = util.hypot(paper.view.viewSize.width, paper.view.viewSize.height)
+      if (hypot >= viewHypot) {
         // shape is too big, bring it back down to size
-        const bounds = pinchedGroup.bounds;
-        if (bounds.width > bounds.height) {
-          scaleDelta = paper.view.viewSize.width * maxScaleFactor / bounds.width;
-        } else {
-          scaleDelta = paper.view.viewSize.height * maxScaleFactor / bounds.height;
-        }
+        scaleDelta = viewHypot * maxScaleFactor / hypot;
         pinchedGroup.scale(scaleDelta);
-      } else if (pinchedGroup.bounds.width <= minShapeSize || pinchedGroup.bounds.height <= minShapeSize) {
-        if (bounds.width < bounds.height) {
-          scaleDelta = minShapeSize / bounds.width;
-        } else {
-          scaleDelta = minShapeSize / bounds.width;
-        }
+      } else if (hypot <= minShapeSize) {
+        scaleDelta = minShapeSize / hypot;
         pinchedGroup.scale(scaleDelta);
       }
     }
