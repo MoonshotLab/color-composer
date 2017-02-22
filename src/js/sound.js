@@ -60,7 +60,7 @@ export function startPlaying() {
   } else {
     window.kan.playing = false;
     $body.removeClass(playingClass);
-    console.log('play is not enabled');
+    // console.log('play is not enabled');
   }
 }
 
@@ -205,6 +205,7 @@ export function clearSoundTimeouts() {
 
 export function startComposition(composition, loop = false) {
   stopComposition();
+
   clearTimeout(window.kan.playPromptTimeout);
 
   let iterations = 0;
@@ -226,7 +227,7 @@ export function startComposition(composition, loop = false) {
           console.log('%cshape is null', 'color:red', shape);
           return;
         } else {
-          console.log('not null', shape);
+          // console.log('not null', shape);
         }
         shape.sound.play(shape.spriteName);
         animateNote(shape);
@@ -300,14 +301,14 @@ function getCompositionStartTime(composition) {
   let startTime = compositionLength;
 
   composition.forEach((sound) => {
-    console.log(sound);
-    console.log(sound.startTime)
+    // console.log(sound);
+    // console.log(sound.startTime)
     if ('startTime' in sound && sound.startTime < startTime) {
       startTime = sound.startTime;
     }
   });
 
-  console.log('start time', startTime);
+  // console.log('start time', startTime);
 
   if (startTime !== compositionLength) {
     return startTime;
