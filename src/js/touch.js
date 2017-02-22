@@ -849,6 +849,9 @@ function pinchEnd(event) {
         tutorial.hideContextualTut($pinchedTut);
       }
       // dispose of group offscreen
+      if (config.pop === true) {
+        shape.destroyGroupPops(pinchedGroup);
+      }
       throwPinchedGroup();
     }
 
@@ -913,6 +916,7 @@ function pinchCancel(event) {
 }
 
 function throwPinchedGroup() {
+
   const velocityMultiplier = 25;
   const lastEvent = window.kan.lastEvent;
   const viewWidth = paper.view.viewSize.width;
@@ -920,7 +924,6 @@ function throwPinchedGroup() {
   let pinchedGroup = window.kan.pinchedGroup;
 
   if (pinchedGroup === null) return;
-
   if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
       pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
       pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||

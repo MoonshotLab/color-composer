@@ -137,10 +137,6 @@ function animateShapePlay(shape) {
       {
         properties: {
           scale: 1,
-          opacity: 1,
-          // position: {
-          //   y: "+20"
-          // },
           rotate: -5,
         },
         settings: {
@@ -154,10 +150,6 @@ function animateShapePlay(shape) {
       {
         properties: {
           scale: 1.15,
-          opacity: 0.8,
-          // position: {
-          //   y: "+10"
-          // },
           rotate: 5,
         },
         settings: {
@@ -171,10 +163,6 @@ function animateShapePlay(shape) {
       {
         properties: {
           scale: 1,
-          opacity: 1,
-          // position: {
-          //   y: "-30"
-          // },
           rotate: 0,
         },
         settings: {
