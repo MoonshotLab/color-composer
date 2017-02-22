@@ -147,7 +147,9 @@ function undoPressed() {
         if (!!lastMove.scale) {
           item.scale(lastMove.scale);
         }
-        shape.updatePops();
+        if (config.pop === true) {
+          shape.updatePops();
+        }
         break;
       default:
         // console.log('unknown case');

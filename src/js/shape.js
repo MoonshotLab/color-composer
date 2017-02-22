@@ -74,7 +74,9 @@ export function toggleFill(item) {
     // check if item is a pop, because then we'll fill the pop's parent
     if (!!item.data && item.data.pop === true) {
       if (!!item.parent) {
-        fillInGroupPopsById(item.parent.id);
+        if (config.pop === true) {
+          fillInGroupPopsById(item.parent.id);
+        }
       }
     }
   }

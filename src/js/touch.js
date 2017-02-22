@@ -654,7 +654,9 @@ function panEnd(event) {
     window.kan.panning = false;
   }, timing.inputDelay);
 
-  shape.updatePops();
+  if (config.pop === true) {
+    shape.updatePops();
+  }
 }
 
 function panCancel(event) {
@@ -700,7 +702,9 @@ function pinchStart(event) {
     window.kan.originalRotation = hitResult.data.rotation;
     window.kan.originalScale = hitResult.data.scale;
 
-    shape.destroyGroupPops(hitResult);
+    if (config.pop === true) {
+      shape.destroyGroupPops(hitResult);
+    }
 
     hitResult.bringToFront();
 
@@ -874,7 +878,9 @@ function pinchEnd(event) {
 
   window.kan.pinching = false;
 
-  shape.updatePops();
+  if (config.pop === true) {
+    shape.updatePops();
+  }
 
   console.log('pinch done');
   // hammerCanvas.set({ enable: false });
