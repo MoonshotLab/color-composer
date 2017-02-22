@@ -28,6 +28,14 @@ app.get('/', function (req, res) {
   });
 });
 
+
+app.get('/pops', function (req, res) {
+  res.render('pops', {
+    config: config,
+    range: require('array-range')
+  });
+});
+
 app.get('/hash', function(req, res) {
   if (!!process.env.GIT_REV) {
     res.send(process.env.GIT_REV);
