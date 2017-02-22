@@ -105,6 +105,7 @@ export function updatePops() {
   freshGroups.forEach((freshGroup, i) => {
     // if (i >= 4) return;
     console.log('freshGroup', freshGroup);
+
     const freshOuter = freshGroup._namedChildren.mask[0];
     freshOuter.bringToFront();
     // freshOuter.visible = true;
@@ -114,7 +115,7 @@ export function updatePops() {
     // freshOuter.selected = true;
     popCandidates.forEach((otherGroup, j) => {
       const otherGroupOuter = otherGroup._namedChildren.mask[0];
-      if (freshGroup.id !== otherGroup.id && freshGroup.data.originalColor !== otherGroup.data.originalColor) {
+      if (freshGroup.id !== otherGroup.id) {
         // console.log('otherGroup', otherGroup);
         // console.log('otherGroupOuter', otherGroupOuter);
         // otherGroupOuter.fillColor = 'white';

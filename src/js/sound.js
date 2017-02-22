@@ -130,6 +130,7 @@ function animateNote(shape) {
   });
   if (!!item) {
     let group = item.parent;
+    group.data.animating = true;
     group.animate([
       {
         properties: {
@@ -162,6 +163,9 @@ function animateNote(shape) {
         settings: {
           duration: 125,
           easing: "easeInOut",
+          complete: function() {
+            this.data.animating = false;
+          }
         }
       },
     ]);

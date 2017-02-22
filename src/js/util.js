@@ -48,7 +48,7 @@ export function getNumGroups() {
 export function getFreshGroups() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.data && el.data.fresh === true && el.data.line === false
+    match: (el) => el.data && el.data.line === false && el.data.fresh === true
   });
 }
 
@@ -56,6 +56,11 @@ export function getAllPops() {
   return paper.project.getItems({
     match: (el) => el.data && el.data.pop === true
   });
+}
+
+export function clearGroupPops(group) {
+  const pops = getGroupPops(group);
+  pops.forEach((pop) => pop.remove());
 }
 
 export function getGroupPops(group) {
