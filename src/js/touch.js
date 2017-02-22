@@ -122,14 +122,14 @@ function singleTap(event) {
 
   if (hitResult) {
     let item = hitResult.item;
-    item.selected = !item.selected;
+    // item.selected = !item.selected;
     console.log(item);
   }
 }
 
 function doubleTap(event) {
   event.preventDefault();
-  console.log('doubletap');
+  // console.log('doubletap');
 
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
@@ -449,10 +449,10 @@ function panEnd(event) {
     group.data.line = true;
   }
 
-  console.log('enclosedLoops', enclosedLoops);
+  // console.log('enclosedLoops', enclosedLoops);
   enclosedLoops.forEach((loop) => {
-    console.log('loop before', loop);
-    console.log('shapeMask before', shapeMask);
+    // console.log('loop before', loop);
+    // console.log('shapeMask before', shapeMask);
     shapeMask.unite(loop);
     shapeMask.sendToBack();
     loop.name = 'loop';
@@ -463,8 +463,8 @@ function panEnd(event) {
     // loop.selected = true;
     // loop.sendToBack();
     group.addChild(loop);
-    console.log('loop after', loop);
-    console.log('shapeMask after', shapeMask);
+    // console.log('loop after', loop);
+    // console.log('shapeMask after', shapeMask);
     // loop.remove();
   });
 
@@ -473,7 +473,7 @@ function panEnd(event) {
   shapeMask.unite();
   let crossings = shapeMask.resolveCrossings();
   // console.log(shapeMask.getIntersections());
-  console.log('crossings', crossings);
+  // console.log('crossings', crossings);
   if (!!crossings && !!crossings.children && crossings.children.length > 0) {
     let maxArea = 0, maxChild = null;
     crossings.children.forEach((child) => {
@@ -490,7 +490,7 @@ function panEnd(event) {
   // shapeMask.simplify();
   // shapeMask.selected = true;
 
-  console.log('shapemask final', shapeMask);
+  // console.log('shapemask final', shapeMask);
   // let shapeMaskData = shapeMask.exportJSON();
   // shapeMask.remove();
   // shapeMask = new Path();
@@ -543,13 +543,10 @@ function panEnd(event) {
   group.addChild(shapeMask);
   shapeMask.sendToBack();
   // shapeMask.bringToFront();
-  console.log('group final', group);
-  console.log('group mask final', group._namedChildren.mask);
+  // console.log('group final', group);
+  // console.log('group mask final', group._namedChildren.mask);
 
-  // group = shape.cleanUpGroup(group)
-
-
-  shape.cleanUpGroup(group); // TODO
+  shape.cleanUpGroup(group);
 
   // console.log('group newmask final', group._namedChildren.newMask);
 
@@ -580,7 +577,7 @@ function panEnd(event) {
       $body.addClass(sound.playEnabledClass);
       ui.unditherButtonsByName(['play-stop', 'share']);
     }
-    console.log(groups.length, $body.hasClass(sound.playEnabledClass));
+    // console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
 
   if (config.runAnimations) {
@@ -627,7 +624,7 @@ function panEnd(event) {
     }
 
     if (tutName !== null) {
-      console.log(`${tutName} tutorial`);
+      // console.log(`${tutName} tutorial`);
       tutorial.addContextualTut(tutName);
       window.kan.tutorialCompletion[tutName] = true;
       group.data.tut = tutName;
@@ -702,6 +699,8 @@ function pinchStart(event) {
     window.kan.originalPosition = hitResult.position;
     window.kan.originalRotation = hitResult.data.rotation;
     window.kan.originalScale = hitResult.data.scale;
+
+    shape.destroyGroupPops(hitResult);
 
     hitResult.bringToFront();
 
@@ -875,6 +874,8 @@ function pinchEnd(event) {
 
   window.kan.pinching = false;
 
+  shape.updatePops();
+
   console.log('pinch done');
   // hammerCanvas.set({ enable: false });
   setTimeout(() => {
@@ -892,7 +893,7 @@ function pinchEnd(event) {
 }
 
 function pinchCancel(event) {
-  console.log(event);
+  // console.log(event);
   event.srcEvent.stopPropagation();
   console.log('pinchcancel');
   // event.preventDefault();

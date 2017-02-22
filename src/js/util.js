@@ -58,6 +58,23 @@ export function getAllPops() {
   });
 }
 
+export function getGroupPops(group) {
+  console.log('group pop group', group.id, group);
+  // const allPops = getAllPops();
+  // allPops.forEach((pop) => {
+  //   console.log('pop', pop.parent.id, pop);
+  // })
+  // return [];
+  if (group.children.length > 0) {
+    const groupPops = group.getItems({
+      match: (el) => el.data && el.data.pop === true
+    });
+    return groupPops;
+  } else {
+    return [];
+  }
+}
+
 export function getPopCandidates() {
   return paper.project.getItems({
     className: 'Group',

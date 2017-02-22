@@ -3,6 +3,7 @@ const tutorial = require('./tutorial');
 const overlays = require('./overlays');
 const util = require('./util');
 const color = require('./color');
+const shape = require('./shape');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -131,6 +132,7 @@ function undoPressed() {
           item.strokeColor = transparent;
         }
       case 'transform':
+        item.data.fresh = true;
         if (!!lastMove.position) {
           item.position = lastMove.position
           if (item.data && item.data.tut && item.data.tut.length > 0) {
@@ -145,6 +147,7 @@ function undoPressed() {
         if (!!lastMove.scale) {
           item.scale(lastMove.scale);
         }
+        shape.updatePops();
         break;
       default:
         // console.log('unknown case');
@@ -221,7 +224,7 @@ function initColorPalette() {
           .attr('ry', paletteSelectedColorSize / 2)
 
         window.kan.currentColor = $svg.find('rect').attr('fill');
-        console.log('%ccolor', 'color:red', color.getColorName(window.kan.currentColor));
+        // console.log('%ccolor', 'color:red', color.getColorName(window.kan.currentColor));
       }
     };
   });

@@ -31,7 +31,7 @@ export function openOverlay(overlayName) {
       if (overlayName === 'continue') {
         timing.preventInactivityTimeout();
       } else {
-        console.log('scheduling overlay', overlayName);
+        // console.log('scheduling overlay', overlayName);
         window.kan.scheduledOverlay = overlayName;
       }
       return;

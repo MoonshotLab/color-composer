@@ -15,6 +15,17 @@ function clearPops() {
   pops.forEach((pop) => pop.remove());
 }
 
+export function destroyGroupPops(group) {
+  console.log('destroying pops');
+  const groupPopsBefore = util.getGroupPops(group);
+  console.log('pops to be destroyed', groupPopsBefore);
+  if (groupPopsBefore.length > 0) {
+    groupPopsBefore.forEach((pop) => pop.remove());
+  }
+  const groupPopsAfter = util.getGroupPops(group);
+  console.log('group pops after', groupPopsAfter);
+}
+
 export function fillInGroupPopsById(groupId) {
   const group = paper.project.getItem({
     className: 'Group',
@@ -32,22 +43,22 @@ export function fillInGroupPopsById(groupId) {
 
 export function toggleFill(item) {
   const transparent = color.transparent;
-  console.log('hit');
+  // console.log('hit');
   let parent = item.parent;
 
-  console.log('hit item', item);
-  console.log('hit parent', parent);
+  // console.log('hit item', item);
+  // console.log('hit parent', parent);
 
   if (item.data.interior) {
-    console.log('interior');
+    // console.log('interior');
     item.data.transparent = !item.data.transparent;
 
     if (item.data.transparent) {
-      console.log('transparent');
+      // console.log('transparent');
       item.fillColor = transparent;
       item.strokeColor = transparent;
     } else {
-      console.log('not transparent');
+      // console.log('not transparent');
       item.fillColor = parent.data.color;
       item.strokeColor = parent.data.color;
     }
@@ -59,31 +70,26 @@ export function toggleFill(item) {
       transparent: item.data.transparent
     });
   } else {
-    console.log('not interior');
+    // console.log('not interior');
     // check if item is a pop, because then we'll fill the pop's parent
     if (!!item.data && item.data.pop === true) {
-      fillInGroupPopsById(item.data.popGroup);
+      if (!!item.parent) {
+        fillInGroupPopsById(item.parent.id);
+      }
     }
   }
 }
 
 export function cleanUpGroup(group) {
-  const acceptableNames = ['mask', 'outer', 'shapePath', 'loop'];
-  console.log('group before', group);
-  console.log('----------------------------');
+  console.log('cleaning up group');
+  const acceptableNames = ['mask', 'outer', 'shapePath', 'loop', 'pop'];
+
   group.children.forEach((groupChild) => {
-    console.log(groupChild.name, groupChild);
-    if (groupChild.name === null || !acceptableNames.includes(groupChild.name)) {
+    if (groupChild.name === null || !acceptableNames.includes(groupChild.name) || !groupChild.length > 0) {
       groupChild.remove();
-    } else {
-      console.log('child can stay');
     }
   });
-  console.log('group after', group);
-  console.log('----------------------------');
-  // let groupClone = group.clone();
-  // console.log(groupClone);
-  // return groupClone;
+
   return group;
 }
 
@@ -104,13 +110,13 @@ export function updatePops() {
     // freshOuter.visible = true;
     // freshOuter.fillColor = 'black';
     // freshOuter.selected = true;
-    console.log('freshOuter', freshOuter);
+    // console.log('freshOuter', freshOuter);
     // freshOuter.selected = true;
     popCandidates.forEach((otherGroup, j) => {
       const otherGroupOuter = otherGroup._namedChildren.mask[0];
       if (freshGroup.id !== otherGroup.id && freshGroup.data.originalColor !== otherGroup.data.originalColor) {
-        console.log('otherGroup', otherGroup);
-        console.log('otherGroupOuter', otherGroupOuter);
+        // console.log('otherGroup', otherGroup);
+        // console.log('otherGroupOuter', otherGroupOuter);
         // otherGroupOuter.fillColor = 'white';
         otherGroupOuter.bringToFront();
         let thisPop = freshOuter.intersect(otherGroupOuter);
@@ -120,12 +126,17 @@ export function updatePops() {
           thisPop.fillColor = popColor;
           thisPop.strokeColor = popColor;
           thisPop.data.pop = true;
+          thisPop.name = 'pop';
           thisPop.data.popGroup = freshGroup.id;
           thisPop.visible = true;
           thisPop.closed = true;
           thisPop.bringToFront();
-          console.log('thisPop', thisPop);
+          freshGroup.addChild(thisPop);
+        } else {
+          console.log('no pop');
         }
+
+        cleanUpGroup(freshGroup);
 
         // figure out if this pop intersects any other pops
         // allPops.forEach((otherPop, k) => {
@@ -295,14 +306,14 @@ export function getOutlineGroup(truedShape) {
 export function getTruedShape(path) {
   let pathClone = path.clone();
   pathClone.visible = false;
-  console.log('pathClone', pathClone);
+  // console.log('pathClone', pathClone);
   let completedPath = getCompletedPath(pathClone);
-  console.log('completedPath', completedPath);
+  // console.log('completedPath', completedPath);
   // completedPath.reduce();
 
   // true the path!
   let truedPath = completedPath;
-  console.log('truedPath', truedPath);
+  // console.log('truedPath', truedPath);
 
   truedPath.strokeWidth = pathClone.strokeWidth;
 
@@ -378,7 +389,7 @@ export function getShapePrediction(path) {
     prediction.score = shapePrediction.score;
   }
 
-  console.log(prediction);
+  console.log('shape prediction', prediction);
 
   return prediction;
 }
