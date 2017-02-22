@@ -44,7 +44,7 @@ export function resetWindow() {
   };
 }
 
-$(document).ready(function() {
+$(window).on('load', function() {
   function run() {
     resetWindow();
     util.setSha();
