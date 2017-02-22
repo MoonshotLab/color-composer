@@ -4,6 +4,7 @@ const ui = require('./ui');
 const shape = require('./shape');
 const color = require('./color');
 const overlays = require('./overlays');
+const tutorial = require('./tutorial');
 
 const sounds = initShapeSounds();
 
@@ -121,7 +122,7 @@ export function quantizePosition(position, viewWidth) {
   return returnPosition = Math.floor(position / smallestInterval) * smallestInterval;
 }
 
-function animateNote(shape) {
+function animateShapePlay(shape) {
   const item = paper.project.getItem({
     className: 'Path',
     match: function(el) {
@@ -131,40 +132,57 @@ function animateNote(shape) {
   if (!!item) {
     let group = item.parent;
     group.data.animating = true;
+    const totalDuration = measureLength / 2;
     group.animate([
       {
         properties: {
-          scale: 1.15,
-          translate: new paper.Point(20, 0),
-          rotate: -10,
+          scale: 1,
+          opacity: 1,
+          // position: {
+          //   y: "+20"
+          // },
+          rotate: -5,
         },
         settings: {
-          duration: 250,
+          duration: totalDuration / 4,
           easing: "easeInOut",
+          // complete: function() {
+          //   console.log('animation step 1')
+          // },
         }
       },
       {
         properties: {
-          scale: 1.25,
-          translate: new paper.Point(10, 0),
-          rotate: 10,
+          scale: 1.15,
+          opacity: 0.8,
+          // position: {
+          //   y: "+10"
+          // },
+          rotate: 5,
         },
         settings: {
-          duration: 125,
+          duration: totalDuration / 2,
           easing: "easeInOut",
+          // complete: function() {
+          //   console.log('animation step 2')
+          // },
         }
       },
       {
         properties: {
           scale: 1,
-          translate: new paper.Point(0, 0),
+          opacity: 1,
+          // position: {
+          //   y: "-30"
+          // },
           rotate: 0,
         },
         settings: {
-          duration: 125,
+          duration: totalDuration / 4,
           easing: "easeInOut",
           complete: function() {
             this.data.animating = false;
+            // console.log('animation step 3')
           }
         }
       },
@@ -209,6 +227,8 @@ export function clearSoundTimeouts() {
 
 export function startComposition(composition, loop = false) {
   stopComposition();
+  tutorial.hideContextualTuts();
+
 
   clearTimeout(window.kan.playPromptTimeout);
 
@@ -234,7 +254,7 @@ export function startComposition(composition, loop = false) {
           // console.log('not null', shape);
         }
         shape.sound.play(shape.spriteName);
-        animateNote(shape);
+        animateShapePlay(shape);
       }, shape.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
     });
@@ -254,7 +274,7 @@ export function startComposition(composition, loop = false) {
         }
 
         shape.sound.play(shape.spriteName);
-        animateNote(shape);
+        animateShapePlay(shape);
       }, shape.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
     });
