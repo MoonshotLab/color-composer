@@ -205,8 +205,7 @@ export function clearSoundTimeouts() {
 
 export function startComposition(composition, loop = false) {
   stopComposition();
-
-  console.log($body);
+  clearTimeout(window.kan.playPromptTimeout);
 
   let iterations = 0;
   playCompositionFirstTime();
@@ -266,7 +265,6 @@ export function startComposition(composition, loop = false) {
         playCompositionOnce();
         setTimeout(repeatComposition, compositionLength);
       } else {
-        console.log('stoppppping');
         stopPlaying();
         overlays.openOverlay('share-prompt');
       }
