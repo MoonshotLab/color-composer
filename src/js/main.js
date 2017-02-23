@@ -41,6 +41,7 @@ export function resetWindow() {
     refreshCheckInterval: null,
     sha: null,
     scheduledOverlay: null,
+    continueCountdownInterval: null
   };
 }
 
