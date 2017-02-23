@@ -87,11 +87,25 @@ function openSharePromptOverlay() {
   $body.addClass('share-prompt-active');
 }
 
+export function resetContinueCountdown() {
+  $('.overlay.continue .countdown-num').html(parseInt(timing.continueInactivityDelay / 1000));
+  clearInterval(window.kan.continueCountdownInterval);
+}
+
 function openContinueOverlay() {
   $body.addClass('continue-active');
 
+  resetContinueCountdown();
   clearTimeout(window.kan.inactivityTimeout);
   clearTimeout(window.kan.playPromptTimeout);
+
+  window.kan.continueCountdownInterval = setInterval(() => {
+    let $countdownNumWrap = $('.overlay.continue .countdown-num');
+    let count = parseInt($countdownNumWrap.html());
+    if (count > 1) {
+      $countdownNumWrap.html(count - 1);
+    }
+  }, 1000);
 
   window.kan.inactivityTimeout = setTimeout(() => {
     video.enterTutorialMode();

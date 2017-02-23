@@ -18,6 +18,7 @@ export function enterTutorialMode() {
   playVideo();
   $body.addClass(videoPlayingClass);
   clearTimeout(window.kan.inactivityTimeout);
+  clearInterval(window.kan.continueCountdownInterval);
   $body.off(tapEvent, timing.preventInactivityTimeout);
   $body.on(tapEvent, exitTutorialMode);
   main.resetWindow();
@@ -45,6 +46,7 @@ export function exitTutorialMode() {
   $body.on(tapEvent, timing.preventInactivityTimeout);
   $body.removeClass(videoPlayingClass);
   clearTimeout(window.kan.inactivityTimeout);
+  clearInterval(window.kan.continueCountdownInterval);
 
   overlays.openOverlay('intro');
 
