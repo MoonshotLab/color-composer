@@ -311,7 +311,6 @@ export function getTruedShape(path) {
   pathClone.visible = false;
   // console.log('pathClone', pathClone);
   let completedPath = getCompletedPath(pathClone);
-  // console.log('completedPath', completedPath);
   // completedPath.reduce();
 
   // true the path!
@@ -362,6 +361,10 @@ export function getCompletedPath(path) {
         let trimmedPath = getTrimmedPath(extendedPath);
         extendedPath.remove();
         return trimmedPath;
+      }
+
+      if (!!extendedPath && extendedPath.length > 0) {
+        extendedPath.remove();
       }
 
       pathClone.visible = true;
@@ -543,6 +546,20 @@ export function getBruteExtendedPath(path) {
   if (firstPoint.getDistance(lastPoint) < thresholdDist) {
     extendedPath.insert(0, lastPoint);
     extendedPath.add(firstPoint);
+    extendedPath.closed = true;
+    extendedPath.unite();
+    let crossings = extendedPath.resolveCrossings();
+    if (!!crossings && !!crossings.children && crossings.children.length > 0) {
+      let maxArea = 0, maxChild = null;
+      crossings.children.forEach((child) => {
+        if (child.area > maxArea) {
+          maxChild = child;
+          maxArea = child.area;
+        }
+      });
+
+      extendedPath = maxChild;
+    }
   }
 
 
@@ -558,6 +575,13 @@ export function getTrimmedPath(path) {
   let thresholdDist = thresholdDistMultiplier * pathClone.length;
 
   let intersections = pathClone.getIntersections();
+  intersections.forEach((intersection, i) => {
+    if (intersection.offset === 0) {
+      intersections.splice(i, 1);
+    }
+  });
+
+  console.log('intersections', intersections);
 
   if (intersections.length == 1) {
     for (let i = 0; i < intersections.length; i++) {
@@ -636,7 +660,7 @@ export function getTrimmedPath(path) {
     // no close intersection were found so nothing can be trimmed
     return pathClone;
   } else {
-    return pathClone;
+    return path;
   }
 }
 

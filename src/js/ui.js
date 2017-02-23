@@ -1,3 +1,5 @@
+const config = require('./../../config');
+
 const sound = require('./sound');
 const tutorial = require('./tutorial');
 const overlays = require('./overlays');
