@@ -97,3 +97,21 @@ export function setSha() {
       console.error('error getting hash:', e);
     });
 }
+
+// http://blog.soulserv.net/understanding-object-cloning-in-javascript-part-i/
+export function shallowCopy( original ) {
+    // First create an empty object with
+    // same prototype of our original source
+    var clone = Object.create( Object.getPrototypeOf( original ) ) ;
+
+    var i, keys = Object.getOwnPropertyNames( original ) ;
+
+    for ( i = 0 ; i < keys.length ; i ++ ) {
+      // copy each property into the clone
+      Object.defineProperty( clone , keys[ i ] ,
+        Object.getOwnPropertyDescriptor( original , keys[ i ] )
+      ) ;
+    }
+
+    return clone ;
+}
