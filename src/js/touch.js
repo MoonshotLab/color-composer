@@ -333,7 +333,6 @@ function panEnd(event) {
   shapePath.add(point);
   outerPath.visible = false;
 
-  console.log('shapepath length', shapePath.length);
   if (shapePath.length < minShapeSize || shapePath.length > maxShapeLength) {
     console.log('path is too short or too long');
     shapePath.remove();
