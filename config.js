@@ -1,5 +1,5 @@
 exports.runAnimations = false;
-exports.pop = false;
+exports.pop = true;
 exports.canvasId = 'canvas';
 
 exports.palette = {
