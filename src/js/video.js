@@ -4,6 +4,7 @@ const main = require('./main');
 const overlays = require('./overlays');
 const timing = require('./timing');
 const ui = require('./ui');
+const sound = require('./sound');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -39,20 +40,27 @@ export function enterTutorialMode() {
 
 export function exitTutorialMode() {
   console.log('exiting tutorial mode');
-  clearInterval(window.kan.refreshCheckInterval);
+  sound.reinitShapeSounds()
+    .then(() => {
+      clearInterval(window.kan.refreshCheckInterval);
+      Howler.mute(false);
+      pauseVideo();
+      $body.off(tapEvent, exitTutorialMode);
+      $body.on(tapEvent, timing.preventInactivityTimeout);
+      $body.removeClass(videoPlayingClass);
+      clearTimeout(window.kan.inactivityTimeout);
+      clearInterval(window.kan.continueCountdownInterval);
 
-  pauseVideo();
-  $body.off(tapEvent, exitTutorialMode);
-  $body.on(tapEvent, timing.preventInactivityTimeout);
-  $body.removeClass(videoPlayingClass);
-  clearTimeout(window.kan.inactivityTimeout);
-  clearInterval(window.kan.continueCountdownInterval);
+      overlays.openOverlay('intro');
 
-  overlays.openOverlay('intro');
-
-  window.kan.inactivityTimeout = setTimeout(() => {
-    overlays.openOverlay('continue');
-  }, timing.continueInactivityDelay);
+      window.kan.inactivityTimeout = setTimeout(() => {
+        overlays.openOverlay('continue');
+      }, timing.continueInactivityDelay);
+    })
+  .fail((e) => {
+    console.error('error initting shape sounds:', e);
+    location.reload();
+  });
 }
 
 export function pauseVideo() {

@@ -5,8 +5,7 @@ const shape = require('./shape');
 const color = require('./color');
 const overlays = require('./overlays');
 const tutorial = require('./tutorial');
-
-const sounds = initShapeSounds();
+const util = require('./util');
 
 const $body = $('body');
 
@@ -19,9 +18,20 @@ export const compositionLength = measureLength * measures;
 export const playingClass = 'playing';
 export const playEnabledClass = 'play-enabled';
 
+export function init() {
+  return asyncInitShapeSounds();
+}
+
+export function reinitShapeSounds() {
+  return asyncInitShapeSounds();
+}
+
 export function getShapeSoundObj(path) {
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
+  const shapeSounds = window.kan.shapeSounds || initShapeSounds();
+  // alert(JSON.stringify(window.kan.shapeSounds));
+  // console.log(JSON.stringify(window.kan.shapeSounds));
 
   let shapePrediction = shape.getShapePrediction(path);
   let colorName = color.getPathColorName(path);
@@ -31,11 +41,12 @@ export function getShapeSoundObj(path) {
   const quantizedSoundDuration = quantizeLength(path.bounds.width / viewWidth * compositionLength); // ms
 
   let soundObj = {};
-  soundObj.sound = sounds[shapePrediction.pattern];
+  soundObj.sound = shapeSounds[shapePrediction.pattern];
   soundObj.startTime = quantizedSoundStartTime;
   soundObj.duration = quantizedSoundDuration;
   soundObj.pathId = path.id;
   soundObj.spriteName = colorName;
+
   if (!!path.parent && path.parent.className === 'Group') {
     soundObj.groupId = path.parent.id;
   }
@@ -61,7 +72,6 @@ export function startPlaying() {
   } else {
     window.kan.playing = false;
     $body.removeClass(playingClass);
-    // console.log('play is not enabled');
   }
 }
 
@@ -76,23 +86,38 @@ export function stopPlaying(mute = false) {
   stopComposition();
 }
 
-export function initShapeSounds() {
+function asyncGetShapeSoundFromShapeName(shapeName) {
+  const shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
+  return $.getJSON(shapeSoundJSONPath).then((resp) => {
+    const shapeSoundData = formatShapeSoundData(shapeName, resp);
+    const sound = new Howl(shapeSoundData);
+    return {
+      shapeName: shapeName,
+      sound: sound
+    }
+  });
+}
+
+export function asyncInitShapeSounds() {
   let returnSounds = {};
   const extensions = ['ogg', 'm4a', 'mp3', 'ac3'];
 
   const shapeNames = shape.shapeNames;
+  let promises = [];
   Base.each(shapeNames, (shapeName) => {
-    let shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
-
-    $.getJSON(shapeSoundJSONPath, (resp) => {
-      let shapeSoundData = formatShapeSoundData(shapeName, resp);
-      let sound = new Howl(shapeSoundData);
-      returnSounds[shapeName] = sound;
-    });
+    promises.push(asyncGetShapeSoundFromShapeName(shapeName));
   });
 
-  return returnSounds;
+  return $.when.apply($, promises).done(function() {
+    let returnSounds = {};
+    for (let i = 0; i < arguments.length; i++) {
+      let arg = arguments[i];
+      returnSounds[arg.shapeName] = arg.sound;
+    }
 
+    window.kan.shapeSounds = returnSounds;
+    return returnSounds;
+  });
 }
 
 export function formatShapeSoundData(shapeName, data) {
@@ -100,6 +125,7 @@ export function formatShapeSoundData(shapeName, data) {
 
   returnData.src = data.urls.map((url) => `./audio/shapes/${shapeName}/${url}`);
   returnData.sprite = data.sprite;
+  returnData.html5 = true;
   returnData.loop = false;
 
   return returnData;
@@ -217,7 +243,6 @@ export function startComposition(composition, loop = false) {
   stopComposition();
   tutorial.hideContextualTuts();
 
-
   clearTimeout(window.kan.playPromptTimeout);
 
   let iterations = 0;
@@ -231,16 +256,16 @@ export function startComposition(composition, loop = false) {
     Base.each(trimmedCompositionObj.composition, (shape, i) => {
       let soundTimeout = setTimeout(() => {
         if (!window.kan.playing) {
-          console.log('not playing, returing');
+          console.log('not playing, returning');
           return;
         }
 
         if (shape.spriteName === null) {
           console.log('%cshape is null', 'color:red', shape);
           return;
-        } else {
-          // console.log('not null', shape);
         }
+
+        console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
         shape.sound.play(shape.spriteName);
         animateShapePlay(shape);
       }, shape.startTime);
@@ -261,6 +286,7 @@ export function startComposition(composition, loop = false) {
           return;
         }
 
+        console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
         shape.sound.play(shape.spriteName);
         animateShapePlay(shape);
       }, shape.startTime);
@@ -297,8 +323,8 @@ export function getTrimmedCompositionObj(composition) {
   let startTime = getCompositionStartTime(composition);
 
   composition.forEach((sound) => {
-    let modifiedSound = sound;
-    modifiedSound.startTime -= startTime;
+    let modifiedSound = util.shallowCopy(sound);
+    modifiedSound.startTime = sound.startTime - startTime;
     if (modifiedSound.startTime < 0) modifiedSound.startTime = 0; // this shouldn't happen
     trimmedComposition.push(modifiedSound);
   });

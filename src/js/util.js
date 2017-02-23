@@ -65,19 +65,24 @@ export function clearGroupPops(group) {
 
 export function getGroupPops(group) {
   console.log('group pop group', group.id, group);
-  // const allPops = getAllPops();
-  // allPops.forEach((pop) => {
-  //   console.log('pop', pop.parent.id, pop);
-  // })
-  // return [];
+  let returnPops = [];
+
   if (group.children.length > 0) {
     const groupPops = group.getItems({
       match: (el) => el.data && el.data.pop === true
     });
-    return groupPops;
-  } else {
-    return [];
+    returnPops = returnPops.concat(groupPops);
   }
+
+  const intersectingPops = paper.project.getItems({
+    match: (el) => el.data && el.data.pop === true && el.data.intersectingGroup === group.id
+  });
+
+  if (intersectingPops.length > 0) {
+    returnPops = returnPops.concat(intersectingPops);
+  }
+
+  return returnPops;
 }
 
 export function getPopCandidates() {
@@ -96,4 +101,22 @@ export function setSha() {
     .fail(function(e) {
       console.error('error getting hash:', e);
     });
+}
+
+// http://blog.soulserv.net/understanding-object-cloning-in-javascript-part-i/
+export function shallowCopy( original ) {
+    // First create an empty object with
+    // same prototype of our original source
+    var clone = Object.create( Object.getPrototypeOf( original ) ) ;
+
+    var i, keys = Object.getOwnPropertyNames( original ) ;
+
+    for ( i = 0 ; i < keys.length ; i ++ ) {
+      // copy each property into the clone
+      Object.defineProperty( clone , keys[ i ] ,
+        Object.getOwnPropertyDescriptor( original , keys[ i ] )
+      ) ;
+    }
+
+    return clone ;
 }

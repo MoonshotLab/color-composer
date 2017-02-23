@@ -1,5 +1,7 @@
 const ShapeDetector = require('./lib/shape-detector');
 
+const config = require('./../../config');
+
 const util = require('./util');
 const color = require('./color');
 
@@ -131,6 +133,7 @@ export function updatePops() {
           thisPop.data.pop = true;
           thisPop.name = 'pop';
           thisPop.data.popGroup = freshGroup.id;
+          thisPop.data.intersectingGroup = otherGroup.id;
           thisPop.visible = true;
           thisPop.closed = true;
           thisPop.bringToFront();
@@ -366,18 +369,19 @@ export function getCompletedPath(path) {
       return trimmedPath;
     } else {
       // extended path does not intersect, return the original path
-      extendedPath.remove();
-      extendedPath = getBruteExtendedPath(pathClone);
-      let intersections = extendedPath.getIntersections();
+      extendedPath.replaceWith(getBruteExtendedPath(pathClone));
+      if (extendedPath !== null) {
+        let intersections = extendedPath.getIntersections();
 
-      if (intersections.length > 0) {
-        let trimmedPath = getTrimmedPath(extendedPath);
-        extendedPath.remove();
-        return trimmedPath;
-      }
+        if (intersections.length > 0) {
+          let trimmedPath = getTrimmedPath(extendedPath);
+          extendedPath.remove();
+          return trimmedPath;
+        }
 
-      if (!!extendedPath && extendedPath.length > 0) {
-        extendedPath.remove();
+        if (!!extendedPath && extendedPath.length > 0) {
+          extendedPath.remove();
+        }
       }
 
       pathClone.visible = true;
@@ -574,7 +578,6 @@ export function getBruteExtendedPath(path) {
       extendedPath = maxChild;
     }
   }
-
 
   return extendedPath;
 }

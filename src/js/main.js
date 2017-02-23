@@ -4,6 +4,7 @@ const overlays = require('./overlays');
 const video = require('./video');
 const timing = require('./timing');
 const util = require('./util');
+const sound = require('./sound');
 
 export function resetWindow() {
   window.kan = {
@@ -41,7 +42,8 @@ export function resetWindow() {
     refreshCheckInterval: null,
     sha: null,
     scheduledOverlay: null,
-    continueCountdownInterval: null
+    continueCountdownInterval: null,
+    shapeSounds: null,
   };
 }
 
@@ -50,9 +52,17 @@ $(window).on('load', function() {
     resetWindow();
     util.setSha();
     ui.init();
-    touch.init();
     overlays.init();
     timing.init();
+    sound.init()
+      .then(() => {
+        // sound.init() is async because it loads in the sound files
+        touch.init();
+      })
+      .fail((e) => {
+        console.error('error initting shape sounds:', e);
+        location.reload();
+      })
   }
 
   try {

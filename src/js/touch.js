@@ -589,6 +589,7 @@ function panCancel(event) {
 
 function pinchStart(event) {
   console.log('pinchstart');
+  timing.preventInactivityTimeout();
   tutorial.hideContextualTuts();
   window.kan.interacting = true;
   window.kan.pinching = true;
@@ -617,6 +618,7 @@ function pinchStart(event) {
     window.kan.originalPosition = hitResult.position;
     window.kan.originalRotation = hitResult.data.rotation;
     window.kan.originalScale = hitResult.data.scale;
+    hitResult.data.thrown = false;
 
     if (config.pop === true) {
       shape.destroyGroupPops(hitResult);
@@ -767,7 +769,10 @@ function pinchEnd(event) {
       // dispose of group offscreen
       if (config.pop === true) {
         shape.destroyGroupPops(pinchedGroup);
+        pinchedGroup.data.fresh = false;
       }
+
+      pinchedGroup.data.thrown = true;
       throwPinchedGroup();
     }
 
@@ -839,7 +844,7 @@ function throwPinchedGroup() {
   const viewHeight = paper.view.viewSize.height;
   let pinchedGroup = window.kan.pinchedGroup;
 
-  if (pinchedGroup === null) return;
+  if (pinchedGroup === null || (pinchedGroup.data && pinchedGroup.data.thrown === false)) return;
   if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
       pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
       pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||
