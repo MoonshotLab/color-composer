@@ -767,6 +767,7 @@ function pinchEnd(event) {
       // dispose of group offscreen
       if (config.pop === true) {
         shape.destroyGroupPops(pinchedGroup);
+        pinchedGroup.data.fresh = false;
       }
       throwPinchedGroup();
     }
