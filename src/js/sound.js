@@ -125,6 +125,7 @@ export function formatShapeSoundData(shapeName, data) {
 
   returnData.src = data.urls.map((url) => `./audio/shapes/${shapeName}/${url}`);
   returnData.sprite = data.sprite;
+  returnData.html5 = true;
   returnData.loop = false;
 
   return returnData;
