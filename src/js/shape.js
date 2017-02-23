@@ -133,6 +133,7 @@ export function updatePops() {
           thisPop.data.pop = true;
           thisPop.name = 'pop';
           thisPop.data.popGroup = freshGroup.id;
+          thisPop.data.intersectingGroup = otherGroup.id;
           thisPop.visible = true;
           thisPop.closed = true;
           thisPop.bringToFront();

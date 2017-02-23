@@ -65,19 +65,24 @@ export function clearGroupPops(group) {
 
 export function getGroupPops(group) {
   console.log('group pop group', group.id, group);
-  // const allPops = getAllPops();
-  // allPops.forEach((pop) => {
-  //   console.log('pop', pop.parent.id, pop);
-  // })
-  // return [];
+  let returnPops = [];
+
   if (group.children.length > 0) {
     const groupPops = group.getItems({
       match: (el) => el.data && el.data.pop === true
     });
-    return groupPops;
-  } else {
-    return [];
+    returnPops = returnPops.concat(groupPops);
   }
+
+  const intersectingPops = paper.project.getItems({
+    match: (el) => el.data && el.data.pop === true && el.data.intersectingGroup === group.id
+  });
+
+  if (intersectingPops.length > 0) {
+    returnPops = returnPops.concat(intersectingPops);
+  }
+
+  return returnPops;
 }
 
 export function getPopCandidates() {
