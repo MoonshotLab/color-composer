@@ -41,10 +41,11 @@ export function resetWindow() {
     refreshCheckInterval: null,
     sha: null,
     scheduledOverlay: null,
+    continueCountdownInterval: null
   };
 }
 
-$(document).ready(function() {
+$(window).on('load', function() {
   function run() {
     resetWindow();
     util.setSha();

@@ -10,8 +10,166 @@ export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
 export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 
+function clearPops() {
+  const pops = util.getAllPops();
+  pops.forEach((pop) => pop.remove());
+}
+
+export function destroyGroupPops(group) {
+  console.log('destroying pops');
+  const groupPopsBefore = util.getGroupPops(group);
+  console.log('pops to be destroyed', groupPopsBefore);
+  if (groupPopsBefore.length > 0) {
+    groupPopsBefore.forEach((pop) => pop.remove());
+  }
+  const groupPopsAfter = util.getGroupPops(group);
+  console.log('group pops after', groupPopsAfter);
+}
+
+export function fillInGroupPopsById(groupId) {
+  const group = paper.project.getItem({
+    className: 'Group',
+    match: (el) => el.id === groupId
+  });
+
+  if (!!group && group.children.length > 0) {
+    group.children.forEach((groupChild) => {
+      if (groupChild.name === 'loop') {
+        toggleFill(groupChild);
+      }
+    });
+  }
+}
+
+export function toggleFill(item) {
+  const transparent = color.transparent;
+  // console.log('hit');
+  let parent = item.parent;
+
+  // console.log('hit item', item);
+  // console.log('hit parent', parent);
+
+  if (item.data.interior) {
+    // console.log('interior');
+    item.data.transparent = !item.data.transparent;
+
+    if (item.data.transparent) {
+      // console.log('transparent');
+      item.fillColor = transparent;
+      item.strokeColor = transparent;
+    } else {
+      // console.log('not transparent');
+      item.fillColor = parent.data.color;
+      item.strokeColor = parent.data.color;
+    }
+
+    window.kan.moves.push({
+      type: 'fillChange',
+      id: item.id,
+      fill: parent.data.color,
+      transparent: item.data.transparent
+    });
+  } else {
+    // console.log('not interior');
+    // check if item is a pop, because then we'll fill the pop's parent
+    if (!!item.data && item.data.pop === true) {
+      if (!!item.parent) {
+        if (config.pop === true) {
+          fillInGroupPopsById(item.parent.id);
+        }
+      }
+    }
+  }
+}
+
+export function cleanUpGroup(group) {
+  console.log('cleaning up group');
+  const acceptableNames = ['mask', 'outer', 'shapePath', 'loop', 'pop'];
+
+  group.children.forEach((groupChild) => {
+    if (groupChild.name === null || !acceptableNames.includes(groupChild.name) || !groupChild.length > 0) {
+      groupChild.remove();
+    }
+  });
+
+  return group;
+}
+
+export function updatePops() {
+  const freshGroups = util.getFreshGroups();
+  const popCandidates = util.getPopCandidates();
+  const allPops = util.getAllPops();
+  popCandidates.reverse();
+  console.log('freshGroups', freshGroups);
+  console.log('popCandidates', popCandidates);
+  // clearPops();
+
+  freshGroups.forEach((freshGroup, i) => {
+    // if (i >= 4) return;
+    console.log('freshGroup', freshGroup);
+
+    const freshOuter = freshGroup._namedChildren.mask[0];
+    freshOuter.bringToFront();
+    // freshOuter.visible = true;
+    // freshOuter.fillColor = 'black';
+    // freshOuter.selected = true;
+    // console.log('freshOuter', freshOuter);
+    // freshOuter.selected = true;
+    popCandidates.forEach((otherGroup, j) => {
+      const otherGroupOuter = otherGroup._namedChildren.mask[0];
+      if (freshGroup.id !== otherGroup.id) {
+        // console.log('otherGroup', otherGroup);
+        // console.log('otherGroupOuter', otherGroupOuter);
+        // otherGroupOuter.fillColor = 'white';
+        otherGroupOuter.bringToFront();
+        let thisPop = freshOuter.intersect(otherGroupOuter);
+        if (!!thisPop && thisPop.length > 0) {
+          // const popColor = color.getIndexedPopColor(i + j);
+          const popColor = color.getRandomPop();
+          thisPop.fillColor = popColor;
+          thisPop.strokeColor = popColor;
+          thisPop.data.pop = true;
+          thisPop.name = 'pop';
+          thisPop.data.popGroup = freshGroup.id;
+          thisPop.visible = true;
+          thisPop.closed = true;
+          thisPop.bringToFront();
+          freshGroup.addChild(thisPop);
+        } else {
+          console.log('no pop');
+        }
+
+        cleanUpGroup(freshGroup);
+
+        // figure out if this pop intersects any other pops
+        // allPops.forEach((otherPop, k) => {
+        //   console.log('checking other pop', otherPop);
+        //   if (thisPop.id !== otherPop.id && thisPop.intersects(otherPop)) {
+        //     let popIntersection = thisPop.getIntersections(otherPop);
+        //     if (!!popIntersection && popIntersection.length > 0) {
+        //       popIntersection = new Path([popIntersection])
+        //       console.log('popIntersection', popIntersection);
+        //       // const popColor = color.getIndexedPopColor(i + j + k);
+        //       const popColor = color.getRandomPop();
+        //       popIntersection.data.pop = true;
+        //       popIntersection.fillColor = popColor
+        //       popIntersection.strokeColor = popColor;
+        //       popIntersection.visible = true;
+        //       popIntersection.closed = true;
+        //       popIntersection.bringToFront();
+        //     }
+        //   }
+        // });
+
+      }
+    });
+
+    freshGroup.data.fresh = false;
+  });
+}
+
 export function getOutlineGroup(truedShape) {
-  console.log('truedShape', truedShape);
+  // console.log('truedShape', truedShape);
   let outerPath = new Path();
   outerPath.name = 'outer';
   outerPath.visible = false;
@@ -164,10 +322,13 @@ export function getOutlineGroup(truedShape) {
 export function getTruedShape(path) {
   let pathClone = path.clone();
   pathClone.visible = false;
+  // console.log('pathClone', pathClone);
   let completedPath = getCompletedPath(pathClone);
+  // completedPath.reduce();
 
   // true the path!
   let truedPath = completedPath;
+  // console.log('truedPath', truedPath);
 
   truedPath.strokeWidth = pathClone.strokeWidth;
 
@@ -215,6 +376,11 @@ export function getCompletedPath(path) {
         return trimmedPath;
       }
 
+      if (!!extendedPath && extendedPath.length > 0) {
+        extendedPath.remove();
+      }
+
+      pathClone.visible = true;
       return pathClone;
     }
   }
@@ -242,7 +408,7 @@ export function getShapePrediction(path) {
     prediction.score = shapePrediction.score;
   }
 
-  console.log(prediction);
+  console.log('shape prediction', prediction);
 
   return prediction;
 }
@@ -309,7 +475,7 @@ export function findInteriorCurves(path) {
 
   let interiorCurves = [];
 
-  let pathClone = path.clone({ insert: false });
+  let pathClone = path.clone();
   let intersections = pathClone.getIntersections();
 
   if (intersections.length > 0) {
@@ -319,7 +485,7 @@ export function findInteriorCurves(path) {
     if (dividedPath.className === 'CompoundPath') {
       Base.each(dividedPath.children, (child, i) => {
         if (child.length > 0 && child.closed) {
-          let enclosedLoop = child.clone({ insert: false });
+          let enclosedLoop = child.clone();
           if (pathClone.closed) {
             enclosedLoop.fillColor = pathClone.strokeColor;
             enclosedLoop.data.interior = true;
@@ -336,7 +502,7 @@ export function findInteriorCurves(path) {
       })
     } else {
       if (pathClone.closed) {
-        let enclosedLoop = pathClone.clone({ insert: false });
+        let enclosedLoop = pathClone.clone();
         enclosedLoop.visible = true;
         enclosedLoop.fillColor = pathClone.strokeColor;
         enclosedLoop.data.interior = true;
@@ -346,7 +512,7 @@ export function findInteriorCurves(path) {
     }
   } else {
     if (pathClone.closed) {
-      let enclosedLoop = pathClone.clone({ insert: false });
+      let enclosedLoop = pathClone.clone();
       enclosedLoop.visible = true;
       enclosedLoop.fillColor = pathClone.strokeColor;
       enclosedLoop.data.interior = true;
@@ -377,6 +543,8 @@ export function getExtendedPath(path, bruteForce = false) {
   const extendedEndPoint = new Point(lastSegment.point.x + (Math.cos(endAngle) * thresholdDist / 2), lastSegment.point.y + (Math.sin(endAngle) * thresholdDist / 2));
   extendedPath.add(extendedEndPoint);
 
+  // extendedPath.visible = true;
+
   return extendedPath;
 }
 
@@ -391,6 +559,20 @@ export function getBruteExtendedPath(path) {
   if (firstPoint.getDistance(lastPoint) < thresholdDist) {
     extendedPath.insert(0, lastPoint);
     extendedPath.add(firstPoint);
+    extendedPath.closed = true;
+    extendedPath.unite();
+    let crossings = extendedPath.resolveCrossings();
+    if (!!crossings && !!crossings.children && crossings.children.length > 0) {
+      let maxArea = 0, maxChild = null;
+      crossings.children.forEach((child) => {
+        if (child.area > maxArea) {
+          maxChild = child;
+          maxArea = child.area;
+        }
+      });
+
+      extendedPath = maxChild;
+    }
   }
 
 
@@ -406,6 +588,13 @@ export function getTrimmedPath(path) {
   let thresholdDist = thresholdDistMultiplier * pathClone.length;
 
   let intersections = pathClone.getIntersections();
+  intersections.forEach((intersection, i) => {
+    if (intersection.offset === 0) {
+      intersections.splice(i, 1);
+    }
+  });
+
+  console.log('intersections', intersections);
 
   if (intersections.length == 1) {
     for (let i = 0; i < intersections.length; i++) {
@@ -413,7 +602,7 @@ export function getTrimmedPath(path) {
 
       // if the average of the distance between the first and last points and the intersection point is within the threshold, trim
       if (firstPoint.getDistance(intersectionPoint) + lastPoint.getDistance(intersectionPoint) < 2 * thresholdDist) {
-        console.log('trimming path');
+        // console.log('trimming path');
         let dividedPath = pathClone.clone(); // resolve crossings seems to modify the path it was passed, so make an extra clone to be safe
         dividedPath.visible = false;
         let pathCrossings = dividedPath.resolveCrossings();
@@ -452,7 +641,7 @@ export function getTrimmedPath(path) {
               }
 
               if (accumulator.length > 0 && accumulator.className === 'Path') {
-                console.log('trimmed accumulator', accumulator);
+                // console.log('trimmed accumulator', accumulator);
                 let newPath = new Path();
                 newPath.copyContent(accumulator);
                 newPath.copyAttributes(pathClone);
@@ -467,14 +656,14 @@ export function getTrimmedPath(path) {
             pathClone.remove();
             dividedPath.remove();
             trimmedPath.remove();
-            console.log('trimmed closedChildren[0]', closedChildren[0]);
+            // console.log('trimmed closedChildren[0]', closedChildren[0]);
             return closedChildren[0];
           }
         }
 
-        console.log('trimmed path return', trimmedPath);
-        console.log('path clone', pathClone);
-        console.log('dividedPath', dividedPath);
+        // console.log('trimmed path return', trimmedPath);
+        // console.log('path clone', pathClone);
+        // console.log('dividedPath', dividedPath);
         pathClone.remove();
         dividedPath.remove();
         return trimmedPath;
@@ -484,7 +673,7 @@ export function getTrimmedPath(path) {
     // no close intersection were found so nothing can be trimmed
     return pathClone;
   } else {
-    return pathClone;
+    return path;
   }
 }
 

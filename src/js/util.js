@@ -30,7 +30,7 @@ export function getTime() {
 
 export function getAllGroups() {
   return paper.project.getItems({
-    match: (el) => el.className === 'Group'
+    className: 'Group'
   });
 }
 
@@ -41,8 +41,50 @@ export function anyShapesOnCanvas() {
 
 export function getNumGroups() {
   const groups = getAllGroups();
-  console.log('numgroups', groups.length);
+  // console.log('numgroups', groups.length);
   return groups.length;
+}
+
+export function getFreshGroups() {
+  return paper.project.getItems({
+    className: 'Group',
+    match: (el) => el.data && el.data.line === false && el.data.fresh === true
+  });
+}
+
+export function getAllPops() {
+  return paper.project.getItems({
+    match: (el) => el.data && el.data.pop === true
+  });
+}
+
+export function clearGroupPops(group) {
+  const pops = getGroupPops(group);
+  pops.forEach((pop) => pop.remove());
+}
+
+export function getGroupPops(group) {
+  console.log('group pop group', group.id, group);
+  // const allPops = getAllPops();
+  // allPops.forEach((pop) => {
+  //   console.log('pop', pop.parent.id, pop);
+  // })
+  // return [];
+  if (group.children.length > 0) {
+    const groupPops = group.getItems({
+      match: (el) => el.data && el.data.pop === true
+    });
+    return groupPops;
+  } else {
+    return [];
+  }
+}
+
+export function getPopCandidates() {
+  return paper.project.getItems({
+    className: 'Group',
+    match: (el) => el.data && el.data.line === false
+  });
 }
 
 export function setSha() {

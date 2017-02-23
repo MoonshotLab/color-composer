@@ -20,6 +20,7 @@ const hitOptions = {
 };
 
 const minShapeSize = 100;
+const maxShapeLength = 5000;
 const maxScaleFactor = 0.8;
 
 let outerPath;
@@ -116,19 +117,20 @@ function singleTap(event) {
   //
   // sound.stopPlaying();
   //
-  // const pointer = event.center,
-  //     point = new Point(pointer.x, pointer.y),
-  //     hitResult = paper.project.hitTest(point, hitOptions);
-  //
-  // if (hitResult) {
-  //   let item = hitResult.item;
-  //   // item.selected = !item.selected;
-  //   console.log(item);
-  // }
+  const pointer = event.center,
+      point = new Point(pointer.x, pointer.y),
+      hitResult = paper.project.hitTest(point, hitOptions);
+
+  if (hitResult) {
+    let item = hitResult.item;
+    // item.selected = !item.selected;
+    console.log(item);
+  }
 }
 
 function doubleTap(event) {
   event.preventDefault();
+  // console.log('doubletap');
 
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
@@ -136,34 +138,10 @@ function doubleTap(event) {
 
   if (!eventTargetIsOnCanvas(event)) return;
 
-  const transparent = color.transparent;
 
   if (hitResult) {
-    let item = hitResult.item;
-    let parent = item.parent;
-
+    shape.toggleFill(hitResult.item);
     tutorial.hideContextualTutByName('fill');
-
-    if (item.data.interior) {
-      item.data.transparent = !item.data.transparent;
-
-      if (item.data.transparent) {
-        item.fillColor = transparent;
-        item.strokeColor = transparent;
-      } else {
-        item.fillColor = parent.data.color;
-        item.strokeColor = parent.data.color;
-      }
-
-      window.kan.moves.push({
-        type: 'fillChange',
-        id: item.id,
-        fill: parent.data.color,
-        transparent: item.data.transparent
-      });
-    } else {
-      console.log('not interior')
-    }
 
   } else {
     window.kan.pinchedGroup = null;
@@ -355,8 +333,8 @@ function panEnd(event) {
   shapePath.add(point);
   outerPath.visible = false;
 
-  if (shapePath.length < minShapeSize) {
-    console.log('path is too short');
+  if (shapePath.length < minShapeSize || shapePath.length > maxShapeLength) {
+    console.log('path is too short or too long');
     shapePath.remove();
     hammerCanvas.on('panstart', panStart);
     enablePanAndPinchEvents();
@@ -364,6 +342,7 @@ function panEnd(event) {
     window.kan.panning = false;
     return;
   }
+
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -379,7 +358,7 @@ function panEnd(event) {
   let truedShape = shape.getTruedShape(shapePath);
 
   // group.data.color = truedShape.strokeColor;
-  console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
+  // console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
 
   const shapeSize = truedShape.strokeBounds;
   const centerPoint = new Point(shapeSize.width / 2, shapeSize.height / 2);
@@ -412,10 +391,10 @@ function panEnd(event) {
   };
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
+  group.data.fresh = true;
 
   shapePath.remove();
   truedShape.visible = false;
-  // truedShape.strokeColor = window.kan.currentColor;
   truedShape.strokeColor = new Color(0, 0);
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
@@ -434,33 +413,63 @@ function panEnd(event) {
 
   truedShape.visible = false;
   const outlineGroup = shape.getOutlineGroup(truedShape);
-  console.log('outlineGroup', outlineGroup);
-  const outline = outlineGroup._namedChildren.outer[0];
+  const outline = outlineGroup._namedChildren.outer[0].clone();
+  outline.name = 'outer';
   outline.fillColor = window.kan.currentColor;
   outline.fillColor = group.data.color;
 
-  const outlineCenter = outlineGroup._namedChildren.middle[0];
+  const outlineCenter = outlineGroup._namedChildren.middle[0].clone();
   outlineCenter.strokeColor = group.data.color;
   outlineCenter.visible = false;
-  // outline.fillColor = new Color(1, 1, 0, 0.5);
   group.addChild(outline);
-  // outline.shadowColor = new Color(0, 0, 0, 0.2);
-  // outline.shadowBlur = 0.25;
-  // outline.shadowOffset = -1;
   outline.sendToBack();
 
-  // truedShape = truedShape.intersect(outline); // make sure that the trued shape is within the outline
-  // console.log('truedShape after', truedShape);
-  // truedShape.selected = true;
+  outlineGroup.remove();
+
+  let shapeMask = outline.clone();
+  shapeMask.fillColor = outline.fillColor;
+  shapeMask.strokeColor = outline.strokeColor;
+  shapeMask.closed = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
-  console.log('enclosedLoops', enclosedLoops)
-  Base.each(enclosedLoops, (loop, i) => {
+  if (enclosedLoops.length > 0 || truedShape.closed === true) {
+    group.data.line = false;
+  } else {
+    group.data.line = true;
+  }
+
+  enclosedLoops.forEach((loop) => {
+    shapeMask.unite(loop);
+    shapeMask.sendToBack();
+    loop.name = 'loop';
+    loop.data.loop = true;
+    loop.visible = true;
     group.addChild(loop);
-    loop.sendToBack();
   });
 
-  // outlineCenter.remove();
+
+  shapeMask.unite();
+  let crossings = shapeMask.resolveCrossings();
+  if (!!crossings && !!crossings.children && crossings.children.length > 0) {
+    let maxArea = 0, maxChild = null;
+    crossings.children.forEach((child) => {
+      if (child.area > maxArea) {
+        maxChild = child;
+        maxArea = child.area;
+      }
+    });
+
+    shapeMask = maxChild;
+  }
+
+  outlineCenter.remove();
+  shapeMask.visible = false;
+  shapeMask.name = 'mask';
+  shapeMask.data.mask = true;
+  group.addChild(shapeMask);
+  shapeMask.sendToBack();
+
+  shape.cleanUpGroup(group);
 
   window.kan.moves.push({
     type: 'newGroup',
@@ -484,7 +493,7 @@ function panEnd(event) {
       $body.addClass(sound.playEnabledClass);
       ui.unditherButtonsByName(['play-stop', 'share']);
     }
-    console.log(groups.length, $body.hasClass(sound.playEnabledClass));
+    // console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
 
   if (config.runAnimations) {
@@ -531,7 +540,7 @@ function panEnd(event) {
     }
 
     if (tutName !== null) {
-      console.log(`${tutName} tutorial`);
+      // console.log(`${tutName} tutorial`);
       tutorial.addContextualTut(tutName);
       window.kan.tutorialCompletion[tutName] = true;
       group.data.tut = tutName;
@@ -560,6 +569,10 @@ function panEnd(event) {
 
     window.kan.panning = false;
   }, timing.inputDelay);
+
+  if (config.pop === true) {
+    shape.updatePops();
+  }
 }
 
 function panCancel(event) {
@@ -604,6 +617,10 @@ function pinchStart(event) {
     window.kan.originalPosition = hitResult.position;
     window.kan.originalRotation = hitResult.data.rotation;
     window.kan.originalScale = hitResult.data.scale;
+
+    if (config.pop === true) {
+      shape.destroyGroupPops(hitResult);
+    }
 
     hitResult.bringToFront();
 
@@ -712,7 +729,7 @@ function pinchEnd(event) {
   let originalScale = window.kan.originalScale;
 
   if (!!pinchedGroup) {
-    pinchedGroup.data.update = true;
+    pinchedGroup.data.fresh = true;
     let move = {
       id: pinchedGroup.id,
       type: 'transform'
@@ -748,6 +765,9 @@ function pinchEnd(event) {
         tutorial.hideContextualTut($pinchedTut);
       }
       // dispose of group offscreen
+      if (config.pop === true) {
+        shape.destroyGroupPops(pinchedGroup);
+      }
       throwPinchedGroup();
     }
 
@@ -777,6 +797,10 @@ function pinchEnd(event) {
 
   window.kan.pinching = false;
 
+  if (config.pop === true) {
+    shape.updatePops();
+  }
+
   console.log('pinch done');
   // hammerCanvas.set({ enable: false });
   setTimeout(() => {
@@ -794,7 +818,7 @@ function pinchEnd(event) {
 }
 
 function pinchCancel(event) {
-  console.log(event);
+  // console.log(event);
   event.srcEvent.stopPropagation();
   console.log('pinchcancel');
   // event.preventDefault();
@@ -808,6 +832,7 @@ function pinchCancel(event) {
 }
 
 function throwPinchedGroup() {
+
   const velocityMultiplier = 25;
   const lastEvent = window.kan.lastEvent;
   const viewWidth = paper.view.viewSize.width;
@@ -815,7 +840,6 @@ function throwPinchedGroup() {
   let pinchedGroup = window.kan.pinchedGroup;
 
   if (pinchedGroup === null) return;
-
   if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
       pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
       pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||
