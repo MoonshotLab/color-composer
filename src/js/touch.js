@@ -20,6 +20,7 @@ const hitOptions = {
 };
 
 const minShapeSize = 100;
+const maxShapeLength = 5000;
 const maxScaleFactor = 0.8;
 
 let outerPath;
@@ -332,8 +333,9 @@ function panEnd(event) {
   shapePath.add(point);
   outerPath.visible = false;
 
-  if (shapePath.length < minShapeSize) {
-    console.log('path is too short');
+  console.log('shapepath length', shapePath.length);
+  if (shapePath.length < minShapeSize || shapePath.length > maxShapeLength) {
+    console.log('path is too short or too long');
     shapePath.remove();
     hammerCanvas.on('panstart', panStart);
     enablePanAndPinchEvents();
@@ -341,6 +343,7 @@ function panEnd(event) {
     window.kan.panning = false;
     return;
   }
+
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -393,7 +396,6 @@ function panEnd(event) {
 
   shapePath.remove();
   truedShape.visible = false;
-  // truedShape.strokeColor = window.kan.currentColor;
   truedShape.strokeColor = new Color(0, 0);
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
@@ -412,7 +414,6 @@ function panEnd(event) {
 
   truedShape.visible = false;
   const outlineGroup = shape.getOutlineGroup(truedShape);
-  // console.log('outlineGroup', outlineGroup);
   const outline = outlineGroup._namedChildren.outer[0].clone();
   outline.name = 'outer';
   outline.fillColor = window.kan.currentColor;
@@ -421,11 +422,7 @@ function panEnd(event) {
   const outlineCenter = outlineGroup._namedChildren.middle[0].clone();
   outlineCenter.strokeColor = group.data.color;
   outlineCenter.visible = false;
-  // outline.fillColor = new Color(1, 1, 0, 0.5);
   group.addChild(outline);
-  // outline.shadowColor = new Color(0, 0, 0, 0.2);
-  // outline.shadowBlur = 0.25;
-  // outline.shadowOffset = -1;
   outline.sendToBack();
 
   outlineGroup.remove();
@@ -433,47 +430,27 @@ function panEnd(event) {
   let shapeMask = outline.clone();
   shapeMask.fillColor = outline.fillColor;
   shapeMask.strokeColor = outline.strokeColor;
-  // shapeMask.visible = true;
-  // shapeMask.fillColor = color.transparent;
   shapeMask.closed = true;
 
-  // truedShape = truedShape.intersect(outline); // make sure that the trued shape is within the outline
-  // console.log('truedShape after', truedShape);
-  // truedShape.selected = true;
-
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
-  // console.log('truedShape', truedShape);
   if (enclosedLoops.length > 0 || truedShape.closed === true) {
     group.data.line = false;
   } else {
     group.data.line = true;
   }
 
-  // console.log('enclosedLoops', enclosedLoops);
   enclosedLoops.forEach((loop) => {
-    // console.log('loop before', loop);
-    // console.log('shapeMask before', shapeMask);
     shapeMask.unite(loop);
     shapeMask.sendToBack();
     loop.name = 'loop';
     loop.data.loop = true;
-    // loop.fullySelected = true;
     loop.visible = true;
-    // loop.bringToFront();
-    // loop.selected = true;
-    // loop.sendToBack();
     group.addChild(loop);
-    // console.log('loop after', loop);
-    // console.log('shapeMask after', shapeMask);
-    // loop.remove();
   });
 
 
-  // shapeMask.selected = true;
   shapeMask.unite();
   let crossings = shapeMask.resolveCrossings();
-  // console.log(shapeMask.getIntersections());
-  // console.log('crossings', crossings);
   if (!!crossings && !!crossings.children && crossings.children.length > 0) {
     let maxArea = 0, maxChild = null;
     crossings.children.forEach((child) => {
@@ -484,76 +461,16 @@ function panEnd(event) {
     });
 
     shapeMask = maxChild;
-    // maxChild.fillColor = 'blue';
-    // maxChild.selected = true;
   }
-  // shapeMask.simplify();
-  // shapeMask.selected = true;
 
-  // console.log('shapemask final', shapeMask);
-  // let shapeMaskData = shapeMask.exportJSON();
-  // shapeMask.remove();
-  // shapeMask = new Path();
-  // shapeMask.importJSON(shapeMaskData);
-  // // let cloneMask = shapeMask.clone();
-  // // shapeMask.replaceWith(cloneMask);
-  // if (shapeMask.className === 'CompoundPath') {
-  //   let longestChild = null, longestLength = 0;
-  //   if (shapeMask.children.length > 0) {
-  //     shapeMask.children.forEach((child, i) => {
-  //       if (child.length > longestLength) {
-  //         longestChild = child;
-  //         longestLength = child.length;
-  //       }
-  //     });
-  //
-  //     if (longestChild !== null) {
-  //       shapeMask.replaceWith(longestChild);
-  //     } else {
-  //       shapeMask.replaceWith(shapeMask.children[0]);
-  //     }
-  //   }
-  // }
-  // // shapeMask.fullySelected = true;
-  // console.log('shapeMask final', shapeMask);
-  // console.log('group before', group);
-  // if (group._namedChildren.mask.length > 0) {
-  //   group._namedChildren.mask.forEach((child) => {
-  //     child.remove();
-  //   });
-  //
-  //   group._namedChildren.mask = null;
-  // }
-  //
-  // shapeMask.segments.forEach((segment, i) => {
-  //   let point = segment.point;
-  //   new Path.Circle({
-  //     center: point,
-  //     radius: 2,
-  //     fillColor: new Color(0, i / shapeMask.segments.length)
-  //   })
-  // })
-  // shapeMask.fillColor = 'pink';
   outlineCenter.remove();
   shapeMask.visible = false;
-  // shapeMask.name = 'newMask';
   shapeMask.name = 'mask';
   shapeMask.data.mask = true;
-  // shapeMask.selected = true;
   group.addChild(shapeMask);
   shapeMask.sendToBack();
-  // shapeMask.bringToFront();
-  // console.log('group final', group);
-  // console.log('group mask final', group._namedChildren.mask);
 
   shape.cleanUpGroup(group);
-
-  // console.log('group newmask final', group._namedChildren.newMask);
-
-  // make sure there is only one shape mask
-  // shapeMask.sendToBack();
-  // shapeMask.fillColor = 'pink';
-  // shapeMask.selected = true;
 
   window.kan.moves.push({
     type: 'newGroup',
