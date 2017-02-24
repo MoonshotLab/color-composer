@@ -154,10 +154,10 @@ function panStart(event) {
   // console.log('panstart');
   // paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
+  timing.preventInactivityTimeout();
 
   if (!eventTargetIsOnCanvas(event)) {
     window.kan.panning = false;
-    timing.preventInactivityTimeout();
     // check if tips modal is up
     if ($body.hasClass('overlay-active tips-active')) {
       // if so, go to next tip card
