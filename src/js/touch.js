@@ -277,6 +277,8 @@ function panMove(event) {
     };
 
     window.kan.shapePath.add(point);
+  } else {
+    window.kan.shapePath.data.tooLong = true;
   }
 
   paper.view.draw();
@@ -304,7 +306,7 @@ function panEnd(event) {
   }
   outerPath.visible = false;
 
-  if (shapePath.length < minShapeSize) {
+  if (shapePath.length < minShapeSize || (shapePath.data && shapePath.data.tooLong === true)) {
     // console.log('path is too short');
     shapePath.remove();
     hammerCanvas.on('panstart', panStart);
