@@ -342,6 +342,22 @@ export function getShapePrediction(path) {
     prediction.score = shapePrediction.score;
   }
 
+  if (path.closed === true) {
+    const closedShapes = ['triangle', 'square', 'circle'];
+    if (closedShapes.includes(prediction.pattern) === false) {
+      // closed shape should be one of the above, make a random pick
+      prediction.pattern = util.randomPick(closedShapes);
+    }
+  } else if (path.intersects(path) === true) {
+    prediction.pattern = 'other';
+    // const intersectingShapes = ['triangle', 'square', 'circle', 'other'];
+    // if (intersectingShapes.includes(prediction.pattern) === false) {
+    //   prediction.pattern = util.randomPick(intersectingShapes);
+    // }
+  } else {
+    prediction.pattern = 'line'; // lines are the only shape that is not closed and does not intersect
+  }
+
   console.log('shape prediction', prediction);
 
   return prediction;

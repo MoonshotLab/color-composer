@@ -120,3 +120,11 @@ export function shallowCopy( original ) {
 
     return clone ;
 }
+
+export function randomPick(array) {
+  if (array.length > 0) {
+    return array[Math.floor(Math.random() * array.length)];
+  }
+
+  return null;
+}
