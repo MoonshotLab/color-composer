@@ -192,7 +192,7 @@ export function getOutlineGroup(truedShape) {
       sizes.shift();
     }
 
-    const size = Math.random() * 8; // This is just random variance
+    const size = Math.random() * 9; // This is just random variance
     sizes.push(size);
 
     let cumSize = 0;
@@ -239,8 +239,8 @@ export function getOutlineGroup(truedShape) {
     middlePath.closed = true;
   }
 
-  outerPath.flatten();
-  middlePath.flatten();
+  outerPath.flatten(50);
+  middlePath.flatten(50);
   outerPath.simplify();
   middlePath.simplify();
 
