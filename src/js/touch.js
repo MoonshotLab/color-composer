@@ -184,8 +184,6 @@ function panStart(event) {
 
   sound.stopPlaying();
 
-  window.kan.prevAngle = Math.atan2(event.velocityY, event.velocityX);
-
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
@@ -204,11 +202,6 @@ function panStart(event) {
   });
 
   shapePath.add(point);
-
-  // window.kan.corners = [point];
-
-  // window.kan.sides = [];
-  // window.kan.side = [point];
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -233,66 +226,20 @@ function panMove(event) {
   let point = new Point(pointer.x, pointer.y);
 
   let angle = Math.atan2(event.velocityY, event.velocityX);
-  let prevAngle = window.kan.prevAngle;
-  let angleDelta = util.angleDelta(angle, prevAngle);
-  window.kan.prevAngle = angle;
 
-  // let side = window.kan.side;
-  // let sides = window.kan.sides;
+  size = Math.random() * 2 + 5; // This is just random variance
 
-  // if (angleDelta > thresholdAngleRad) {
-  //   if (side.length > 0) {
-  //     // console.log('corner');
-  //     let cornerPoint = point;
-  //     // new Path.Circle({
-  //     //   center: cornerPoint,
-  //     //   radius: 15,
-  //     //   strokeColor: 'black'
-  //     // });
-  //     // window.kan.corners.push(cornerPoint);
-  //     sides.push(side);
-  //     side = [];
-  //   }
-  // }
+  const topX = point.x + Math.cos(angle - Math.PI/2) * size;
+  const topY = point.y + Math.sin(angle - Math.PI/2) * size;
+  const top = new Point(topX, topY);
 
-  // side.push(point);
+  const bottomX = point.x + Math.cos(angle + Math.PI/2) * size;
+  const bottomY = point.y + Math.sin(angle + Math.PI/2) * size;
+  const bottom = new Point(bottomX, bottomY);
 
-  while (sizes.length > 10) {
-    sizes.shift();
-  }
-  if (sizes.length > 0) {
-    const dist = prevPoint.getDistance(point);
-
-    // These are based on acceleration
-    // size = 30 - Math.min(dist * 0.3, 30);
-    // size = dist * 3 + 5;
-    size = Math.random() * 10; // This is just random variance
-
-    cumSize = 0;
-    for (let j = 0; j < sizes.length; j++) {
-      cumSize += sizes[j];
-    }
-    // const avgSize = ((cumSize / sizes.length) + size) / 2;
-    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
-
-    const halfPointX = (point.x + prevPoint.x) / 2;
-    const halfPointY = (point.y + prevPoint.y) / 2;
-    const halfPoint = new Point(halfPointX, halfPointY);
-
-    const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
-    const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
-    const top = new Point(topX, topY);
-
-    const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
-    const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
-    const bottom = new Point(bottomX, bottomY);
-
-    outerPath.add(top);
-    outerPath.insert(0, bottom);
-    outerPath.smooth();
-  } else {
-    size = 5;
-  }
+  outerPath.add(top);
+  outerPath.insert(0, bottom);
+  outerPath.smooth();
 
   sizes.push(size);
   prevPoint = point;
@@ -304,8 +251,6 @@ function panMove(event) {
   };
 
   window.kan.shapePath.add(point);
-  // window.kan.sides = sides;
-  // window.kan.side = side;
 
   paper.view.draw();
 }
@@ -326,9 +271,6 @@ function panEnd(event) {
   const colorName = color.getColorName(window.kan.currentColor);
 
   let shapePath = window.kan.shapePath;
-  // let side = window.kan.side;
-  // let sides = window.kan.sides;
-  // let corners = window.kan.corners;
 
   shapePath.add(point);
   outerPath.visible = false;
@@ -348,10 +290,6 @@ function panEnd(event) {
     point: point,
     last: true
   };
-
-  // side.push(point);
-  // sides.push(side);
-  // corners.push(point);
 
   let group = new Group();
 
@@ -547,9 +485,6 @@ function panEnd(event) {
     }
   }
 
-  // window.kan.side = side;
-  // window.kan.sides = sides;
-  // window.kan.corners = corners;
   if (window.kan.scheduledOverlay !== null) {
     let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
