@@ -75,7 +75,7 @@ function unditherButtonsByName(buttonNames) {
 }
 
 function newPressed() {
-  console.log('new pressed');
+  // console.log('new pressed');
   window.kan.composition = [];
   paper.project.activeLayer.removeChildren();
   tutorial.hideContextualTuts();
@@ -90,9 +90,9 @@ function undoPressed() {
   tutorial.hideContextualTuts();
 
   const transparent = new Color(0, 0);
-  console.log('undo pressed');
+  // console.log('undo pressed');
   if (!(window.kan.moves.length > 0)) {
-    console.log('no moves yet');
+    // console.log('no moves yet');
     window.kan.userHasDrawnFirstShape = false;
     return;
   }
@@ -164,7 +164,7 @@ function undoPressed() {
 }
 
 function playPressed() {
-  console.log('play pressed');
+  // console.log('play pressed');
   // sound.stopComposition();
   // overlays.closeAndResetOverlays();
   // tutorial.hideContextualTuts();
@@ -173,10 +173,10 @@ function playPressed() {
 
   clearTimeout(window.kan.playPromptTimeout);
   if (!playing && util.getNumGroups() > 2) {
-    console.log('starting playing');
+    // console.log('starting playing');
     sound.startPlaying();
   } else {
-    console.log('stopping playing');
+    // console.log('stopping playing');
     sound.stopPlaying(true);
   }
 }
@@ -184,11 +184,11 @@ function playPressed() {
 function tipsPressed() {
   sound.stopPlaying();
   overlays.openOverlay('tips');
-  console.log('tips pressed');
+  // console.log('tips pressed');
 }
 
 function sharePressed() {
-  console.log('share pressed');
+  // console.log('share pressed');
   sound.stopPlaying();
   if ($body.hasClass(sound.playEnabledClass)) {
     overlays.openOverlay('share');

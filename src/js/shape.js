@@ -358,7 +358,7 @@ export function getShapePrediction(path) {
     prediction.pattern = 'line'; // lines are the only shape that is not closed and does not intersect
   }
 
-  console.log('shape prediction', prediction);
+  // console.log('shape prediction', prediction);
 
   return prediction;
 }

@@ -25,7 +25,7 @@ const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).joi
 const overlayActiveClass = 'overlay-active';
 
 export function openOverlay(overlayName) {
-  console.log('attempting to open overlay', overlayName);
+  // console.log('attempting to open overlay', overlayName);
   if (window.kan.overlays === false) return;
   if (allOverlays.includes(overlayName)) {
     if (window.kan.pinching === true || window.kan.panning === true) {
@@ -71,7 +71,7 @@ export function openOverlay(overlayName) {
         break;
     }
   } else {
-    console.log('unable to open unknown overlay', overlayName);
+    // console.log('unable to open unknown overlay', overlayName);
   }
 }
 

@@ -145,7 +145,7 @@ function doubleTap(event) {
 
   } else {
     window.kan.pinchedGroup = null;
-    console.log('hit no item');
+    // console.log('hit no item');
   }
 }
 
@@ -305,7 +305,7 @@ function panEnd(event) {
   outerPath.visible = false;
 
   if (shapePath.length < minShapeSize) {
-    console.log('path is too short or too long');
+    // console.log('path is too short');
     shapePath.remove();
     hammerCanvas.on('panstart', panStart);
     enablePanAndPinchEvents();
@@ -614,7 +614,7 @@ function pinchStart(event) {
   } else {
     window.kan.pinchedGroup = null;
     window.kan.pinchedTut = null;
-    console.log('hit no item');
+    // console.log('hit no item');
   }
 }
 

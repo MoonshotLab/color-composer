@@ -55,7 +55,7 @@ export function getShapeSoundObj(path) {
 }
 
 export function startPlaying() {
-  console.log('first time', window.kan.firstTimePlaying);
+  // console.log('first time', window.kan.firstTimePlaying);
   if ($body.hasClass(playEnabledClass)) {
     $body.addClass(playingClass);
 
@@ -250,22 +250,22 @@ export function startComposition(composition, loop = false) {
 
   function playCompositionFirstTime() {
     clearSoundTimeouts();
-    console.log('playing composition first time');
+    // console.log('playing composition first time');
     let trimmedCompositionObj = getTrimmedCompositionObj(composition);
 
     Base.each(trimmedCompositionObj.composition, (shape, i) => {
       let soundTimeout = setTimeout(() => {
         if (!window.kan.playing) {
-          console.log('not playing, returning');
+          // console.log('not playing, returning');
           return;
         }
 
         if (shape.spriteName === null) {
-          console.log('%cshape is null', 'color:red', shape);
+          // console.log('%cshape is null', 'color:red', shape);
           return;
         }
 
-        console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
+        // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
         shape.sound.play(shape.spriteName);
         animateShapePlay(shape);
       }, shape.startTime);
@@ -278,15 +278,15 @@ export function startComposition(composition, loop = false) {
 
   function playCompositionOnce() {
     clearSoundTimeouts();
-    console.log('repeat');
+    // console.log('repeat');
     Base.each(composition, (shape, i) => {
       let soundTimeout = setTimeout(() => {
         if (!window.kan.playing) {
-          console.log('not playing, returing');
+          // console.log('not playing, returing');
           return;
         }
 
-        console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
+        // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
         shape.sound.play(shape.spriteName);
         animateShapePlay(shape);
       }, shape.startTime);

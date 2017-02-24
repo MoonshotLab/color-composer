@@ -64,7 +64,7 @@ export function clearGroupPops(group) {
 }
 
 export function getGroupPops(group) {
-  console.log('group pop group', group.id, group);
+  // console.log('group pop group', group.id, group);
   let returnPops = [];
 
   if (group.children.length > 0) {
