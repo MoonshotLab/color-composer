@@ -108,7 +108,9 @@ function undoPressed() {
       case 'newGroup':
         // console.log('removing group');
         sound.removeShapeFromComposition(item);
+        util.clearGroupPops(item);
         item.remove();
+
 
         const numGroups = util.getNumGroups();
         // console.log('numGroups', numGroups);
