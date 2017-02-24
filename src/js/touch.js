@@ -184,6 +184,8 @@ function panStart(event) {
 
   sound.stopPlaying();
 
+  window.kan.prevAngle = Math.atan2(event.velocityY, event.velocityX);
+
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
@@ -220,26 +222,48 @@ function panMove(event) {
   }
   if (window.kan.panning !== true) return;
 
-  const thresholdAngleRad = util.rad(shape.cornerThresholdDeg);
-
   const pointer = event.center;
   let point = new Point(pointer.x, pointer.y);
 
   let angle = Math.atan2(event.velocityY, event.velocityX);
+  let prevAngle = window.kan.prevAngle;
+  let angleDelta = util.angleDelta(angle, prevAngle);
+  window.kan.prevAngle = angle;
 
-  size = Math.random() * 2 + 5; // This is just random variance
+  while (sizes.length > 10) {
+    sizes.shift();
+  }
+  if (sizes.length > 0) {
+    const dist = prevPoint.getDistance(point);
 
-  const topX = point.x + Math.cos(angle - Math.PI/2) * size;
-  const topY = point.y + Math.sin(angle - Math.PI/2) * size;
-  const top = new Point(topX, topY);
+    // These are based on acceleration
+    size = Math.random() * 10; // This is just random variance
 
-  const bottomX = point.x + Math.cos(angle + Math.PI/2) * size;
-  const bottomY = point.y + Math.sin(angle + Math.PI/2) * size;
-  const bottom = new Point(bottomX, bottomY);
+    cumSize = 0;
+    for (let j = 0; j < sizes.length; j++) {
+      cumSize += sizes[j];
+    }
+    // const avgSize = ((cumSize / sizes.length) + size) / 2;
+    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
 
-  outerPath.add(top);
-  outerPath.insert(0, bottom);
-  outerPath.smooth();
+    const halfPointX = (point.x + prevPoint.x) / 2;
+    const halfPointY = (point.y + prevPoint.y) / 2;
+    const halfPoint = new Point(halfPointX, halfPointY);
+
+    const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
+    const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
+    const top = new Point(topX, topY);
+
+    const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
+    const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
+    const bottom = new Point(bottomX, bottomY);
+
+    outerPath.add(top);
+    outerPath.insert(0, bottom);
+    outerPath.smooth();
+  } else {
+    size = 5;
+  }
 
   sizes.push(size);
   prevPoint = point;
