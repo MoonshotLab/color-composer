@@ -222,59 +222,62 @@ function panMove(event) {
   }
   if (window.kan.panning !== true) return;
 
-  const pointer = event.center;
-  let point = new Point(pointer.x, pointer.y);
+  // don't let the user draw past the max length
+  if (window.kan.shapePath.length <= maxShapeLength) {
+    const pointer = event.center;
+    let point = new Point(pointer.x, pointer.y);
 
-  let angle = Math.atan2(event.velocityY, event.velocityX);
-  let prevAngle = window.kan.prevAngle;
-  let angleDelta = util.angleDelta(angle, prevAngle);
-  window.kan.prevAngle = angle;
+    let angle = Math.atan2(event.velocityY, event.velocityX);
+    let prevAngle = window.kan.prevAngle;
+    let angleDelta = util.angleDelta(angle, prevAngle);
+    window.kan.prevAngle = angle;
 
-  while (sizes.length > 10) {
-    sizes.shift();
-  }
-  if (sizes.length > 0) {
-    const dist = prevPoint.getDistance(point);
-
-    // These are based on acceleration
-    size = Math.random() * 10; // This is just random variance
-
-    cumSize = 0;
-    for (let j = 0; j < sizes.length; j++) {
-      cumSize += sizes[j];
+    while (sizes.length > 10) {
+      sizes.shift();
     }
-    // const avgSize = ((cumSize / sizes.length) + size) / 2;
-    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
+    if (sizes.length > 0) {
+      const dist = prevPoint.getDistance(point);
 
-    const halfPointX = (point.x + prevPoint.x) / 2;
-    const halfPointY = (point.y + prevPoint.y) / 2;
-    const halfPoint = new Point(halfPointX, halfPointY);
+      // These are based on acceleration
+      size = Math.random() * 10; // This is just random variance
 
-    const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
-    const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
-    const top = new Point(topX, topY);
+      cumSize = 0;
+      for (let j = 0; j < sizes.length; j++) {
+        cumSize += sizes[j];
+      }
+      // const avgSize = ((cumSize / sizes.length) + size) / 2;
+      const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
 
-    const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
-    const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
-    const bottom = new Point(bottomX, bottomY);
+      const halfPointX = (point.x + prevPoint.x) / 2;
+      const halfPointY = (point.y + prevPoint.y) / 2;
+      const halfPoint = new Point(halfPointX, halfPointY);
 
-    outerPath.add(top);
-    outerPath.insert(0, bottom);
-    outerPath.smooth();
-  } else {
-    size = 5;
+      const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
+      const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
+      const top = new Point(topX, topY);
+
+      const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
+      const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
+      const bottom = new Point(bottomX, bottomY);
+
+      outerPath.add(top);
+      outerPath.insert(0, bottom);
+      outerPath.smooth();
+    } else {
+      size = 5;
+    }
+
+    sizes.push(size);
+    prevPoint = point;
+
+    window.kan.pathData[shape.stringifyPoint(point)] = {
+      point: point,
+      speed: Math.abs(event.overallVelocity),
+      angle: angle
+    };
+
+    window.kan.shapePath.add(point);
   }
-
-  sizes.push(size);
-  prevPoint = point;
-
-  window.kan.pathData[shape.stringifyPoint(point)] = {
-    point: point,
-    speed: Math.abs(event.overallVelocity),
-    angle: angle
-  };
-
-  window.kan.shapePath.add(point);
 
   paper.view.draw();
 }
@@ -296,10 +299,12 @@ function panEnd(event) {
 
   let shapePath = window.kan.shapePath;
 
-  shapePath.add(point);
+  if (shapePath.length <= maxShapeLength) {
+    shapePath.add(point);
+  }
   outerPath.visible = false;
 
-  if (shapePath.length < minShapeSize || shapePath.length > maxShapeLength) {
+  if (shapePath.length < minShapeSize) {
     console.log('path is too short or too long');
     shapePath.remove();
     hammerCanvas.on('panstart', panStart);
