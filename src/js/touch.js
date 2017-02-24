@@ -205,11 +205,6 @@ function panStart(event) {
 
   shapePath.add(point);
 
-  // window.kan.corners = [point];
-
-  // window.kan.sides = [];
-  // window.kan.side = [point];
-
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
     first: true
@@ -236,26 +231,6 @@ function panMove(event) {
   let prevAngle = window.kan.prevAngle;
   let angleDelta = util.angleDelta(angle, prevAngle);
   window.kan.prevAngle = angle;
-
-  // let side = window.kan.side;
-  // let sides = window.kan.sides;
-
-  // if (angleDelta > thresholdAngleRad) {
-  //   if (side.length > 0) {
-  //     // console.log('corner');
-  //     let cornerPoint = point;
-  //     // new Path.Circle({
-  //     //   center: cornerPoint,
-  //     //   radius: 15,
-  //     //   strokeColor: 'black'
-  //     // });
-  //     // window.kan.corners.push(cornerPoint);
-  //     sides.push(side);
-  //     side = [];
-  //   }
-  // }
-
-  // side.push(point);
 
   while (sizes.length > 10) {
     sizes.shift();
@@ -326,9 +301,6 @@ function panEnd(event) {
   const colorName = color.getColorName(window.kan.currentColor);
 
   let shapePath = window.kan.shapePath;
-  // let side = window.kan.side;
-  // let sides = window.kan.sides;
-  // let corners = window.kan.corners;
 
   shapePath.add(point);
   outerPath.visible = false;
@@ -348,10 +320,6 @@ function panEnd(event) {
     point: point,
     last: true
   };
-
-  // side.push(point);
-  // sides.push(side);
-  // corners.push(point);
 
   let group = new Group();
 
@@ -547,9 +515,6 @@ function panEnd(event) {
     }
   }
 
-  // window.kan.side = side;
-  // window.kan.sides = sides;
-  // window.kan.corners = corners;
   if (window.kan.scheduledOverlay !== null) {
     let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;

@@ -175,7 +175,7 @@ export function getOutlineGroup(truedShape) {
   // console.log('truedShape', truedShape);
   let outerPath = new Path();
   outerPath.name = 'outer';
-  outerPath.visible = false;
+  outerPath.visible = true;
 
   let middlePath = new Path();
   middlePath.name = 'middle';
@@ -187,10 +187,9 @@ export function getOutlineGroup(truedShape) {
 
   if (!(truedShape.length > 0)) return new Group(outerPath, middlePath);
 
-  // outerPath.add(truedShape.firstSegment.point);
   middlePath.add(truedShape.firstSegment.point);
 
-  for (let i = 10; i < truedShape.length - 10; i += 20) {
+  for (let i = 0; i < truedShape.length; i += 10) {
     while (sizes.length > 10) {
       sizes.shift();
     }
@@ -204,26 +203,14 @@ export function getOutlineGroup(truedShape) {
     }
     let avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
 
-    const prevPoint = truedShape.getPointAt(i - 10);
-    const nextPoint = truedShape.getPointAt(i + 10);
-    const point = new Point((prevPoint.x + nextPoint.x) / 2, (prevPoint.y + nextPoint.y) / 2);
+    const point = truedShape.getPointAt(i);
+    const normal = truedShape.getNormalAt(i);
 
-    angle = Math.atan2(nextPoint.y - prevPoint.y, nextPoint.x - prevPoint.x);
-    if (lastAngle !== null) {
-      angleDelta = util.angleDelta(angle, lastAngle);
-      console.log('angleDelta', angleDelta);
-      if (angleDelta > util.rad(60)) {
-        avgSize *= 2;
-      }
-    }
+    const top = new Point(point.x + normal.x * avgSize, point.y + normal.y * avgSize);
+    const bottom = new Point(point.x - normal.x * avgSize, point.y - normal.y * avgSize);
 
-    const topX = point.x + Math.cos(angle - Math.PI/2) * avgSize;
-    const topY = point.y + Math.sin(angle - Math.PI/2) * avgSize;
-    const top = new Point(topX, topY);
-
-    const bottomX = point.x + Math.cos(angle + Math.PI/2) * avgSize;
-    const bottomY = point.y + Math.sin(angle + Math.PI/2) * avgSize;
-    const bottom = new Point(bottomX, bottomY);
+    console.log('point', point, 'normal', normal);
+    console.log('top', top, 'bottom', bottom);
 
     outerPath.add(top);
     outerPath.insert(0, bottom);
@@ -234,30 +221,11 @@ export function getOutlineGroup(truedShape) {
     if (i == 10) {
       firstTop = top;
       firstBottom = bottom;
-      new Path.Line({
-        from: bottom,
-        to: top,
-        strokeWidth: 5,
-        strokeColor: 'red'
-      });
     } else {
       lastTop = top;
       lastBottom = bottom;
-      new Path.Line({
-        from: bottom,
-        to: top,
-        strokeWidth: 5,
-        strokeColor: new Color(0, i / truedShape.length)
-      });
     }
   }
-
-  new Path.Line({
-    from: lastBottom,
-    to: lastTop,
-    strokeWidth: 5,
-    strokeColor: 'blue'
-  });
 
   if (truedShape.closed === true) {
     const centerTop = new Point((firstTop.x + lastTop.x) / 2, (firstTop.y + lastTop.y) / 2);
@@ -267,55 +235,19 @@ export function getOutlineGroup(truedShape) {
     outerPath.add(centerTop);
     outerPath.insert(0, centerBottom);
     middlePath.add(center);
-    // new Path.Line({
-    //   from: centerBottom,
-    //   to: centerTop,
-    //   strokeWidth: 5,
-    //   strokeColor: 'yellow'
-    // });
+
     outerPath.add(firstTop);
     outerPath.insert(0, firstBottom);
     middlePath.closed = true;
-    // middlePath.add(point);
-    // console.log('closed');
   }
-  //  else {
-  //   const lastCenter = ((lastTop.x + lastBottom.x) / 2, (lastTop.y + lastBottom.y) / 2);
-  //   const lastPoint = truedShape.lastSegment.point;
-  //   const adjustedLastPoint = new Point((lastCenter.x + lastPoint.x) / 2, (lastCenter.y + lastPoint.y) / 2);
-  //   // outerPath.add(adjustedLastPoint);
-  //   // outerPath.lastSegment.smooth();
-  // }
-
-  // outerPath.selected = true;
-
-  // new Path.Circle({
-  //   center: outerPath.firstSegment.point,
-  //   radius: 3,
-  //   fillColor: 'red'
-  // });
-  // new Path.Circle({
-  //   center: outerPath.firstSegment.next.point,
-  //   radius: 3,
-  //   fillColor: 'red'
-  // });
-  //
-  // new Path.Circle({
-  //   center: outerPath.lastSegment.point,
-  //   radius: 3,
-  //   fillColor: 'blue'
-  // });
-  // new Path.Circle({
-  //   center: outerPath.lastSegment.previous.point,
-  //   radius: 3,
-  //   fillColor: 'blue'
-  // });
-
-  // outerPath.smooth();
-  // middlePath.smooth();
 
   outerPath.flatten();
   middlePath.flatten();
+  outerPath.simplify();
+  middlePath.simplify();
+
+  outerPath.selected = false;
+  // middlePath.selected = true;
   outerPath.name = 'outer';
   middlePath.name = 'middle';
   const returnGroup = new Group(outerPath, middlePath);
