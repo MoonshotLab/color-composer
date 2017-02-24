@@ -18,14 +18,14 @@ function clearPops() {
 }
 
 export function destroyGroupPops(group) {
-  console.log('destroying pops');
+  // console.log('destroying pops');
   const groupPopsBefore = util.getGroupPops(group);
-  console.log('pops to be destroyed', groupPopsBefore);
+  // console.log('pops to be destroyed', groupPopsBefore);
   if (groupPopsBefore.length > 0) {
     groupPopsBefore.forEach((pop) => pop.remove());
   }
   const groupPopsAfter = util.getGroupPops(group);
-  console.log('group pops after', groupPopsAfter);
+  // console.log('group pops after', groupPopsAfter);
 }
 
 export function fillInGroupPopsById(groupId) {
@@ -85,7 +85,7 @@ export function toggleFill(item) {
 }
 
 export function cleanUpGroup(group) {
-  console.log('cleaning up group');
+  // console.log('cleaning up group');
   const acceptableNames = ['mask', 'outer', 'shapePath', 'loop', 'pop'];
 
   group.children.forEach((groupChild) => {
@@ -102,13 +102,13 @@ export function updatePops() {
   const popCandidates = util.getPopCandidates();
   const allPops = util.getAllPops();
   popCandidates.reverse();
-  console.log('freshGroups', freshGroups);
-  console.log('popCandidates', popCandidates);
+  // console.log('freshGroups', freshGroups);
+  // console.log('popCandidates', popCandidates);
   // clearPops();
 
   freshGroups.forEach((freshGroup, i) => {
     // if (i >= 4) return;
-    console.log('freshGroup', freshGroup);
+    // console.log('freshGroup', freshGroup);
 
     const freshOuter = freshGroup._namedChildren.mask[0];
     freshOuter.bringToFront();
@@ -138,8 +138,6 @@ export function updatePops() {
           thisPop.closed = true;
           thisPop.bringToFront();
           freshGroup.addChild(thisPop);
-        } else {
-          console.log('no pop');
         }
 
         cleanUpGroup(freshGroup);
@@ -209,8 +207,8 @@ export function getOutlineGroup(truedShape) {
     const top = new Point(point.x + normal.x * avgSize, point.y + normal.y * avgSize);
     const bottom = new Point(point.x - normal.x * avgSize, point.y - normal.y * avgSize);
 
-    console.log('point', point, 'normal', normal);
-    console.log('top', top, 'bottom', bottom);
+    // console.log('point', point, 'normal', normal);
+    // console.log('top', top, 'bottom', bottom);
 
     outerPath.add(top);
     outerPath.insert(0, bottom);
@@ -529,7 +527,7 @@ export function getTrimmedPath(path) {
     }
   });
 
-  console.log('intersections', intersections);
+  // console.log('intersections', intersections);
 
   if (intersections.length == 1) {
     for (let i = 0; i < intersections.length; i++) {

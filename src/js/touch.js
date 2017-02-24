@@ -184,8 +184,6 @@ function panStart(event) {
 
   sound.stopPlaying();
 
-  window.kan.prevAngle = Math.atan2(event.velocityY, event.velocityX);
-
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
@@ -214,7 +212,7 @@ function panStart(event) {
 }
 
 function panMove(event) {
-  console.log('panmove');
+  // console.log('panmove');
   // event.preventDefault();
   if (!eventTargetIsOnCanvas(event)) {
     event.srcEvent.stopPropagation();
@@ -228,46 +226,20 @@ function panMove(event) {
   let point = new Point(pointer.x, pointer.y);
 
   let angle = Math.atan2(event.velocityY, event.velocityX);
-  let prevAngle = window.kan.prevAngle;
-  let angleDelta = util.angleDelta(angle, prevAngle);
-  window.kan.prevAngle = angle;
 
-  while (sizes.length > 10) {
-    sizes.shift();
-  }
-  if (sizes.length > 0) {
-    const dist = prevPoint.getDistance(point);
+  size = Math.random() * 2 + 5; // This is just random variance
 
-    // These are based on acceleration
-    // size = 30 - Math.min(dist * 0.3, 30);
-    // size = dist * 3 + 5;
-    size = Math.random() * 10; // This is just random variance
+  const topX = point.x + Math.cos(angle - Math.PI/2) * size;
+  const topY = point.y + Math.sin(angle - Math.PI/2) * size;
+  const top = new Point(topX, topY);
 
-    cumSize = 0;
-    for (let j = 0; j < sizes.length; j++) {
-      cumSize += sizes[j];
-    }
-    // const avgSize = ((cumSize / sizes.length) + size) / 2;
-    const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
+  const bottomX = point.x + Math.cos(angle + Math.PI/2) * size;
+  const bottomY = point.y + Math.sin(angle + Math.PI/2) * size;
+  const bottom = new Point(bottomX, bottomY);
 
-    const halfPointX = (point.x + prevPoint.x) / 2;
-    const halfPointY = (point.y + prevPoint.y) / 2;
-    const halfPoint = new Point(halfPointX, halfPointY);
-
-    const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
-    const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
-    const top = new Point(topX, topY);
-
-    const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
-    const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
-    const bottom = new Point(bottomX, bottomY);
-
-    outerPath.add(top);
-    outerPath.insert(0, bottom);
-    outerPath.smooth();
-  } else {
-    size = 5;
-  }
+  outerPath.add(top);
+  outerPath.insert(0, bottom);
+  outerPath.smooth();
 
   sizes.push(size);
   prevPoint = point;
@@ -279,14 +251,12 @@ function panMove(event) {
   };
 
   window.kan.shapePath.add(point);
-  // window.kan.sides = sides;
-  // window.kan.side = side;
 
   paper.view.draw();
 }
 
 function panEnd(event) {
-  console.log('panend');
+  // console.log('panend');
   // event.preventDefault();
   if (!eventTargetIsOnCanvas(event)) {
     event.srcEvent.stopPropagation();
@@ -523,7 +493,7 @@ function panEnd(event) {
     }, timing.overlayDelay);
   }
 
-  console.log('pan done');
+  // console.log('pan done');
   hammerCanvas.set({ enable: false });
   setTimeout(() => {
     hammerCanvas.set({ enable: true });
@@ -553,7 +523,7 @@ function panCancel(event) {
 }
 
 function pinchStart(event) {
-  console.log('pinchstart');
+  // console.log('pinchstart');
   timing.preventInactivityTimeout();
   tutorial.hideContextualTuts();
   window.kan.interacting = true;
@@ -567,7 +537,6 @@ function pinchStart(event) {
 
   if (!eventTargetIsOnCanvas(event)) return;
 
-  console.log('pinchStart', event.center);
   sound.stopPlaying();
 
   const pointer = event.center,
@@ -621,7 +590,7 @@ function pinchStart(event) {
 }
 
 function pinchMove(event) {
-  console.log('pinchMove');
+  // console.log('pinchMove');
   // event.preventDefault();
 
   const viewWidth = paper.view.viewSize.width;
@@ -685,7 +654,6 @@ function pinchMove(event) {
 }
 
 function pinchEnd(event) {
-  console.log('pinchend');
   // event.preventDefault();
 
   window.kan.lastEvent = event;
@@ -771,7 +739,7 @@ function pinchEnd(event) {
     shape.updatePops();
   }
 
-  console.log('pinch done');
+  // console.log('pinch done');
   // hammerCanvas.set({ enable: false });
   setTimeout(() => {
     console.log('touch enabled');
