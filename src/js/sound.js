@@ -311,6 +311,20 @@ export function startComposition(composition, loop = false) {
   }
 }
 
+export function playComposition() {
+  const composition = window.kan.composition;
+  clearSoundTimeouts();
+  // console.log('repeat');
+  Base.each(composition, (shape, i) => {
+    let soundTimeout = setTimeout(() => {
+      // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
+      shape.sound.play(shape.spriteName);
+      animateShapePlay(shape);
+    }, shape.startTime);
+    window.kan.soundTimeouts.push(soundTimeout);
+  });
+}
+
 export function stopComposition() {
   clearInterval(window.kan.compositionInterval);
   clearTimeout(window.kan.compositionTimeout);

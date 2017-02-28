@@ -6,6 +6,7 @@ const overlays = require('./overlays');
 const util = require('./util');
 const color = require('./color');
 const shape = require('./shape');
+const share = require('./share');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -188,11 +189,12 @@ function tipsPressed() {
 }
 
 function sharePressed() {
+  share.record();
   // console.log('share pressed');
-  sound.stopPlaying();
-  if ($body.hasClass(sound.playEnabledClass)) {
-    overlays.openOverlay('share');
-  }
+  // sound.stopPlaying();
+  // if ($body.hasClass(sound.playEnabledClass)) {
+  //   overlays.openOverlay('share');
+  // }
 }
 
 function initLogoRefresh() {
@@ -266,11 +268,7 @@ function initTipsButton() {
 }
 
 function initShareButton() {
-  $('.controls .share').on(tapEvent, function() {
-    if (!$body.hasClass(playingClass)) {
-      sharePressed();
-    }
-  });
+  $('.controls .share').on(tapEvent, sharePressed);
 }
 
 function initContextualTuts() {
