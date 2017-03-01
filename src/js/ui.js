@@ -18,6 +18,7 @@ const $undoButton = $('.controls .undo');
 const $playButton = $('.controls .play-stop');
 const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
+const $shareSend = $('#share-send');
 
 export const canvas = $('#canvas')[0];
 export const tipsOverlay = $('.overlay.tips')[0];
@@ -32,8 +33,15 @@ export function init() {
   initPlayButton();
   initTipsButton();
   initShareButton();
+  initShareModal();
   initContextualTuts();
   resetCanvas();
+}
+
+function initShareModal() {
+  $shareSend.on(tapEvent, function() {
+    ga('send', 'event', 'share', 'mobileLinkSent');
+  })
 }
 
 function unditherAllButtons() {
@@ -188,7 +196,8 @@ function tipsPressed() {
 }
 
 function sharePressed() {
-  // console.log('share pressed');
+  console.log('share pressed');
+  ga('send', 'event', 'share', 'modalFired');
   sound.stopPlaying();
   if ($body.hasClass(sound.playEnabledClass)) {
     overlays.openOverlay('share');
