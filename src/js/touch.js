@@ -37,7 +37,7 @@ export function init() {
   hammerTips.add(new Hammer.Swipe({ direction: Hammer.DIRECTION_ALL }));
   hammerTips.on('swipe', overlays.cardNavNext);
 
-  hammerCanvas = new Hammer.Manager(ui.canvas);
+  hammerCanvas = new Hammer.Manager(ui.drawCanvas);
   hammerCanvas.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerCanvas.add(new Hammer.Tap({ event: 'singletap' }));
   hammerCanvas.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
@@ -828,7 +828,7 @@ function throwPinchedGroup() {
 
 function eventTargetIsOnCanvas(event) {
   if (!event) return false;
-  if (event.target != ui.canvas) return false;
+  if (event.target != ui.drawCanvas) return false;
   return true;
 
 }
