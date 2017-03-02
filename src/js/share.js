@@ -15,6 +15,7 @@ export function record() {
     workerPath: '/js/lib/recorderWorker.js'
   });
 
+  canvasRecorder.startRecording();
   rec.record();
 
   // play twice
@@ -24,11 +25,19 @@ export function record() {
       rec.exportWAV(function(blob) {
         download(blob, 'blob.wav');
       });
+      canvasRecorder.stopRecording(function() {
+        var blob = canvasRecorder.getBlob();
+        download(blob, 'blob.webm');
+      });
     });
   }).error((e) => {
     rec.stop();
     rec.exportWAV(function(blob) {
       download(blob, 'blob.wav');
+    });
+    canvasRecorder.stopRecording(function() {
+      var blob = canvasRecorder.getBlob();
+      download(blob, 'blob.webm');
     });
   });
 }
