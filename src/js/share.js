@@ -18,17 +18,14 @@ export function record() {
   canvasRecorder.startRecording();
   rec.record();
 
-  // play twice
   sound.asyncPlayCompositionOnce().then(() => {
-    return sound.asyncPlayCompositionOnce().then(() => {
-      rec.stop();
-      rec.exportWAV(function(blob) {
-        download(blob, 'blob.wav');
-      });
-      canvasRecorder.stopRecording(function() {
-        var blob = canvasRecorder.getBlob();
-        download(blob, 'blob.webm');
-      });
+    rec.stop();
+    rec.exportWAV(function(blob) {
+      download(blob, 'blob.wav');
+    });
+    canvasRecorder.stopRecording(function() {
+      var blob = canvasRecorder.getBlob();
+      download(blob, 'blob.webm');
     });
   }).error((e) => {
     rec.stop();
