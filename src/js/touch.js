@@ -299,6 +299,8 @@ function panEnd(event) {
   const transparent = color.transparent;
   const colorName = color.getColorName(window.kan.currentColor);
 
+  let move = { type: 'newGroup' };
+
   let shapePath = window.kan.shapePath;
 
   if (shapePath.length <= maxShapeLength) {
@@ -323,7 +325,9 @@ function panEnd(event) {
     const firstGroup = visibleGroups[0];
     shape.destroyGroupPops(firstGroup);
     sound.removeShapeFromComposition(firstGroup);
-    firstGroup.remove();
+    move.removedGroup = firstGroup;
+    // firstGroup.remove();
+    firstGroup.visible = false;
   }
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
@@ -450,10 +454,8 @@ function panEnd(event) {
 
   shape.cleanUpGroup(group);
 
-  window.kan.moves.push({
-    type: 'newGroup',
-    id: group.id
-  });
+  move.id = group.id;
+  window.kan.moves.push(move);
 
 
   ui.unditherButtonsByName(['new', 'undo', 'play-stop', 'share']);

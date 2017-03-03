@@ -100,7 +100,7 @@ export function getGroupPops(group) {
 export function getPopCandidates() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.data && el.data.line === false
+    match: (el) => el.data && el.data.line === false && el.visible === true
   });
 }
 

@@ -111,6 +111,13 @@ function undoPressed() {
         util.clearGroupPops(item);
         item.remove();
 
+        if ('removedGroup' in lastMove) {
+          // bring back removed group
+          lastMove.removedGroup.visible = true;
+          lastMove.removedGroup.data.fresh = true;
+          shape.updatePops();
+        }
+
 
         const numGroups = util.getNumGroups();
         // console.log('numGroups', numGroups);
