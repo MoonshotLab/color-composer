@@ -316,6 +316,14 @@ function panEnd(event) {
     return;
   }
 
+  const visibleGroups = util.getVisibleGroups();
+  if (visibleGroups.length >= config.maxShapes) {
+    // too many shapes on canvas, remove first shape
+    // TODO: place on moves stack so that they can be restored with an undo
+    const firstGroup = visibleGroups[0];
+    shape.destroyGroupPops(firstGroup);
+    firstGroup.remove();
+  }
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,

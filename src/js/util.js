@@ -28,6 +28,18 @@ export function getTime() {
   return new Date().toLocaleTimeString();
 }
 
+export function getNumVisibleGroups() {
+  const groups = getVisibleGroups();
+  return groups.length;
+}
+
+export function getVisibleGroups() {
+  return paper.project.getItems({
+    className: 'Group',
+    match: (el) => el.visible === true
+  });
+}
+
 export function getAllGroups() {
   return paper.project.getItems({
     className: 'Group'
