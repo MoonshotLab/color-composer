@@ -36,4 +36,25 @@ app.get('/hash', function(req, res) {
       res.send(str);
     });
   }
+});
+
+// ffmpeg -i ~/Downloads/blob.webm -i ~/Downloads/blob.wav -c:v mpeg4 -b:v 6400k -b:a 4800k -strict experimental /tmp/output.mp4
+app.get('/process', function(req, res) {
+  const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+  const ffmpeg = require('fluent-ffmpeg');
+  ffmpeg.setFfmpegPath(ffmpegPath);
+  let command = ffmpeg()
+    .input('public/test/blob.webm')
+    .input('public/test/blob.wav')
+    // .videoCodec('mpeg4')
+    .videoCodec('libx264')
+    .videoBitrate('6400k')
+    .audioBitrate('4800k')
+    // .addOption('-strict', 'experimental')
+    // .outputOptions('-strict -2')
+    // .size('640x480')
+    .format('mp4');
+  command.save('public/test/output.mp4');
+
+  res.render('process');
 })
