@@ -4,3 +4,4 @@ node_modules/
 *.gypi
 *.log
 sketch/
+/public/test/

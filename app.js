@@ -50,10 +50,13 @@ app.get('/process', function(req, res) {
     .videoCodec('libx264')
     .videoBitrate('6400k')
     .audioBitrate('4800k')
+    .on('end', function() {
+      console.log('Done processing');
+    });
     // .addOption('-strict', 'experimental')
     // .outputOptions('-strict -2')
     // .size('640x480')
-    .format('mp4');
+    // .format('mp4');
   command.save('public/test/output.mp4');
 
   res.render('process');
