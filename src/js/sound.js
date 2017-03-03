@@ -47,6 +47,9 @@ export function getShapeSoundObj(path) {
   soundObj.duration = quantizedSoundDuration;
   soundObj.pathId = path.id;
   soundObj.spriteName = colorName;
+  soundObj.play = function() {
+    this.sound.play(this.spriteName);
+  }
 
   if (!!path.parent && path.parent.className === 'Group') {
     soundObj.groupId = path.parent.id;
@@ -165,7 +168,7 @@ function asyncPlayShapeSound(shape) {
   return new Promise(function(resolve, reject) {
     try {
       // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-      shape.sound.play(shape.spriteName);
+      shape.play(); // TODO: make promise :)
       shape.sound.on('end', function() {
         resolve(`Group ${shape.groupId} done playing sound`);
       });

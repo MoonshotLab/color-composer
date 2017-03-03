@@ -28,6 +28,18 @@ export function getTime() {
   return new Date().toLocaleTimeString();
 }
 
+export function getNumVisibleGroups() {
+  const groups = getVisibleGroups();
+  return groups.length;
+}
+
+export function getVisibleGroups() {
+  return paper.project.getItems({
+    className: 'Group',
+    match: (el) => el.visible === true
+  });
+}
+
 export function getAllGroups() {
   return paper.project.getItems({
     className: 'Group'
@@ -35,12 +47,12 @@ export function getAllGroups() {
 }
 
 export function anyShapesOnCanvas() {
-  const groups = getAllGroups();
+  const groups = getVisibleGroups();
   return groups.length > 0;
 }
 
 export function getNumGroups() {
-  const groups = getAllGroups();
+  const groups = getVisibleGroups();
   // console.log('numgroups', groups.length);
   return groups.length;
 }
@@ -88,7 +100,7 @@ export function getGroupPops(group) {
 export function getPopCandidates() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.data && el.data.line === false
+    match: (el) => el.data && el.data.line === false && el.visible === true
   });
 }
 
