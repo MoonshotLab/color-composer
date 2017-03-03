@@ -322,6 +322,7 @@ function panEnd(event) {
     // TODO: place on moves stack so that they can be restored with an undo
     const firstGroup = visibleGroups[0];
     shape.destroyGroupPops(firstGroup);
+    sound.removeShapeFromComposition(firstGroup);
     firstGroup.remove();
   }
 
@@ -387,6 +388,7 @@ function panEnd(event) {
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
   window.kan.composition.push(shapeSoundObj);
+  shapeSoundObj.play();
 
   truedShape.visible = false;
   const outlineGroup = shape.getOutlineGroup(truedShape);

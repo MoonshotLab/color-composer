@@ -46,6 +46,9 @@ export function getShapeSoundObj(path) {
   soundObj.duration = quantizedSoundDuration;
   soundObj.pathId = path.id;
   soundObj.spriteName = colorName;
+  soundObj.play = function() {
+    this.sound.play(this.spriteName);
+  }
 
   if (!!path.parent && path.parent.className === 'Group') {
     soundObj.groupId = path.parent.id;
@@ -266,7 +269,7 @@ export function startComposition(composition, loop = false) {
         }
 
         // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-        shape.sound.play(shape.spriteName);
+        shape.play();
         animateShapePlay(shape);
       }, shape.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
