@@ -69,6 +69,7 @@ app.get('/process', function(req, res) {
     '-y'
   ].join(' ');
 
+  // https://trac.ffmpeg.org/wiki/Concatenate
   const makeIntoTransportStreamCommand = [
     ffmpegPath,
     `-i ${mergedOutPath}`,
