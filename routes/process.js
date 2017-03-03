@@ -1,8 +1,24 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 router.get('/', function(req, res) {
   res.render('process');
+});
+
+const uploadFieldsSpec = [
+  {
+    name: 'video',
+    maxCount: 1
+  },
+  {
+    name: 'audio',
+    maxCount: 1
+  }
+];
+router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
+  console.log(req.files);
 });
 
 // router.post('/', function(req, res) {
