@@ -55,10 +55,10 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.9",
     "array-range": "^1.0.1",
+    "child-process-promise": "^2.2.0",
     "debug": "^2.3.3",
     "dotenv": "^2.0.0",
     "express": "^4.14.0",
-    "fluent-ffmpeg": "^2.1.0",
     "fs": "0.0.1-security",
     "git-rev": "^0.2.1",
     "npm-run-all": "^3.1.2",
