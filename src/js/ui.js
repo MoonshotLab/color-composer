@@ -116,16 +116,13 @@ function undoPressed() {
         // console.log('numGroups', numGroups);
 
         if (numGroups <= 0) {
-          ditherButtonsByName(['undo', 'new']);
-        }
-
-        if (numGroups < 3) {
-          ditherButtonsByName(['play-stop', 'share']);
+          ditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
           $body.removeClass(sound.playEnabledClass);
         } else {
-          unditherButtonsByName(['play-stop', 'share']);
+          unditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
           $body.addClass(sound.playEnabledClass);
         }
+
         break;
       case 'fillChange':
         if (lastMove.transparent) {

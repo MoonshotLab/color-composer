@@ -47,12 +47,12 @@ export function getAllGroups() {
 }
 
 export function anyShapesOnCanvas() {
-  const groups = getAllGroups();
+  const groups = getVisibleGroups();
   return groups.length > 0;
 }
 
 export function getNumGroups() {
-  const groups = getAllGroups();
+  const groups = getVisibleGroups();
   // console.log('numgroups', groups.length);
   return groups.length;
 }

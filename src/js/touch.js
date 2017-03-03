@@ -456,7 +456,8 @@ function panEnd(event) {
   });
 
 
-  ui.unditherButtonsByName(['new', 'undo']);
+  ui.unditherButtonsByName(['new', 'undo', 'play-stop', 'share']);
+  $body.addClass(sound.playEnabledClass);
 
   if (window.kan.userHasDrawnFirstShape !== true) {
     // first shape!
@@ -466,13 +467,6 @@ function panEnd(event) {
     }, timing.playPromptDelay);
 
     window.kan.userHasDrawnFirstShape = true;
-  } else {
-    const groups = util.getAllGroups();
-    if (groups.length >= 3) {
-      $body.addClass(sound.playEnabledClass);
-      ui.unditherButtonsByName(['play-stop', 'share']);
-    }
-    // console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
 
   if (config.runAnimations) {
