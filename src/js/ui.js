@@ -6,6 +6,7 @@ const overlays = require('./overlays');
 const util = require('./util');
 const color = require('./color');
 const shape = require('./shape');
+const share = require('./share');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -19,7 +20,7 @@ const $playButton = $('.controls .play-stop');
 const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
 
-export const canvas = $('#canvas')[0];
+export const drawCanvas = $('#canvas')[0];
 export const tipsOverlay = $('.overlay.tips')[0];
 
 const ditheredClass = 'dithered';
@@ -111,21 +112,25 @@ function undoPressed() {
         util.clearGroupPops(item);
         item.remove();
 
+        if ('removedGroup' in lastMove) {
+          // bring back removed group
+          lastMove.removedGroup.visible = true;
+          lastMove.removedGroup.data.fresh = true;
+          shape.updatePops();
+        }
+
 
         const numGroups = util.getNumGroups();
         // console.log('numGroups', numGroups);
 
         if (numGroups <= 0) {
-          ditherButtonsByName(['undo', 'new']);
-        }
-
-        if (numGroups < 3) {
-          ditherButtonsByName(['play-stop', 'share']);
+          ditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
           $body.removeClass(sound.playEnabledClass);
         } else {
-          unditherButtonsByName(['play-stop', 'share']);
+          unditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
           $body.addClass(sound.playEnabledClass);
         }
+
         break;
       case 'fillChange':
         if (lastMove.transparent) {
@@ -188,11 +193,12 @@ function tipsPressed() {
 }
 
 function sharePressed() {
+  share.record();
   // console.log('share pressed');
-  sound.stopPlaying();
-  if ($body.hasClass(sound.playEnabledClass)) {
-    overlays.openOverlay('share');
-  }
+  // sound.stopPlaying();
+  // if ($body.hasClass(sound.playEnabledClass)) {
+  //   overlays.openOverlay('share');
+  // }
 }
 
 function initLogoRefresh() {
@@ -266,11 +272,7 @@ function initTipsButton() {
 }
 
 function initShareButton() {
-  $('.controls .share').on(tapEvent, function() {
-    if (!$body.hasClass(playingClass)) {
-      sharePressed();
-    }
-  });
+  $('.controls .share').on(tapEvent, sharePressed);
 }
 
 function initContextualTuts() {

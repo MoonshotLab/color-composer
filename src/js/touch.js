@@ -37,7 +37,7 @@ export function init() {
   hammerTips.add(new Hammer.Swipe({ direction: Hammer.DIRECTION_ALL }));
   hammerTips.on('swipe', overlays.cardNavNext);
 
-  hammerCanvas = new Hammer.Manager(ui.canvas);
+  hammerCanvas = new Hammer.Manager(ui.drawCanvas);
   hammerCanvas.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerCanvas.add(new Hammer.Tap({ event: 'singletap' }));
   hammerCanvas.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
@@ -299,6 +299,8 @@ function panEnd(event) {
   const transparent = color.transparent;
   const colorName = color.getColorName(window.kan.currentColor);
 
+  let move = { type: 'newGroup' };
+
   let shapePath = window.kan.shapePath;
 
   if (shapePath.length <= maxShapeLength) {
@@ -316,6 +318,17 @@ function panEnd(event) {
     return;
   }
 
+  const visibleGroups = util.getVisibleGroups();
+  if (visibleGroups.length >= config.maxShapes) {
+    // too many shapes on canvas, remove first shape
+    // TODO: place on moves stack so that they can be restored with an undo
+    const firstGroup = visibleGroups[0];
+    shape.destroyGroupPops(firstGroup);
+    sound.removeShapeFromComposition(firstGroup);
+    move.removedGroup = firstGroup;
+    // firstGroup.remove();
+    firstGroup.visible = false;
+  }
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -440,13 +453,12 @@ function panEnd(event) {
 
   shape.cleanUpGroup(group);
 
-  window.kan.moves.push({
-    type: 'newGroup',
-    id: group.id
-  });
+  move.id = group.id;
+  window.kan.moves.push(move);
 
 
-  ui.unditherButtonsByName(['new', 'undo']);
+  ui.unditherButtonsByName(['new', 'undo', 'play-stop', 'share']);
+  $body.addClass(sound.playEnabledClass);
 
   if (window.kan.userHasDrawnFirstShape !== true) {
     // first shape!
@@ -456,13 +468,6 @@ function panEnd(event) {
     }, timing.playPromptDelay);
 
     window.kan.userHasDrawnFirstShape = true;
-  } else {
-    const groups = util.getAllGroups();
-    if (groups.length >= 3) {
-      $body.addClass(sound.playEnabledClass);
-      ui.unditherButtonsByName(['play-stop', 'share']);
-    }
-    // console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
 
   if (config.runAnimations) {
@@ -523,6 +528,8 @@ function panEnd(event) {
       overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
+
+  shapeSoundObj.play();
 
   // console.log('pan done');
   hammerCanvas.set({ enable: false });
@@ -828,7 +835,7 @@ function throwPinchedGroup() {
 
 function eventTargetIsOnCanvas(event) {
   if (!event) return false;
-  if (event.target != ui.canvas) return false;
+  if (event.target != ui.drawCanvas) return false;
   return true;
 
 }

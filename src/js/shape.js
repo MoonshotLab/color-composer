@@ -628,7 +628,7 @@ export function getTrimmedPath(path) {
 
 
 export function hitTestGroupBounds(point) {
-  let groups = util.getAllGroups();
+  let groups = util.getVisibleGroups();
   return hitTestBounds(point, groups);
 }
 
