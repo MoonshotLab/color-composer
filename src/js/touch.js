@@ -392,7 +392,6 @@ function panEnd(event) {
 
   let shapeSoundObj = sound.getShapeSoundObj(truedShape);
   window.kan.composition.push(shapeSoundObj);
-  shapeSoundObj.play();
 
   truedShape.visible = false;
   const outlineGroup = shape.getOutlineGroup(truedShape);
@@ -529,6 +528,8 @@ function panEnd(event) {
       overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
+
+  shapeSoundObj.play();
 
   // console.log('pan done');
   hammerCanvas.set({ enable: false });
