@@ -1,4 +1,5 @@
 require('howler');
+const Promise = require("bluebird");
 
 const ui = require('./ui');
 const shape = require('./shape');
@@ -46,13 +47,19 @@ export function getShapeSoundObj(path) {
   soundObj.duration = quantizedSoundDuration;
   soundObj.pathId = path.id;
   soundObj.spriteName = colorName;
+  soundObj.groupId = path.parent.id;
   soundObj.play = function() {
-    this.sound.play(this.spriteName);
+    return new Promise(function(resolve, reject) {
+      soundObj.sound.play(soundObj.spriteName);
+      soundObj.sound.on('end', function() {
+        resolve(`Group ${soundObj.groupId} done playing`);
+      });
+      soundObj.sound.on('loaderror', function() {
+        reject(`Group ${soundObj.groupId} failed to load sound`);
+      });
+    })
   }
 
-  if (!!path.parent && path.parent.className === 'Group') {
-    soundObj.groupId = path.parent.id;
-  }
 
   return soundObj;
 }
