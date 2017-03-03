@@ -52,7 +52,7 @@ export function getShapeSoundObj(path) {
     return new Promise(function(resolve, reject) {
       soundObj.sound.play(soundObj.spriteName);
       soundObj.sound.on('end', function() {
-        resolve(`Group ${soundObj.groupId} done playing`);
+        resolve(`Group ${soundObj.groupId} done playing sound`);
       });
       soundObj.sound.on('loaderror', function() {
         reject(`Group ${soundObj.groupId} failed to load sound`);
@@ -174,9 +174,11 @@ function asyncPlayShapeSound(shape) {
   return new Promise(function(resolve, reject) {
     try {
       // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-      shape.play(); // TODO: make promise :)
-      shape.sound.on('end', function() {
-        resolve(`Group ${shape.groupId} done playing sound`);
+      shape.play().then(function(res) {
+        resolve(res);
+      })
+      .catch(function(e) {
+        reject(e);
       });
     } catch(e) {
       reject(`Error playing shape sound: ${e}`);
