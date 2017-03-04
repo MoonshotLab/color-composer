@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const config = require('./../config');
+const clientConfig = require('./../src/js/client-config');
 
 router.get('/', function (req, res) {
   res.render('index', {
-    config: config,
+    config: clientConfig,
     range: require('array-range')
   });
 });
