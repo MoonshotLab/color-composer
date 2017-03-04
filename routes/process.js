@@ -1,11 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'tmp/' });
 
-router.get('/', function(req, res) {
-  res.render('process');
-});
+const cp = require('child-process-promise');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+
+const cwd = process.cwd();
+
+const mergedOutPath = `${cwd}/public/test/merged.mp4`;
+const mergedTsOutPath = `${cwd}/public/test/merged.ts`;
+const bumperTsPath = `${cwd}/public/test/bumper.ts`;
+const finalPath = `${cwd}/public/test/final.mp4`;
+
+const outWidth = 1980;
+const outHeight = 990;
 
 const uploadFieldsSpec = [
   {
@@ -17,43 +26,26 @@ const uploadFieldsSpec = [
     maxCount: 1
   }
 ];
-router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
-  console.log(req.files);
-});
 
-// ffmpeg -i ~/Downloads/blob.webm -i ~/Downloads/blob.wav -c:v mpeg4 -b:v 6400k -b:a 4800k -strict experimental /tmp/output.mp4
-router.get('/foo', function(req, res) {
-  const cp = require('child-process-promise');
-  const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-
-  const cwd = process.cwd();
-  const mergedOutPath = `${cwd}/public/test/merged.mp4`;
-  const mergedTsOutPath = `${cwd}/public/test/merged.ts`;
-  const bumperTsPath = `${cwd}/public/test/bumper.ts`;
-  const finalPath = `${cwd}/public/test/final.mp4`;
-
-  const mergeAndResizeCommand = [
+function getMergeAndResizeCommand(videoPath, audioPath) {
+  return [
     ffmpegPath,
-    `-i ${cwd}/public/test/output.mp4`,
-    `-i ${cwd}/public/test/blob.wav`,
+    `-i ${cwd}/${videoPath}`,
+    `-i ${cwd}/${audioPath}`,
     '-c:v libx264',
     '-b:v 6400k',
     '-b:a 4800k',
-    '-aspect 2:1',
-    // '-vf scale=w=1980:h=990:force_original_aspect_ratio=decrease',
-    // '-vf scale=1980x990,pad=1980:990:0:60:black',
-    // '-vf pad=width=640:height=480:x=0:y=0:color=black',
-    // `-vf scale="'if(gt(a,2/1),1980,-1)':'if(gt(a,2/1),-1,990)'"`,
-    // '-vf "scale=1980:990"',
-    // '-vf "scale=iw*min(1980/iw\,990/ih):ih*min(1980/iw\,990/ih),pad=1980:990:(1980-iw)/2:(990-ih)/2"',
-    `-vf 'scale=1980:990:force_original_aspect_ratio=decrease,pad=1980:990:x=(1980-iw)/2:y=(990-ih)/2:color=black'`,
+    `-aspect ${parseInt(outWidth / outHeight)}:1`,
+    `-vf 'scale=${outWidth}:${outHeight}:force_original_aspect_ratio=decrease,pad=${outWidth}:${outHeight}:x=(${outWidth}-iw)/2:y=(${outHeight}-ih)/2:color=black'`,
     '-strict experimental',
     mergedOutPath,
     '-y'
   ].join(' ');
+}
 
+function getMakeIntoTransportStreamCommand() {
   // https://trac.ffmpeg.org/wiki/Concatenate
-  const makeIntoTransportStreamCommand = [
+  return [
     ffmpegPath,
     `-i ${mergedOutPath}`,
     '-c copy',
@@ -62,8 +54,10 @@ router.get('/foo', function(req, res) {
     mergedTsOutPath,
     '-y'
   ].join(' ');
+}
 
-  const concatWithBumperCommand = [
+function getConcatWithBumperCommand() {
+  return [
     ffmpegPath,
     `-i "concat:${mergedTsOutPath}|${mergedTsOutPath}|${bumperTsPath}"`,
     '-c copy',
@@ -71,29 +65,42 @@ router.get('/foo', function(req, res) {
     finalPath,
     '-y'
   ].join(' ');
+}
 
-  // console.log(mergeAndResizeCommand);
-  cp.exec(mergeAndResizeCommand).then(function() {
-    // slap on bumper
-    // console.log('mergeAndResize done');
-    // console.log(makeIntoTransportStreamCommand);
-    cp.exec(makeIntoTransportStreamCommand).then(function() {
-      // console.log('makeIntoTransportStream done');
-      // console.log(concatWithBumperCommand);
-      cp.exec(concatWithBumperCommand).then(function() {
-        console.log('concatWithBumper done!!!');
+router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
+  console.log('got a post!');
+  console.log(req.files);
+  if ('video' in req.files && 'audio' in req.files) {
+    const videoBlob = req.files.video[0];
+    const audioBlob = req.files.audio[0];
+
+    const mergeAndResizeCommand = getMergeAndResizeCommand(videoBlob.path, audioBlob.path);
+    const makeIntoTransportStreamCommand = getMakeIntoTransportStreamCommand();
+    const concatWithBumperCommand = getConcatWithBumperCommand();
+
+    cp.exec(mergeAndResizeCommand).then(function() {
+      cp.exec(makeIntoTransportStreamCommand).then(function() {
+        cp.exec(concatWithBumperCommand).then(function() {
+          console.log('concatWithBumper done!!!');
+          res.send('success');
+        })
+        .catch(function(err) {
+          console.log('concatWithBumper err', err)
+          res.send('error');
+        })
       })
       .catch(function(err) {
-        console.log('concatWithBumper err')
-      })
+        console.log('makeIntoTransportStream error', err);
+        res.send('error');
+      });
     })
     .catch(function(err) {
-      console.log('makeIntoTransportStream error');
+      console.error('mergeAndResize error', err);
+      res.send('error');
     });
-  })
-  .catch(function(err) {
-    console.error('mergeAndResize error', err);
-  });
+  } else {
+    res.send('invalid data');
+  }
 });
 
 module.exports = router;

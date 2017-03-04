@@ -1,6 +1,7 @@
 const config = require('./../../config');
 
 const Promise = require('bluebird');
+const axios = require('axios');
 
 const ui = require('./ui');
 const sound = require('./sound');
@@ -48,8 +49,22 @@ export function record() {
     return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
       .then(function(values) {
         let [audioBlob, videoBlob] = values;
-        download(audioBlob, 'blob.wav');
-        download(videoBlob, 'blob.webm');
+        console.log('audioBlob', audioBlob);
+        console.log('videoBlob', videoBlob);
+
+        console.log('sending files');
+
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        formData.append('video', videoBlob);
+
+        axios.post('/process', formData)
+        .then(function(resp) {
+          console.log('response:', resp);
+        })
+        .catch(function(e) {
+          console.error(e);
+        });
       })
       .catch(function(e) {
         console.error(e);

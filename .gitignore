@@ -5,3 +5,4 @@ node_modules/
 *.log
 sketch/
 /public/test/
+tmp/

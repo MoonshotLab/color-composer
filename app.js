@@ -5,6 +5,7 @@ if (fs.existsSync('.env')) {
 
 const express = require('express');
 const app = express();
+const autoReap  = require('multer-autoreap');
 
 const path = require('path');
 
@@ -15,6 +16,7 @@ const processVideo = require('./routes/process');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(autoReap); // automatically clean uploads
 app.use(express.static(path.join(__dirname, 'public')));
 
 const port = process.env.PORT || 3000;
