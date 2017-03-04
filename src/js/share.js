@@ -1,13 +1,11 @@
 const config = require('./../../config');
 
-const RecordRTC = require('recordrtc');
-
 const ui = require('./ui');
 const sound = require('./sound');
 
 const drawCanvas = document.getElementById(config.canvasId);
 const canvasRecorder = RecordRTC(drawCanvas, {
-  type: 'canvas',
+  type: 'canvas'
 });
 
 export function record() {

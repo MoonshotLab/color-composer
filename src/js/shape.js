@@ -5,6 +5,8 @@ const config = require('./../../config');
 const util = require('./util');
 const color = require('./color');
 
+export let keepaliveShape;
+
 export const cornerThresholdDeg = 30;
 export const thresholdDistMultiplier = 0.1;
 
@@ -15,6 +17,31 @@ export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 function clearPops() {
   const pops = util.getAllPops();
   pops.forEach((pop) => pop.remove());
+}
+
+let keepaliveInterval = null;
+
+// the canvas recorder automatically trims 'still' frames, so I add a semitransparent 1px square to trick the recorder into recording :)
+function initKeepaliveShape() {
+  keepaliveShape = Path.Rectangle({
+   point: [1, 1],
+   size: [1, 1],
+   strokeColor: new Color(0, 0.001),
+   visible: false,
+   name: 'keepalive'
+ });
+}
+
+export function startKeepaliveAnimation() {
+  keepaliveShape.visible = true;
+  keepaliveInterval = setInterval(() => {
+    keepaliveShape.rotation += 5;
+  }, 40);
+};
+
+export function stopKeepaliveAnimation() {
+  keepaliveShape.visible = false;
+  clearInterval(keepaliveInterval);
 }
 
 export function destroyGroupPops(group) {
@@ -644,4 +671,8 @@ export function hitTestBounds(point, children) {
   }
 
   return null;
+}
+
+export function init() {
+  initKeepaliveShape();
 }

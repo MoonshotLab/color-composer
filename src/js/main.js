@@ -5,6 +5,7 @@ const video = require('./video');
 const timing = require('./timing');
 const util = require('./util');
 const sound = require('./sound');
+const shape = require('./shape');
 
 export function resetWindow() {
   window.kan = {
@@ -54,6 +55,7 @@ $(window).on('load', function() {
     ui.init();
     overlays.init();
     timing.init();
+    shape.init();
     sound.init()
       .then(() => {
         // sound.init() is async because it loads in the sound files

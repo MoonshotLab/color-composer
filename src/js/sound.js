@@ -386,6 +386,8 @@ export function asyncPlayCompositionOnce() {
 
     let shapePromises = [];
 
+    shape.startKeepaliveAnimation();
+
     Base.each(composition, (shape, i) => {
       shapePromises.push(asyncPlayShapeWithDelay(shape));
     });
@@ -397,12 +399,15 @@ export function asyncPlayCompositionOnce() {
       // wait for composition to be fully done before repeating (play is naturally truncated when the last shape finishes playing)
       if (playTime < compositionLength) {
         return Promise.delay(compositionLength - playTime).then(() => {
+          shape.stopKeepaliveAnimation();
           resolve(`Composition fully done, after a wait`);
         })
       } else {
+        shape.stopKeepaliveAnimation();
         resolve(`Composition fully done, with no wait`);
       }
     }).error((e) => {
+      shape.stopKeepaliveAnimation();
       reject(e);
     });
   })
