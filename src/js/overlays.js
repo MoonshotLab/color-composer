@@ -1,4 +1,4 @@
-const config = require('./../../config');
+const config = require('./client-config');
 
 const touch = require('./touch');
 const video = require('./video');

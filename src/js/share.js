@@ -1,4 +1,4 @@
-const config = require('./../../config');
+const config = require('./client-config');
 
 const Promise = require('bluebird');
 const axios = require('axios');
