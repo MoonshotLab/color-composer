@@ -8,10 +8,10 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
 const cwd = process.cwd();
 
-const mergedOutPath = `${cwd}/public/test/merged.mp4`;
-const mergedTsOutPath = `${cwd}/public/test/merged.ts`;
-const bumperTsPath = `${cwd}/public/test/bumper.ts`;
-const finalPath = `${cwd}/public/test/final.mp4`;
+const mergedOutPath = `${cwd}/tmp/merged.mp4`;
+const mergedTsOutPath = `${cwd}/tmp/merged.ts`;
+const bumperTsPath = `${cwd}/public/video/bumper.ts`;
+const finalPath = `${cwd}/public/video/final.mp4`;
 
 const outWidth = 1980;
 const outHeight = 990;
@@ -66,6 +66,10 @@ function getConcatWithBumperCommand() {
     '-y'
   ].join(' ');
 }
+
+router.get('/', function(req, res) {
+  res.render('process');
+})
 
 router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
   console.log('got a post!');
