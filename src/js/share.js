@@ -9,16 +9,16 @@ const canvasRecorder = RecordRTC(drawCanvas, {
 });
 
 export function record() {
-  let rec = new Recorder(Howler.masterGain, {
+  let audioRecorder = new Recorder(Howler.masterGain, {
     workerPath: '/js/lib/recorderWorker.js'
   });
 
   canvasRecorder.startRecording();
-  rec.record();
+  audioRecorder.record();
 
   sound.asyncPlayCompositionOnce().then(() => {
-    rec.stop();
-    rec.exportWAV(function(blob) {
+    audioRecorder.stop();
+    audioRecorder.exportWAV(function(blob) {
       download(blob, 'blob.wav');
     });
     canvasRecorder.stopRecording(function() {
@@ -26,8 +26,8 @@ export function record() {
       download(blob, 'blob.webm');
     });
   }).error((e) => {
-    rec.stop();
-    rec.exportWAV(function(blob) {
+    audioRecorder.stop();
+    audioRecorder.exportWAV(function(blob) {
       download(blob, 'blob.wav');
     });
     canvasRecorder.stopRecording(function() {
