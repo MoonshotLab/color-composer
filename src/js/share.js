@@ -59,13 +59,13 @@ export function record() {
         formData.append('video', videoBlob);
 
         axios.post('/process', formData)
-        .then(function(resp) {
-          console.log('response:', resp);
-          window.location.href = '/process';
-        })
-        .catch(function(e) {
-          console.error(e);
-        });
+          .then(function(resp) {
+            console.log('response:', resp);
+            window.location.href = '/process';
+          })
+          .catch(function(e) {
+            console.error(e);
+          });
       })
       .catch(function(e) {
         console.error(e);
