@@ -7,9 +7,6 @@ const ui = require('./ui');
 const sound = require('./sound');
 
 const drawCanvas = document.getElementById(config.canvasId);
-const canvasRecorder = RecordRTC(drawCanvas, {
-  type: 'canvas'
-});
 
 function asyncStopAudioRecordingAndExportBlob(recorder) {
   return new Promise(function(resolve, reject) {
@@ -37,47 +34,64 @@ function asyncStopVideoRecordingAndExportBlob(recorder) {
   });
 }
 
-export function record() {
-  let audioRecorder = new Recorder(Howler.masterGain, {
-    workerPath: '/js/lib/recorderWorker.js'
-  });
+export function asyncRecord() {
+  return new Promise(function(resolve, reject) {
+    try {
+      const audioRecorder = new Recorder(Howler.masterGain, {
+        workerPath: '/js/lib/recorderWorker.js'
+      });
+      const canvasRecorder = RecordRTC(drawCanvas, {
+        type: 'canvas'
+      });
 
-  canvasRecorder.startRecording();
-  audioRecorder.record();
+      Howler.mute(false);
+      canvasRecorder.startRecording();
+      audioRecorder.record();
 
-  sound.asyncPlayCompositionOnce().then(() => {
-    return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
-      .then(function(values) {
-        let [audioBlob, videoBlob] = values;
-        console.log('audioBlob', audioBlob);
-        console.log('videoBlob', videoBlob);
+      sound.asyncPlayCompositionOnce().then(() => {
+        return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
+          .then(function(values) {
+            let [audioBlob, videoBlob] = values;
+            console.log('audioBlob', audioBlob);
+            console.log('videoBlob', videoBlob);
 
-        console.log('sending files');
+            console.log('sending files');
 
-        const formData = new FormData();
-        formData.append('audio', audioBlob);
-        formData.append('video', videoBlob);
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+            formData.append('video', videoBlob);
 
-        axios.post('/process', formData)
-          .then(function(resp) {
-            const videoId = resp;
-            console.log(resp);
-            // window.location.href = `/process?id=${videoId}`;
+            axios.post('/process', formData)
+              .then(function(resp) {
+                const s3Id = resp.data;
+                // fire share modal
+                resolve(s3Id);
+                // window.location.href = `/process?id=${videoId}`;
+              })
+              .catch(function(e) {
+                // there was an error uploading!
+                console.error(e);
+                reject(e);
+              });
           })
           .catch(function(e) {
             console.error(e);
+            reject(e);
           });
-      })
-      .catch(function(e) {
-        console.error(e);
+      }).error((e) => {
+        return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
+          .then(function(values) {
+            console.log(values)
+          })
+          .catch(function(e) {
+            console.error(e);
+          })
+          .finally(function() {
+            reject(e);
+          })
       });
-  }).error((e) => {
-    Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
-      .then(function(values) {
-        console.log(values)
-      })
-      .catch(function(e) {
-        console.error(e);
-      });
-  });
+    } catch(e) {
+      reject(e);
+    }
+  })
 }

@@ -1,4 +1,5 @@
 const config = require('./client-config');
+require('howler');
 
 const sound = require('./sound');
 const tutorial = require('./tutorial');
@@ -7,6 +8,7 @@ const util = require('./util');
 const color = require('./color');
 const shape = require('./shape');
 const share = require('./share');
+const touch = require('./touch');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -24,6 +26,7 @@ export const drawCanvas = $('#canvas')[0];
 export const tipsOverlay = $('.overlay.tips')[0];
 
 const ditheredClass = 'dithered';
+const shareModeClass = 'share-mode';
 
 export function init() {
   initLogoRefresh();
@@ -35,6 +38,10 @@ export function init() {
   initShareButton();
   initContextualTuts();
   resetCanvas();
+}
+
+function ditherAllButtons() {
+  $('.controls > *').addClass(ditheredClass);
 }
 
 function unditherAllButtons() {
@@ -73,6 +80,19 @@ export function unditherButtonByName(buttonName) {
 
 function unditherButtonsByName(buttonNames) {
   ditherButtonsByName(buttonNames, true);
+}
+
+function enterShareMode() {
+  sound.stopPlaying(true);
+  ditherAllButtons();
+  clearTimeout(window.kan.playPromptTimeout);
+  touch.disableAllEvents();
+}
+
+function exitShareMode() {
+  unditherAllButtons();
+  Howler.mute(false);
+  touch.enableAllEvents();
 }
 
 function newPressed() {
@@ -193,12 +213,33 @@ function tipsPressed() {
 }
 
 function sharePressed() {
-  share.record();
-  // console.log('share pressed');
-  // sound.stopPlaying();
-  // if ($body.hasClass(sound.playEnabledClass)) {
-  //   overlays.openOverlay('share');
-  // }
+  console.log('sharePressed');
+  overlays.openOverlay('share-prepare');
+  clearInterval(window.kan.inactivityTimeout);
+  enterShareMode();
+  overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
+    // .then(function() {
+    //   return share.asyncRecord();
+    // })
+    .then(function(s3Id) {
+      console.log('recording done');
+      console.log('s3Id', s3Id);
+      exitShareMode();
+      overlays.openOverlay('share');
+      overlays.asyncWaitForWellFormedPhoneNumber()
+        .then(function(resp) {
+          console.log('received well formed phone number', resp);
+          // post to /composition/new
+        })
+        .catch(function(e) {
+          // could be a time out?
+          console.log('something went wrong', e);
+        })
+    })
+    .catch(function(e) {
+      preventInactivityTimeout();
+      exitShareMode(); // make sure
+    })
 }
 
 function initLogoRefresh() {

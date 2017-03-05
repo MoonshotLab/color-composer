@@ -66,11 +66,23 @@
   &.share-active {
     // FIXME: this is where you toggle the sharing modal per system
     // .share-tips, .share-phone, .share-soon, etc.
-    .overlay.share-soon {
+    .overlay.share-phone {
       opacity: 1;
       z-index: 3;
     }
     .main-controls > li:not(.share),
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
+  &.share-prepare-active {
+    .overlay.share-prepare {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls,
     .aux-controls-wrap {
       opacity: 0.25;
       filter: blur(1px);

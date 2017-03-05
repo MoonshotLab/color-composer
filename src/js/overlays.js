@@ -1,5 +1,7 @@
 const config = require('./client-config');
 
+const validator = require('validator');
+
 const touch = require('./touch');
 const video = require('./video');
 const timing = require('./timing');
@@ -19,7 +21,7 @@ const $footer = $body.find('.overlay.tips .footer');
 const $sharePhone = $body.find('#phone');
 const $shareKeypad = $body.find('.keypad');
 
-const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share'];
+const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare'];
 const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
 
 const overlayActiveClass = 'overlay-active';
@@ -40,7 +42,7 @@ export function openOverlay(overlayName) {
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
-    $body.find('.overlay:not(.tips)').on(tapEvent, () => {
+    $body.find('.overlay.closeable:not(.tips)').on(tapEvent, () => {
       closeAndResetOverlays();
     });
 
@@ -68,6 +70,9 @@ export function openOverlay(overlayName) {
         break;
       case 'share':
         openShareOverlay();
+        break;
+      case 'share-prepare':
+        openSharePrepareOverlay();
         break;
     }
   } else {
@@ -121,6 +126,10 @@ function openShareOverlay() {
   $body.addClass('share-active');
 }
 
+function openSharePrepareOverlay() {
+  $body.addClass('share-prepare-active');
+}
+
 
 // card slider navigation
 export function cardNavNext() {
@@ -143,7 +152,7 @@ export function cardNavNext() {
 function cardInteractions() {
   let timeOfLastInteraction = 0;
 
-  $body.find('.overlay').on(tapEvent, e => {
+  $body.find('.overlay.closeable').on(tapEvent, e => {
     const currentTime = Date.now();
     if (timeOfLastInteraction > (currentTime - 250)) {
       return;
@@ -172,6 +181,21 @@ export function closeAndResetOverlays() {
   resetTips();
 }
 
+export function asyncCloseOverlaysAfterDuration(duration) {
+  return new Promise(function(resolve, reject) {
+    let closeOverlayTimeout = null;
+    try {
+      closeOverlayTimeout = setTimeout(function() {
+        closeAndResetOverlays();
+        resolve('asyncCloseOverlaysAfterDuration done');
+      }, duration);
+    } catch(e) {
+      clearTimeout(closeOverlayTimeout);
+      reject(e);
+    }
+  })
+}
+
 // deal a fresh stack of cards
 function activateTipsCards() {
   let $new = $cardItems.first();
@@ -190,6 +214,27 @@ function updateCardCounter(current, total) {
   $footer.find('.next').html(total);
 }
 
+export function asyncWaitForWellFormedPhoneNumber() {
+  return new Promise(function(resolve, reject) {
+    // normal inactivity timeout is disabled, start an alternate one
+    let inactivityTimeout = setTimeout(function() {
+      reject('timeout');
+    }, timing.continueInactivityDelay);
+
+    $shareKeypad.find('.send').on(tapEvent, e => {
+      const phoneNumWithHyphens = $sharePhone.text();
+      const phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
+
+      if (validator.isMobilePhone(phoneNumRaw, 'en-US')) {
+        clearTimeout(inactivityTimeout);
+        resolve(phoneNumRaw);
+      } else {
+        console.log('malformed phone number');
+      }
+    });
+  })
+}
+
 // phone inputs
 function phoneNumberInputs() {
   // mask the output
@@ -204,8 +249,6 @@ function phoneNumberInputs() {
   $shareKeypad.find('.clear').on(tapEvent, e => {
     $sharePhone.html('');
   });
-  // FIXME: send sms
-  // $shareKeypad.find('.send').on(tapEvent, e => {});
 }
 
 // "randomly" place fiddly bits on the cards

@@ -62,9 +62,19 @@ export function init() {
   // hammerCanvas.on('pinchcancel', pinchCancel);
 }
 
-function enablePanAndPinchEvents() {
-  enablePanEvents();
-  enablePinchEvents();
+export function enableAllEvents(enable = true) {
+  enableTapEvents(enable);
+  enablePanAndPinchEvents(enable);
+}
+
+export function disableAllEvents() {
+  enableAllEvents(false);
+}
+
+function enablePanAndPinchEvents(enable = true) {
+  enable = enable === true;
+  enablePanEvents(enable);
+  enablePinchEvents(enable);
 }
 
 function enableTapEvents(enable = true) {
