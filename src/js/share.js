@@ -61,7 +61,7 @@ export function record() {
         axios.post('/process', formData)
           .then(function(resp) {
             const videoId = resp;
-            // console.log(resp);
+            console.log(resp);
             // window.location.href = `/process?id=${videoId}`;
           })
           .catch(function(e) {
@@ -71,14 +71,6 @@ export function record() {
       .catch(function(e) {
         console.error(e);
       });
-    // audioRecorder.stop();
-    // audioRecorder.exportWAV(function(blob) {
-    //   download(blob, 'blob.wav');
-    // });
-    // canvasRecorder.stopRecording(function() {
-    //   var blob = canvasRecorder.getBlob();
-    //   download(blob, 'blob.webm');
-    // });
   }).error((e) => {
     Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
       .then(function(values) {
@@ -87,13 +79,5 @@ export function record() {
       .catch(function(e) {
         console.error(e);
       });
-    // audioRecorder.stop();
-    // audioRecorder.exportWAV(function(blob) {
-    //   download(blob, 'blob.wav');
-    // });
-    // canvasRecorder.stopRecording(function() {
-    //   var blob = canvasRecorder.getBlob();
-    //   download(blob, 'blob.webm');
-    // });
   });
 }
