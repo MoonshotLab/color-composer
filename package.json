@@ -58,6 +58,8 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.9",
     "array-range": "^1.0.1",
+    "async": "^2.1.5",
+    "bluebird": "^3.5.0",
     "child-process-promise": "^2.2.0",
     "debug": "^2.3.3",
     "dotenv": "^2.0.0",
