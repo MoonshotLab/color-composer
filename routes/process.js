@@ -30,54 +30,109 @@ function getUuid() {
   return new Date().getTime().toString();
 }
 
-function getMergeAndResizeCommand(videoPath, audioPath) {
-  return [
-    ffmpegPath,
-    `-i ${cwd}/${videoPath}`,
-    `-i ${cwd}/${audioPath}`,
-    '-c:v libx264',
-    '-b:v 6400k',
-    '-b:a 4800k',
-    `-aspect ${parseInt(outWidth / outHeight)}:1`,
-    `-vf 'scale=${outWidth}:${outHeight}:force_original_aspect_ratio=decrease,pad=${outWidth}:${outHeight}:x=(${outWidth}-iw)/2:y=(${outHeight}-ih)/2:color=black'`,
-    '-strict experimental',
-    mergedOutPath,
-    '-y'
-  ].join(' ');
+function asyncMergeAndResize(videoPath, audioPath) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const command = [
+        ffmpegPath,
+        `-i ${cwd}/${videoPath}`,
+        `-i ${cwd}/${audioPath}`,
+        '-c:v libx264',
+        '-b:v 6400k',
+        '-b:a 4800k',
+        `-aspect ${parseInt(outWidth / outHeight)}:1`,
+        `-vf 'scale=${outWidth}:${outHeight}:force_original_aspect_ratio=decrease,pad=${outWidth}:${outHeight}:x=(${outWidth}-iw)/2:y=(${outHeight}-ih)/2:color=black'`,
+        '-strict experimental',
+        mergedOutPath,
+        '-y'
+      ].join(' ');
+
+      cp.exec(command)
+        .then(function() {
+          resolve('asyncMergeAndResize successful');
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  });
 }
 
-function getMakeIntoTransportStreamCommand() {
-  // https://trac.ffmpeg.org/wiki/Concatenate
-  return [
-    ffmpegPath,
-    `-i ${mergedOutPath}`,
-    '-c copy',
-    '-bsf:v h264_mp4toannexb',
-    '-f mpegts',
-    mergedTsOutPath,
-    '-y'
-  ].join(' ');
+function asyncMakeIntoTransportStream() {
+  return new Promise(function(resolve, reject) {
+    try {
+      const command = [
+        ffmpegPath,
+        `-i ${mergedOutPath}`,
+        '-c copy',
+        '-bsf:v h264_mp4toannexb',
+        '-f mpegts',
+        mergedTsOutPath,
+        '-y'
+      ].join(' ');
+
+      cp.exec(command)
+        .then(function() {
+          resolve('makeIntoTransportStream successful');
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  })
 }
 
-function getConcatWithBumperCommand(uuid) {
-  return [
-    ffmpegPath,
-    `-i "concat:${mergedTsOutPath}|${mergedTsOutPath}|${bumperTsPath}"`,
-    '-c copy',
-    '-bsf:a aac_adtstoasc',
-    `${cwd}/tmp/${uuid}.mp4`,
-    '-y'
-  ].join(' ');
+function asyncConcatWithBumper(uuid) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const command = [
+        ffmpegPath,
+        `-i "concat:${mergedTsOutPath}|${mergedTsOutPath}|${bumperTsPath}"`,
+        '-c copy',
+        '-bsf:a aac_adtstoasc',
+        `${cwd}/tmp/${uuid}.mp4`,
+        '-y'
+      ].join(' ');
+
+      cp.exec(command)
+        .then(function() {
+          resolve('concatWithBumper successful');
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  })
 }
 
-function getGenerateThumbnailCommand(uuid) {
-  return [
-    ffmpegPath,
-    `-i ${cwd}/tmp/${uuid}.mp4`,
-    '-ss 0',
-    '-vframes 1',
-    `${cwd}/tmp/${uuid}.png`
-  ].join(' ');
+function asyncGenerateThumbnail(uuid) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const command = [
+        ffmpegPath,
+        `-i ${cwd}/tmp/${uuid}.mp4`,
+        '-ss 0',
+        '-vframes 1',
+        `${cwd}/tmp/${uuid}.png`
+      ].join(' ');
+
+      cp.exec(command)
+        .then(function() {
+          resolve('generateThumbnail successful');
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  })
 }
 
 router.get('/', function(req, res) {
@@ -94,36 +149,26 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
     const videoBlob = req.files.video[0];
     const audioBlob = req.files.audio[0];
 
-    const mergeAndResizeCommand = getMergeAndResizeCommand(videoBlob.path, audioBlob.path);
-    const makeIntoTransportStreamCommand = getMakeIntoTransportStreamCommand();
-    const concatWithBumperCommand = getConcatWithBumperCommand(uuid);
-    const generateThumbnailCommand = getGenerateThumbnailCommand(uuid);
-
-    cp.exec(mergeAndResizeCommand).then(function() {
-      cp.exec(makeIntoTransportStreamCommand).then(function() {
-        cp.exec(concatWithBumperCommand).then(function() {
-          cp.exec(generateThumbnailCommand).then(function() {
-            console.log('video processed successfully');
-            res.send(uuid);
-          })
-          .catch(function(err) {
-            console.log('generateThumbnailCommand err', err);
-          })
-        })
-        .catch(function(err) {
-          console.log('concatWithBumper err', err)
-          res.send('error');
-        })
+    console.log('mergeAndResize');
+    asyncMergeAndResize(videoBlob.path, audioBlob.path)
+      .then(function() {
+        console.log('makeIntoTransportStream');
+        return asyncMakeIntoTransportStream();
+      })
+      .then(function() {
+        console.log('concatWithBumper');
+        return asyncConcatWithBumper(uuid);
+      })
+      .then(function() {
+        console.log('generateThumbnail');
+        return asyncGenerateThumbnail(uuid);
+      })
+      .then(function() {
+        console.log('video processed successfully')
       })
       .catch(function(err) {
-        console.log('makeIntoTransportStream error', err);
-        res.send('error');
+        console.error(err);
       });
-    })
-    .catch(function(err) {
-      console.error('mergeAndResize error', err);
-      res.send('error');
-    });
   } else {
     res.send('invalid data');
   }
