@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const upload = multer({ dest: 'tmp/' });
-
+const Promise = require('bluebird');
+const path = require('path');
+const fs = require('fs');
 const cp = require('child-process-promise');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
-const cwd = process.cwd();
+const s3 = require('./../lib/s3');
 
-const mergedOutPath = `${cwd}/tmp/merged.mp4`;
-const mergedTsOutPath = `${cwd}/tmp/merged.ts`;
-const bumperTsPath = `${cwd}/public/video/bumper.ts`;
+const cwd = process.cwd();
+const bumperTsPath = path.join(cwd, 'public', 'video', 'bumper.ts');
 
 const outWidth = 1980;
 const outHeight = 990;
@@ -30,13 +31,24 @@ function getUuid() {
   return new Date().getTime().toString();
 }
 
-function asyncMergeAndResize(videoPath, audioPath) {
+function asyncMakeDirectory(outPath) {
+  return new Promise(function(resolve, reject) {
+    fs.mkdir(outPath, function() {
+      resolve('directory created');
+    });
+  });
+}
+
+function asyncMergeAndResize(outPath, videoPath, audioPath) {
   return new Promise(function(resolve, reject) {
     try {
+      const fullVideoPath = path.join(cwd, videoPath);
+      const fullAudioPath = path.join(cwd, audioPath);
+      const mergedOutPath = path.join(outPath, 'merged.mp4');
       const command = [
         ffmpegPath,
-        `-i ${cwd}/${videoPath}`,
-        `-i ${cwd}/${audioPath}`,
+        `-i ${fullVideoPath}`,
+        `-i ${fullAudioPath}`,
         '-c:v libx264',
         '-b:v 6400k',
         '-b:a 4800k',
@@ -60,9 +72,11 @@ function asyncMergeAndResize(videoPath, audioPath) {
   });
 }
 
-function asyncMakeIntoTransportStream() {
+function asyncMakeIntoTransportStream(outPath) {
   return new Promise(function(resolve, reject) {
     try {
+      const mergedOutPath = path.join(outPath, 'merged.mp4');
+      const mergedTsOutPath = path.join(outPath, 'merged.ts');
       const command = [
         ffmpegPath,
         `-i ${mergedOutPath}`,
@@ -86,15 +100,17 @@ function asyncMakeIntoTransportStream() {
   })
 }
 
-function asyncConcatWithBumper(uuid) {
+function asyncConcatWithBumper(outPath, uuid) {
   return new Promise(function(resolve, reject) {
     try {
+      const mergedTsOutPath = path.join(outPath, 'merged.ts');
+      const finalOutPath = path.join(outPath, `${uuid}.mp4`);
       const command = [
         ffmpegPath,
         `-i "concat:${mergedTsOutPath}|${mergedTsOutPath}|${bumperTsPath}"`,
         '-c copy',
         '-bsf:a aac_adtstoasc',
-        `${cwd}/tmp/${uuid}.mp4`,
+        finalOutPath,
         '-y'
       ].join(' ');
 
@@ -111,15 +127,46 @@ function asyncConcatWithBumper(uuid) {
   })
 }
 
-function asyncGenerateThumbnail(uuid) {
+function asyncMakeWebMFromMp4(outPath, uuid) {
   return new Promise(function(resolve, reject) {
     try {
+      const mp4Path = path.join(outPath, `${uuid}.mp4`);
+      const webMPath = path.join(outPath, `${uuid}.webm`);
       const command = [
         ffmpegPath,
-        `-i ${cwd}/tmp/${uuid}.mp4`,
+        `-i ${mp4Path}`,
+        '-c:v libvpx',
+        '-crf 10',
+        '-b:v 1M',
+        '-c:a libvorbis',
+        webMPath,
+        '-y'
+      ].join(' ');
+
+      cp.exec(command)
+        .then(function() {
+          resolve('makeWebm successful')
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
+function asyncGenerateThumbnail(outPath, uuid) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const finalVideoPath = path.join(outPath, `${uuid}.mp4`);
+      const thumbnailOutPath = path.join(outPath, `${uuid}.png`);
+      const command = [
+        ffmpegPath,
+        `-i ${finalVideoPath}`,
         '-ss 0',
         '-vframes 1',
-        `${cwd}/tmp/${uuid}.png`
+        thumbnailOutPath,
       ].join(' ');
 
       cp.exec(command)
@@ -135,6 +182,62 @@ function asyncGenerateThumbnail(uuid) {
   })
 }
 
+function asyncRemoveFile(filePath) {
+  return new Promise(function(resolve, reject) {
+    try {
+      fs.unlink(filePath, function() {
+        resolve(`${filePath} removed`);
+      });
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
+function asyncCleanDirPreUpload(outPath, uuid) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const mergedTsPath = path.join(outPath, 'merged.ts');
+      const mergedMp4Path = path.join(outPath, 'merged.mp4');
+
+      Promise.all([asyncRemoveFile(mergedTsPath), asyncRemoveFile(mergedMp4Path)])
+        .then(function() {
+          resolve('directory cleaned')
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  });
+}
+
+function asyncUploadToS3(outPath, uuid) {
+  return new Promise(function(resolve, reject) {
+    try {
+      fs.readdir(outPath, function(err, res) {
+        if (err) reject(err);
+
+        let files = [];
+        res.forEach(function(file) {
+          files.push(path.join(outPath, file));
+        });
+
+        s3.asyncRemember(uuid, files)
+          .then(function() {
+            resolve('uploaded to s3');
+          })
+          .catch(function(e) {
+            reject(e);
+          })
+      })
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
 router.get('/', function(req, res) {
   res.render('process', {
     videoId: req.query.id
@@ -142,34 +245,52 @@ router.get('/', function(req, res) {
 })
 
 router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
-  console.log('got a post!');
-  console.log(req.files);
   if ('video' in req.files && 'audio' in req.files) {
     const uuid = getUuid();
+    const outPath = path.join(cwd, 'tmp', uuid);
+
     const videoBlob = req.files.video[0];
     const audioBlob = req.files.audio[0];
 
-    console.log('mergeAndResize');
-    asyncMergeAndResize(videoBlob.path, audioBlob.path)
+    console.log('makeDirectory');
+    asyncMakeDirectory(outPath)
+      .then(function() {
+        console.log('mergeAndResize');
+        return asyncMergeAndResize(outPath, videoBlob.path, audioBlob.path);
+      })
       .then(function() {
         console.log('makeIntoTransportStream');
-        return asyncMakeIntoTransportStream();
+        return asyncMakeIntoTransportStream(outPath);
       })
       .then(function() {
         console.log('concatWithBumper');
-        return asyncConcatWithBumper(uuid);
+        return asyncConcatWithBumper(outPath, uuid);
       })
       .then(function() {
         console.log('generateThumbnail');
-        return asyncGenerateThumbnail(uuid);
+        return asyncGenerateThumbnail(outPath, uuid);
       })
       .then(function() {
-        console.log('video processed successfully')
+        console.log('makeWebm');
+        return asyncMakeWebMFromMp4(outPath, uuid);
+      })
+      .then(function() {
+        console.log('cleanDirPreUpload');
+        return asyncCleanDirPreUpload(outPath, uuid);
+      })
+      .then(function() {
+        console.log('uploadToS3');
+        return asyncUploadToS3(outPath, uuid);
+      })
+      .then(function() {
+        console.log('video processed successfully');
+        res.send(uuid);
       })
       .catch(function(err) {
         console.error(err);
       });
   } else {
+    console.log('improper post');
     res.send('invalid data');
   }
 });
