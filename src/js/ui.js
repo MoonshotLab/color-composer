@@ -212,36 +212,6 @@ function tipsPressed() {
   // console.log('tips pressed');
 }
 
-function sharePressed() {
-  console.log('sharePressed');
-  overlays.openOverlay('share-prepare');
-  clearInterval(window.kan.inactivityTimeout);
-  enterShareMode();
-  overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
-    // .then(function() {
-    //   return share.asyncRecord();
-    // })
-    .then(function(s3Id) {
-      console.log('recording done');
-      console.log('s3Id', s3Id);
-      exitShareMode();
-      overlays.openOverlay('share');
-      overlays.asyncWaitForWellFormedPhoneNumber()
-        .then(function(resp) {
-          console.log('received well formed phone number', resp);
-          // post to /composition/new
-        })
-        .catch(function(e) {
-          // could be a time out?
-          console.log('something went wrong', e);
-        })
-    })
-    .catch(function(e) {
-      preventInactivityTimeout();
-      exitShareMode(); // make sure
-    })
-}
-
 function initLogoRefresh() {
   $('.main-logo').on(tapEvent, function() {
     location.reload();
@@ -313,7 +283,7 @@ function initTipsButton() {
 }
 
 function initShareButton() {
-  $('.controls .share').on(tapEvent, sharePressed);
+  $('.controls .share').on(tapEvent, share.handleSharePressed);
 }
 
 function initContextualTuts() {
