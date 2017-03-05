@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const upload = multer({ dest: 'tmp/' });
-const knox = require('knox');
 
 const cp = require('child-process-promise');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
@@ -27,7 +26,7 @@ const uploadFieldsSpec = [
   }
 ];
 
-function getId() {
+function getUuid() {
   return new Date().getTime().toString();
 }
 
@@ -60,14 +59,24 @@ function getMakeIntoTransportStreamCommand() {
   ].join(' ');
 }
 
-function getConcatWithBumperCommand(outId) {
+function getConcatWithBumperCommand(uuid) {
   return [
     ffmpegPath,
     `-i "concat:${mergedTsOutPath}|${mergedTsOutPath}|${bumperTsPath}"`,
     '-c copy',
     '-bsf:a aac_adtstoasc',
-    `${cwd}/tmp/${outId}.mp4`,
+    `${cwd}/tmp/${uuid}.mp4`,
     '-y'
+  ].join(' ');
+}
+
+function getGenerateThumbnailCommand(uuid) {
+  return [
+    ffmpegPath,
+    `-i ${cwd}/tmp/${uuid}.mp4`,
+    '-ss 0',
+    '-vframes 1',
+    `${cwd}/tmp/${uuid}.png`
   ].join(' ');
 }
 
@@ -81,19 +90,25 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
   console.log('got a post!');
   console.log(req.files);
   if ('video' in req.files && 'audio' in req.files) {
-    const outId = getId();
+    const uuid = getUuid();
     const videoBlob = req.files.video[0];
     const audioBlob = req.files.audio[0];
 
     const mergeAndResizeCommand = getMergeAndResizeCommand(videoBlob.path, audioBlob.path);
     const makeIntoTransportStreamCommand = getMakeIntoTransportStreamCommand();
-    const concatWithBumperCommand = getConcatWithBumperCommand(outId);
+    const concatWithBumperCommand = getConcatWithBumperCommand(uuid);
+    const generateThumbnailCommand = getGenerateThumbnailCommand(uuid);
 
     cp.exec(mergeAndResizeCommand).then(function() {
       cp.exec(makeIntoTransportStreamCommand).then(function() {
         cp.exec(concatWithBumperCommand).then(function() {
-          console.log('concatWithBumper done!!!');
-          res.send(outId);
+          cp.exec(generateThumbnailCommand).then(function() {
+            console.log('video processed successfully');
+            res.send(uuid);
+          })
+          .catch(function(err) {
+            console.log('generateThumbnailCommand err', err);
+          })
         })
         .catch(function(err) {
           console.log('concatWithBumper err', err)
