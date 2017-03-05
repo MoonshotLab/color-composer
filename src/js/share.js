@@ -61,8 +61,8 @@ export function record() {
         axios.post('/process', formData)
           .then(function(resp) {
             const videoId = resp;
-            console.log(resp);
-            window.location.href = `/process?id=${videoId}`;
+            // console.log(resp);
+            // window.location.href = `/process?id=${videoId}`;
           })
           .catch(function(e) {
             console.error(e);

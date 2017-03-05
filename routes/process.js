@@ -5,6 +5,7 @@ const upload = multer({ dest: 'tmp/' });
 const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs');
+const rimraf = require('rimraf'); // rm -rf
 const cp = require('child-process-promise');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
@@ -238,6 +239,18 @@ function asyncUploadToS3(outPath, uuid) {
   })
 }
 
+function asyncDestroyTmpDir(outPath) {
+  return new Promise(function(resolve, reject) {
+    try {
+      rimraf(outPath, function() {
+        resolve('directory destroyed');
+      });
+    } catch(e) {
+      reject(e);
+    }
+  });
+}
+
 router.get('/', function(req, res) {
   res.render('process', {
     videoId: req.query.id
@@ -252,6 +265,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
     const videoBlob = req.files.video[0];
     const audioBlob = req.files.audio[0];
 
+    console.log(`processing ${uuid} at ${outPath}`);
     console.log('makeDirectory');
     asyncMakeDirectory(outPath)
       .then(function() {
@@ -259,6 +273,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
         return asyncMergeAndResize(outPath, videoBlob.path, audioBlob.path);
       })
       .then(function() {
+        res.send(uuid);
         console.log('makeIntoTransportStream');
         return asyncMakeIntoTransportStream(outPath);
       })
@@ -283,8 +298,11 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
         return asyncUploadToS3(outPath, uuid);
       })
       .then(function() {
+        console.log('destropTmpDir');
+        return asyncDestroyTmpDir(outPath);
+      })
+      .then(function() {
         console.log('video processed successfully');
-        res.send(uuid);
       })
       .catch(function(err) {
         console.error(err);
