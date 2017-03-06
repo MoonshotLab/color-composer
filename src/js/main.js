@@ -6,6 +6,7 @@ const timing = require('./timing');
 const util = require('./util');
 const sound = require('./sound');
 const shape = require('./shape');
+const animation = require('./animation');
 
 export function resetWindow() {
   window.kan = {
@@ -56,12 +57,13 @@ $(window).on('load', function() {
     overlays.init();
     timing.init();
     shape.init();
+    animation.init();
     sound.init()
-      .then(() => {
+      .then(function() {
         // sound.init() is async because it loads in the sound files
         touch.init();
       })
-      .fail((e) => {
+      .fail(function(e) {
         console.error('error initting shape sounds:', e);
         location.reload();
       })
@@ -71,7 +73,7 @@ $(window).on('load', function() {
     run();
   } catch(e) {
     console.error(e);
-    setTimeout(() => {
+    setTimeout(function() {
       // wait 5 seconds then reload
       location.reload();
     }, 5 * 1000);

@@ -48,7 +48,7 @@ export function init() {
   hammerCanvas.get('pan').requireFailure('pinch');
   hammerCanvas.get('pinch').requireFailure('pan');
 
-  // hammerCanvas.on('singletap', singleTap);
+  hammerCanvas.on('singletap', singleTap);
   hammerCanvas.on('doubletap', doubleTap);
 
   hammerCanvas.on('panstart', panStart);
@@ -117,7 +117,7 @@ function singleTap(event) {
   // console.log(event.target);
   // event.preventDefault();
   // if (!eventTargetIsOnCanvas(event)) return;
-  tutorial.hideContextualTuts();
+  // tutorial.hideContextualTuts();
   // $(event.target).click();
 
   // sound.stopPlaying();
@@ -387,7 +387,7 @@ function panEnd(event) {
 
   shapePath.remove();
   truedShape.visible = false;
-  truedShape.strokeColor = new Color(0, 0);
+  truedShape.strokeColor = transparent;
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
 
@@ -420,23 +420,25 @@ function panEnd(event) {
 
   let shapeMask = outline.clone();
   shapeMask.fillColor = outline.fillColor;
-  shapeMask.strokeColor = outline.strokeColor;
+  shapeMask.strokeColor = transparent;
   shapeMask.closed = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
+  console.log('enclosedLoops', enclosedLoops);
   if (enclosedLoops.length > 0 || truedShape.closed === true) {
     group.data.line = false;
   } else {
     group.data.line = true;
   }
 
-  enclosedLoops.forEach((loop) => {
+  enclosedLoops.forEach(function(loop) {
     shapeMask.unite(loop);
     shapeMask.sendToBack();
     loop.name = 'loop';
     loop.data.loop = true;
     loop.visible = true;
     group.addChild(loop);
+    loop.bringToFront();
   });
 
 
@@ -444,7 +446,7 @@ function panEnd(event) {
   let crossings = shapeMask.resolveCrossings();
   if (!!crossings && !!crossings.children && crossings.children.length > 0) {
     let maxArea = 0, maxChild = null;
-    crossings.children.forEach((child) => {
+    crossings.children.forEach(function(child) {
       if (child.area > maxArea) {
         maxChild = child;
         maxArea = child.area;
@@ -462,6 +464,8 @@ function panEnd(event) {
   shapeMask.sendToBack();
 
   shape.cleanUpGroup(group);
+  group.shadowColor = group.data.originalColor;
+  group.shadowBlur = 0;
 
   move.id = group.id;
   window.kan.moves.push(move);
@@ -473,7 +477,7 @@ function panEnd(event) {
   if (window.kan.userHasDrawnFirstShape !== true) {
     // first shape!
     // set play prompt timeout
-    window.kan.playPromptTimeout = setTimeout(() => {
+    window.kan.playPromptTimeout = setTimeout(function() {
       overlays.openOverlay('play-prompt');
     }, timing.playPromptDelay);
 
@@ -534,7 +538,7 @@ function panEnd(event) {
   if (window.kan.scheduledOverlay !== null) {
     let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
-    setTimeout(() => {
+    setTimeout(function() {
       overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
@@ -543,7 +547,7 @@ function panEnd(event) {
 
   // console.log('pan done');
   hammerCanvas.set({ enable: false });
-  setTimeout(() => {
+  setTimeout(function() {
     hammerCanvas.set({ enable: true });
     console.log('touch enabled');
     hammerCanvas.on('panstart', panStart);
@@ -776,7 +780,7 @@ function pinchEnd(event) {
   if (window.kan.scheduledOverlay !== null) {
     let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
-    setTimeout(() => {
+    setTimeout(function() {
       overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
@@ -789,7 +793,7 @@ function pinchEnd(event) {
 
   // console.log('pinch done');
   // hammerCanvas.set({ enable: false });
-  setTimeout(() => {
+  setTimeout(function() {
     console.log('touch enabled');
     hammerCanvas.on('pinchstart', pinchStart);
     enablePanAndPinchEvents();
