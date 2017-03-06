@@ -1,0 +1,53 @@
+body#composition-detail {
+  background-color: black;
+  text-align: center;
+
+  path {
+    stroke: red;
+    fill: blue;
+  }
+
+  a {
+    text-decoration: none;
+    color: white;
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  #logo {
+    width: 30%;
+    min-width: 15rem;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  #composition-wrap {
+    max-width: 120rem;
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  #composition-share {
+    @extend %naked-list;
+    margin-top: 2rem;
+  }
+
+  .share-item {
+    display: inline-block;
+    padding: 1rem 2rem;
+
+    img {
+      width: 5rem;
+    }
+
+    a, img {
+      display: block;
+    }
+
+    span {
+      @extend %visually-hidden;
+    }
+  }
+}
