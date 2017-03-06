@@ -161,13 +161,14 @@ function asyncGenerateThumbnail(outPath, uuid) {
   return new Promise(function(resolve, reject) {
     try {
       const finalVideoPath = path.join(outPath, `${uuid}.mp4`);
-      const thumbnailOutPath = path.join(outPath, `${uuid}.png`);
+      const thumbnailOutPath = path.join(outPath, `${uuid}.jpg`);
       const command = [
         ffmpegPath,
         `-i ${finalVideoPath}`,
         '-ss 0',
         '-vframes 1',
         thumbnailOutPath,
+        '-y'
       ].join(' ');
 
       cp.exec(command)

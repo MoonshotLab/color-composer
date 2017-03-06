@@ -2,6 +2,7 @@ const config = require('./client-config');
 
 const Promise = require('bluebird');
 const axios = require('axios');
+const qs = require('qs');
 
 const ui = require('./ui');
 const timing = require('./timing');
@@ -98,32 +99,62 @@ export function asyncRecord() {
   })
 }
 
+export function asyncAddCompositionToDb(data) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const s3Id = data.s3Id;
+      const phone = data.phone;
+      const queryString = qs.stringify({
+        s3Id: s3Id,
+        phone: phone,
+        postKey: config.postKey
+      });
+
+      return axios.post('/composition/new?' + queryString)
+        .then(function() {
+          resolve('composition successfully posted');
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
 export function handleSharePressed() {
   console.log('sharePressed');
   overlays.openOverlay('share-prepare');
   clearInterval(window.kan.inactivityTimeout);
   ui.enterShareMode();
   overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
-    // .then(function() {
-    //   return share.asyncRecord();
-    // })
+    .then(function() {
+      return asyncRecord();
+    })
     .then(function(s3Id) {
       console.log('recording done');
-      console.log('s3Id', s3Id);
       ui.exitShareMode();
       overlays.openOverlay('share');
-      overlays.asyncWaitForWellFormedPhoneNumber()
-        .then(function(resp) {
-          console.log('received well formed phone number', resp);
-          // post to /composition/new
-          // close overlay
-        })
-        .catch(function(e) {
-          // could be a time out?
-          console.log('something went wrong', e);
-        })
+      return overlays.asyncWaitForWellFormedPhoneNumber(s3Id)
+    })
+    .then(function(resp) {
+      console.log('received well formed phone number');
+      return asyncAddCompositionToDb(resp);
+    })
+    // .catch(function(e) {
+    //   // could be a time out?
+    //   console.log('something went wrong', e);
+    // })
+    // .then(function() {
+    // })
+    .then(function() {
+      // close overlay
+      console.log('close overlay');
     })
     .catch(function(e) {
+      // close overlay
+      console.error(e);
       timing.preventInactivityTimeout();
       ui.exitShareMode(); // make sure
     })

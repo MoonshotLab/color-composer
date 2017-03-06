@@ -214,7 +214,7 @@ function updateCardCounter(current, total) {
   $footer.find('.next').html(total);
 }
 
-export function asyncWaitForWellFormedPhoneNumber() {
+export function asyncWaitForWellFormedPhoneNumber(s3Id) {
   return new Promise(function(resolve, reject) {
     // normal inactivity timeout is disabled, start an alternate one
     let inactivityTimeout = setTimeout(function() {
@@ -227,7 +227,10 @@ export function asyncWaitForWellFormedPhoneNumber() {
 
       if (validator.isMobilePhone(phoneNumRaw, 'en-US')) {
         clearTimeout(inactivityTimeout);
-        resolve(phoneNumRaw);
+        resolve({
+          phone: phoneNumRaw,
+          s3Id: s3Id
+        });
       } else {
         console.log('malformed phone number');
       }
@@ -254,7 +257,8 @@ function phoneNumberInputs() {
 // "randomly" place fiddly bits on the cards
 function randomCardGraphics() {
   $body.find('.card-wrap article').each((i, el) => {
-    $(el).attr('data-bg', i);
+    const numBg = 6; // 6 different bgs specified in css
+    $(el).attr('data-bg', i % numBg);
   });
 }
 

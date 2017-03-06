@@ -1,4 +1,4 @@
-doctype
+doctype html
 html
   head
     meta(charset='utf-8')
@@ -50,15 +50,15 @@ html
     div#video-wrap
       video(src='https://s3.amazonaws.com/nelson-atkins/cc_intro.mp4', autoplay, loop)
     include partials/overlays.pug
-  script(src='js/lib/jquery.min.js')
-  script(src='js/lib/paper-full.min.js')
-  script.
-    paper.install(window);
-    const canvas = document.getElementById('#{config.canvasId}');
-    paper.setup(canvas);
-  script(src='js/lib/animatePaper.min.js')
-  script(src='js/lib/maskedInput.min.js')
-  script(src='js/lib/RecordRTC.js')
-  script(src='js/lib/recorder.js')
-  script(src='js/lib/download.js')
-  script(src='js/main.js')
+    script(src='js/lib/jquery.min.js')
+    script(src='js/lib/paper-full.min.js')
+    script.
+      paper.install(window);
+      const canvas = document.getElementById('#{config.canvasId}');
+      paper.setup(canvas);
+    script(src='js/lib/animatePaper.min.js')
+    script(src='js/lib/maskedInput.min.js')
+    script(src='js/lib/RecordRTC.js')
+    script(src='js/lib/recorder.js')
+    script(src='js/lib/download.js')
+    script(src='js/main.js')

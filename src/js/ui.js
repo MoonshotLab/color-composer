@@ -82,14 +82,14 @@ function unditherButtonsByName(buttonNames) {
   ditherButtonsByName(buttonNames, true);
 }
 
-function enterShareMode() {
+export function enterShareMode() {
   sound.stopPlaying(true);
   ditherAllButtons();
   clearTimeout(window.kan.playPromptTimeout);
   touch.disableAllEvents();
 }
 
-function exitShareMode() {
+export function exitShareMode() {
   unditherAllButtons();
   Howler.mute(false);
   touch.enableAllEvents();
