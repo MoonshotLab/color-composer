@@ -9,7 +9,9 @@ const rimraf = require('rimraf'); // rm -rf
 const cp = require('child-process-promise');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
+const db = require('./../lib/db');
 const s3 = require('./../lib/s3');
+const texter = require('./../lib/texter');
 
 const cwd = process.cwd();
 const bumperTsPath = path.join(cwd, 'public', 'video', 'bumper.ts');
@@ -345,8 +347,27 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
       .then(function() {
         console.log('video processed successfully');
       })
+      .then(function() {
+        // see if uuid is already in db
+        return db.findRecordByS3Id(uuid);
+      })
+      .then(function(record) {
+        console.log('texting link if record exists');
+        if (record) {
+          texter.sendURL({
+            phone : record.phone,
+            url   : process.env.ROOT_URL + '/composition/' + record.s3Id
+          });
+        } else {
+          console.log('record does not exist, adding for future texting');
+          return db.remember({
+            s3Id: uuid,
+            texted: false,
+            emailed: false
+          })
+        }
+      })
       .catch(function(err) {
-        res.sendStatus(500);
         console.error(err);
       });
   } else {

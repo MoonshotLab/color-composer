@@ -15,16 +15,35 @@ router.get('/:id', function(req, res) {
 router.post('/new', function(req, res) {
   console.log('received info, making record for', req.query.phone, 'at', req.query.s3Id);
   if (req.query.postKey == process.env.SECRET_KEY) {
-    db.remember({
-      phone : req.query.phone,
-      s3Id  : req.query.s3Id
-    }).then(function(){
+    db.findRecordByS3Id(req.query.s3Id)
+      .then(function(record) {
+        if (record) {
+          if (record.texted !== true) {
+            return db.remember({
+              phone : req.query.phone,
+              s3Id  : req.query.s3Id,
+              texted: true
+            })
+            .then(function() {
+              texter.sendURL({
+                phone : req.query.phone,
+                url   : process.env.ROOT_URL + '/composition/' + req.query.s3Id
+              });
+            })
+          }
+        } else {
+          // add it, but don't text
+          return db.remember({
+            phone : req.query.phone,
+            s3Id  : req.query.s3Id,
+            texted: false
+          })
+        }
+      })
+    .then(function(){
       res.sendStatus(200);
-      texter.sendURL({
-        phone : req.query.phone,
-        url   : process.env.ROOT_URL + '/composition/' + req.query.s3Id
-      });
-    }).catch(function(e) {
+    })
+    .catch(function(e) {
       console.error('error:', e);
       res.sendStatus(401);
     });
