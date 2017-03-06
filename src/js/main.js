@@ -57,11 +57,11 @@ $(window).on('load', function() {
     timing.init();
     animation.init();
     sound.init()
-      .then(() => {
+      .then(function() {
         // sound.init() is async because it loads in the sound files
         touch.init();
       })
-      .fail((e) => {
+      .fail(function(e) {
         console.error('error initting shape sounds:', e);
         location.reload();
       })
@@ -71,7 +71,7 @@ $(window).on('load', function() {
     run();
   } catch(e) {
     console.error(e);
-    setTimeout(() => {
+    setTimeout(function() {
       // wait 5 seconds then reload
       location.reload();
     }, 5 * 1000);

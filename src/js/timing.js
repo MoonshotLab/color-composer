@@ -28,7 +28,7 @@ export function preventInactivityTimeout() {
   clearTimeout(window.kan.inactivityTimeout);
   clearInterval(window.kan.continueCountdownInterval);
 
-  window.kan.inactivityTimeout = setTimeout(() => {
+  window.kan.inactivityTimeout = setTimeout(function() {
     overlays.openOverlay('continue');
   }, drawInactivityDelay);
 }
