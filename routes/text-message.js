@@ -10,7 +10,7 @@ const utils = require('./../lib/utils');
 router.post('/', function(req, res) {
   console.log('received a text-message request for e-mail');
 
-  console.log(req.body);
+  console.log(req);
 
   const emailAddress = utils.extractEmailFromString(req.body.Body);
 
