@@ -40,16 +40,49 @@ function asyncMakeDirectory(outPath) {
   });
 }
 
-function asyncMergeAndResize(outPath, videoPath, audioPath) {
+function asyncMoveFile(inPath, outPath) {
   return new Promise(function(resolve, reject) {
     try {
-      const fullVideoPath = path.join(cwd, videoPath);
-      const fullAudioPath = path.join(cwd, audioPath);
+      fs.rename(inPath, outPath, function() {
+        resolve(`file ${inPath} moved to ${outPath}`);
+      });
+    } catch(e) {
+      reject(e);
+    }
+  });
+}
+
+function asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const videoBlobPath = path.join(outPath, 'videoblob');
+      const audioBlobPath = path.join(outPath, 'audioblob');
+      Promise.all([asyncMoveFile(videoBlob.path, videoBlobPath), asyncMoveFile(audioBlob.path, audioBlobPath)])
+        .then(function() {
+          resolve({
+            videoBlobPath: videoBlobPath,
+            audioBlobPath: audioBlobPath
+          });
+        })
+        .catch(function(e) {
+          reject(e);
+        })
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
+function asyncMergeAndResize(outPath) {
+  return new Promise(function(resolve, reject) {
+    try {
       const mergedOutPath = path.join(outPath, 'merged.mp4');
+      const videoPath = path.join(outPath, 'videoblob');
+      const audioPath = path.join(outPath, 'audioblob');
       const command = [
         ffmpegPath,
-        `-i ${fullVideoPath}`,
-        `-i ${fullAudioPath}`,
+        `-i ${videoPath}`,
+        `-i ${audioPath}`,
         '-c:v libx264',
         '-b:v 6400k',
         '-b:a 4800k',
@@ -201,8 +234,11 @@ function asyncCleanDirPreUpload(outPath, uuid) {
     try {
       const mergedTsPath = path.join(outPath, 'merged.ts');
       const mergedMp4Path = path.join(outPath, 'merged.mp4');
+      const videoBlobPath = path.join(outPath, 'videoblob');
+      const audioBlobPath = path.join(outPath, 'audioblob');
 
-      Promise.all([asyncRemoveFile(mergedTsPath), asyncRemoveFile(mergedMp4Path)])
+      // there has to be a more elegant way to build this list. list comprehensions??
+      Promise.all([asyncRemoveFile(mergedTsPath), asyncRemoveFile(mergedMp4Path), asyncRemoveFile(videoBlobPath), asyncRemoveFile(audioBlobPath)])
         .then(function() {
           resolve('directory cleaned')
         })
@@ -270,11 +306,15 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
     console.log('makeDirectory');
     asyncMakeDirectory(outPath)
       .then(function() {
+        console.log('movingBlobFiles');
+        return asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob)
+      })
+      .then(function(resp) {
+        res.send(uuid);
         console.log('mergeAndResize');
-        return asyncMergeAndResize(outPath, videoBlob.path, audioBlob.path);
+        return asyncMergeAndResize(outPath, resp.videoBlobPath, resp.audioBlobPath);
       })
       .then(function() {
-        res.send(uuid);
         console.log('makeIntoTransportStream');
         return asyncMakeIntoTransportStream(outPath);
       })
@@ -306,6 +346,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
         console.log('video processed successfully');
       })
       .catch(function(err) {
+        res.sendStatus(500);
         console.error(err);
       });
   } else {
