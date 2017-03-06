@@ -12,6 +12,8 @@ export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
 export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 
+const transparent = color.transparent;
+
 function clearPops() {
   const pops = util.getAllPops();
   pops.forEach((pop) => pop.remove());
@@ -58,12 +60,11 @@ export function toggleFill(item) {
     if (item.data.transparent) {
       // console.log('transparent');
       item.fillColor = transparent;
-      item.strokeColor = transparent;
     } else {
       // console.log('not transparent');
       item.fillColor = parent.data.color;
-      item.strokeColor = parent.data.color;
     }
+    item.strokeColor = transparent;
 
     window.kan.moves.push({
       type: 'fillChange',
@@ -129,7 +130,7 @@ export function updatePops() {
           // const popColor = color.getIndexedPopColor(i + j);
           const popColor = color.getRandomPop();
           thisPop.fillColor = popColor;
-          thisPop.strokeColor = popColor;
+          thisPop.strokeColor = transparent;
           thisPop.data.pop = true;
           thisPop.name = 'pop';
           thisPop.data.popGroup = freshGroup.id;
@@ -447,6 +448,7 @@ export function findInteriorCurves(path) {
           enclosedLoop.data.interior = true;
           enclosedLoop.visible = true;
           enclosedLoop.closed = true;
+          enclosedLoop.strokeColor = transparent;
           interiorCurves.push(enclosedLoop);
         }
       })
@@ -455,6 +457,7 @@ export function findInteriorCurves(path) {
         let enclosedLoop = pathClone.clone();
         enclosedLoop.visible = true;
         enclosedLoop.fillColor = pathClone.strokeColor;
+        enclosedLoop.strokeColor = transparent;
         enclosedLoop.data.interior = true;
         enclosedLoop.data.transparent = false;
         interiorCurves.push(enclosedLoop);
@@ -465,6 +468,7 @@ export function findInteriorCurves(path) {
       let enclosedLoop = pathClone.clone();
       enclosedLoop.visible = true;
       enclosedLoop.fillColor = pathClone.strokeColor;
+      enclosedLoop.strokeColor = transparent;
       enclosedLoop.data.interior = true;
       enclosedLoop.data.transparent = false;
       interiorCurves.push(enclosedLoop);

@@ -134,11 +134,10 @@ function undoPressed() {
       case 'fillChange':
         if (lastMove.transparent) {
           item.fillColor = lastMove.fill;
-          item.strokeColor = lastMove.fill;
         } else {
           item.fillColor = transparent;
-          item.strokeColor = transparent;
         }
+        item.strokeColor = transparent;
       case 'transform':
         item.data.fresh = true;
         if (!!lastMove.position) {

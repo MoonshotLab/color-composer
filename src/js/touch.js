@@ -377,7 +377,7 @@ function panEnd(event) {
 
   shapePath.remove();
   truedShape.visible = false;
-  truedShape.strokeColor = new Color(0, 0);
+  truedShape.strokeColor = transparent;
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
 
@@ -410,7 +410,7 @@ function panEnd(event) {
 
   let shapeMask = outline.clone();
   shapeMask.fillColor = outline.fillColor;
-  shapeMask.strokeColor = outline.strokeColor;
+  shapeMask.strokeColor = transparent;
   shapeMask.closed = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
@@ -452,6 +452,8 @@ function panEnd(event) {
   shapeMask.sendToBack();
 
   shape.cleanUpGroup(group);
+  group.shadowColor = group.data.originalColor;
+  group.shadowBlur = 0;
 
   move.id = group.id;
   window.kan.moves.push(move);
