@@ -98,7 +98,7 @@ export function stopPlaying(mute = false) {
 
 function asyncGetShapeSoundFromShapeName(shapeName) {
   const shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
-  return $.getJSON(shapeSoundJSONPath).then((resp) => {
+  return $.getJSON(shapeSoundJSONPath).then(function(resp) {
     const shapeSoundData = formatShapeSoundData(shapeName, resp);
     const sound = new Howl(shapeSoundData);
     return {
@@ -114,7 +114,7 @@ export function asyncInitShapeSounds() {
 
   const shapeNames = shape.shapeNames;
   let promises = [];
-  Base.each(shapeNames, (shapeName) => {
+  Base.each(shapeNames, function(shapeName) {
     promises.push(asyncGetShapeSoundFromShapeName(shapeName));
   });
 
@@ -241,7 +241,7 @@ export function removeShapeFromComposition(shapeGroup) {
 
 export function clearSoundTimeouts() {
   if (window.kan.soundTimeouts.length > 0) {
-    window.kan.soundTimeouts.forEach((soundTimeout) => {
+    window.kan.soundTimeouts.forEach(function(soundTimeout) {
       clearTimeout(soundTimeout);
     });
   }
@@ -263,8 +263,8 @@ export function startComposition(composition, loop = false) {
     // console.log('playing composition first time');
     let trimmedCompositionObj = getTrimmedCompositionObj(composition);
 
-    Base.each(trimmedCompositionObj.composition, (shape, i) => {
-      let soundTimeout = setTimeout(() => {
+    Base.each(trimmedCompositionObj.composition, function(shape, i) {
+      let soundTimeout = setTimeout(function() {
         if (!window.kan.playing) {
           // console.log('not playing, returning');
           return;
@@ -289,8 +289,8 @@ export function startComposition(composition, loop = false) {
   function playCompositionOnce() {
     clearSoundTimeouts();
     // console.log('repeat');
-    Base.each(composition, (shape, i) => {
-      let soundTimeout = setTimeout(() => {
+    Base.each(composition, function(shape, i) {
+      let soundTimeout = setTimeout(function() {
         if (!window.kan.playing) {
           // console.log('not playing, returing');
           return;
@@ -332,7 +332,7 @@ export function getTrimmedCompositionObj(composition) {
   let trimmedComposition = [];
   let startTime = getCompositionStartTime(composition);
 
-  composition.forEach((sound) => {
+  composition.forEach(function(sound) {
     let modifiedSound = util.shallowCopy(sound);
     modifiedSound.startTime = sound.startTime - startTime;
     if (modifiedSound.startTime < 0) modifiedSound.startTime = 0; // this shouldn't happen
@@ -348,7 +348,7 @@ export function getTrimmedCompositionObj(composition) {
 function getCompositionStartTime(composition) {
   let startTime = compositionLength;
 
-  composition.forEach((sound) => {
+  composition.forEach(function(sound) {
     // console.log(sound);
     // console.log(sound.startTime)
     if ('startTime' in sound && sound.startTime < startTime) {
