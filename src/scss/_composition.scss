@@ -32,11 +32,22 @@ body#composition-detail {
   #composition-share {
     @extend %naked-list;
     margin-top: 2rem;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
   }
 
   .share-item {
     display: inline-block;
-    padding: 1rem 2rem;
+    padding: 1rem;
+
+    @media(min-width: 1000px) {
+      padding: 1rem 2rem;
+    }
+
+    &#download {
+      display: none;
+    }
 
     img {
       width: 5rem;
