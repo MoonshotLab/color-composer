@@ -9,6 +9,7 @@ const tutorial = require('./tutorial');
 const timing = require('./timing');
 const overlays = require('./overlays');
 const ui = require('./ui');
+const animation = require('./animation');
 
 const $body = $('body');
 
@@ -543,7 +544,7 @@ function panEnd(event) {
     }, timing.overlayDelay);
   }
 
-  shapeSoundObj.play();
+  sound.asyncPlayShape(shapeSoundObj);
 
   // console.log('pan done');
   hammerCanvas.set({ enable: false });
