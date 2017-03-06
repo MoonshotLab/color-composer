@@ -97,6 +97,18 @@ export function cleanUpGroup(group) {
     }
   });
 
+  // NO IDEA WHY I STILL HAVE TO DO THIS, IT SHOULD BE DELETED BY NOW
+  try {
+    if ('outer 1' in group._namedChildren) {
+      group._namedChildren['outer 1'].forEach(function(child) {
+        child.remove();
+      });
+      delete group._namedChildren['outer 1'];
+    }
+  } catch(e) {
+    console.log('issue deleting unwanted child');
+  }
+
   return group;
 }
 

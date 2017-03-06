@@ -428,7 +428,7 @@ function panEnd(event) {
     loop.data.loop = true;
     loop.visible = true;
     group.addChild(loop);
-    // loop.bringToFront();
+    loop.bringToFront();
   });
 
 
