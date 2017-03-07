@@ -49,7 +49,7 @@ export function init() {
   hammerCanvas.get('pan').requireFailure('pinch');
   hammerCanvas.get('pinch').requireFailure('pan');
 
-  hammerCanvas.on('singletap', singleTap);
+  // hammerCanvas.on('singletap', singleTap);
   hammerCanvas.on('doubletap', doubleTap);
 
   hammerCanvas.on('panstart', panStart);

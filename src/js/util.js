@@ -134,7 +134,7 @@ export function shallowCopy( original ) {
 }
 
 export function randomPick(array) {
-  if (array.length > 0) {
+  if (!!array && array.length > 0) {
     return array[Math.floor(Math.random() * array.length)];
   }
 

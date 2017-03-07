@@ -22,11 +22,11 @@ html
               ul.palette-colors
                 each color, index in config.palette.colors
                   li
-                    if index == config.palette.colors.length - 1
-                      svg.palette-color.palette-selected(width=config.palette.selectedColorSize, height=config.palette.selectedColorSize)
+                    if color === selectedColor
+                      svg.palette-color.palette-selected(width=config.palette.selectedColorSize, height=config.palette.selectedColorSize, data-color=color)
                         rect(width='100%', height='100%', fill=color, rx=config.palette.selectedColorSize / 2, ry=config.palette.selectedColorSize / 2)
                     else
-                      svg.palette-color(width=config.palette.colorSize, height=config.palette.colorSize)
+                      svg.palette-color(width=config.palette.colorSize, height=config.palette.colorSize, data-color=color)
                         rect(width='100%', height='100%', fill=color)
             li.play-stop.dithered
               img.play(src='img/play.svg' alt='Play')

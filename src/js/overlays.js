@@ -167,10 +167,10 @@ function cardInteractions() {
 
     if ( $(e.target).closest('.card-wrap').length == 1 ) {
       // directly on a card, navigate to the next one
-      console.log('hi');
-      // cardNavNext();
+      // console.log('hi');
+      cardNavNext();
     } else {
-      console.log('no');
+      // console.log('no');
       // outside elements, close everything and reset
       closeAndResetOverlays();
     }

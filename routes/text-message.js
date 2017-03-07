@@ -5,12 +5,12 @@ const fs = require('fs');
 const path = require('path');
 
 const db = require('./../lib/db');
-const utils = require('./../lib/utils');
+const util = require('./../lib/util');
 
 router.post('/', function(req, res) {
   console.log('received a text-message request for e-mail');
 
-  const emailAddress = utils.extractEmailFromString(req.body.Body);
+  const emailAddress = util.extractEmailFromString(req.body.Body);
 
   if(emailAddress !== null && emailAddress.length > 0 && validator.isEmail(emailAddress)) {
     const phoneNumber = req.body.From.replace('+', '');
@@ -23,12 +23,12 @@ router.post('/', function(req, res) {
         fs.stat(file, function(err, stat){
           console.log('found record, downloading and emailing to', emailAddress);
           if (err) {
-            utils.asyncDownloadFilesFromS3(record.s3Id)
+            util.asyncDownloadFilesFromS3(record.s3Id)
               .then(function(stream) {
-                utils.sendEmail(emailAddress, stream);
+                util.sendEmail(emailAddress, stream);
               });
           } else {
-            utils.sendEmail(emailAddress, file);
+            util.sendEmail(emailAddress, file);
           }
         });
       } else {
