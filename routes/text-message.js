@@ -21,7 +21,7 @@ router.post('/', function(req, res) {
       if (record) {
         const file = path.join(process.cwd(), 'tmp', record.s3Id + '.mp4');
         fs.stat(file, function(err, stat){
-          console.log('found record, downloading and e-mailing to', emailAddress);
+          console.log('found record, downloading and emailing to', emailAddress);
           if (err) {
             utils.asyncDownloadFilesFromS3(record.s3Id)
               .then(function() {
