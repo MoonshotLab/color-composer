@@ -141,6 +141,7 @@ function panStart(event) {
   // console.log('panstart');
   // paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
+  const currentColor = color.getCurrentColor();
   timing.preventInactivityTimeout();
 
   if (!eventTargetIsOnCanvas(event)) {
@@ -176,13 +177,13 @@ function panStart(event) {
   const point = new Point(pointer.x, pointer.y);
 
   outerPath = new Path();
-  outerPath.fillColor = window.kan.currentColor;
+  outerPath.fillColor = currentColor;
   // outerPath.fillColor = new Color(0, 0.5);
 
   sizes = [];
 
   let shapePath = new Path({
-    strokeColor: window.kan.currentColor,
+    strokeColor: currentColor,
     name: 'shapePath',
     strokeWidth: 5,
     visible: false,
@@ -282,8 +283,8 @@ function panEnd(event) {
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
+  const currentColor = color.getCurrentColor();
   const transparent = color.transparent;
-  const colorName = color.getColorName(window.kan.currentColor);
 
   let move = { type: 'newGroup' };
 
@@ -326,7 +327,6 @@ function panEnd(event) {
   let truedShape = shape.getTruedShape(shapePath);
 
   // group.data.color = truedShape.strokeColor;
-  // console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
 
   const shapeSize = truedShape.strokeBounds;
   const centerPoint = new Point(shapeSize.width / 2, shapeSize.height / 2);
@@ -349,10 +349,10 @@ function panEnd(event) {
   //   radius: 5,
   //   fillColor: 'green',
   // }));
-  group.data.originalColor = window.kan.currentColor;
+  group.data.originalColor = currentColor;
   group.data.color = {
     gradient: {
-      stops: config.palette.gradients[window.kan.currentColor],
+      stops: config.palette.gradients[currentColor],
     },
     origin: origin,
     destination: destination,
@@ -383,7 +383,7 @@ function panEnd(event) {
   const outlineGroup = shape.getOutlineGroup(truedShape);
   const outline = outlineGroup._namedChildren.outer[0].clone();
   outline.name = 'outer';
-  outline.fillColor = window.kan.currentColor;
+  outline.fillColor = currentColor;
   outline.fillColor = group.data.color;
 
   const outlineCenter = outlineGroup._namedChildren.middle[0].clone();

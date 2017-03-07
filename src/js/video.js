@@ -24,7 +24,6 @@ export function enterTutorialMode() {
   $body.on(tapEvent, exitTutorialMode);
   main.resetWindow();
   ui.resetCanvas();
-  setTimeout(ui.selectRandomColorFromPalette, 2000); // wait until video is done fading out to randomize colors
   window.kan.refreshCheckInterval = setInterval(() => {
     $.get('/hash')
       .done(function(res) {

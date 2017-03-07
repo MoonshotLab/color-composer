@@ -233,9 +233,7 @@ function selectColorFromPaletteUsingSvgElement($svg) {
       .attr('height', paletteSelectedColorSize)
       .find('rect')
       .attr('rx', paletteSelectedColorSize / 2)
-      .attr('ry', paletteSelectedColorSize / 2)
-
-    window.kan.currentColor = $svg.data('color');
+      .attr('ry', paletteSelectedColorSize / 2);
   }
 }
 

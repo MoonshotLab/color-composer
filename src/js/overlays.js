@@ -109,6 +109,7 @@ function openContinueOverlay() {
 
   window.kan.inactivityTimeout = setTimeout(function() {
     video.enterTutorialMode();
+    ui.selectRandomColorFromPalette();
   }, timing.continueInactivityDelay);
 }
 

@@ -35,3 +35,11 @@ export function getIndexedPopColor(index) {
   const pops = config.palette.pops;
   return pops[index % pops.length];
 }
+
+export function getCurrentColor() {
+  return $('.palette-color.palette-selected').data('color');
+}
+
+export function getCurrentColorName() {
+  return getColorName(getCurrentColor());
+}
