@@ -30,13 +30,15 @@ app.get('/', function (req, res) {
 
 app.get('/hash', function(req, res) {
   if (!!process.env.GIT_REV) {
+    console.log('sending process.env.GIT_REV', process.env.GIT_REV);
     res.send(process.env.GIT_REV);
   } else {
     git.long(function(str) {
+      console.log('sending git.long', str);
       res.send(str);
     });
   }
-})
+});
 
 app.use('*', function(req, res) {
   res.redirect('/');
