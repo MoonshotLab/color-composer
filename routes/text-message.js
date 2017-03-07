@@ -24,11 +24,8 @@ router.post('/', function(req, res) {
           console.log('found record, downloading and emailing to', emailAddress);
           if (err) {
             utils.asyncDownloadFilesFromS3(record.s3Id)
-              .then(function() {
-                let bufferFile = fs.readFile(file, function(err, data) {
-                  if (err) throw err;
-                  utils.sendEmail(emailAddress, data);
-                });
+              .then(function(stream) {
+                utils.sendEmail(emailAddress, stream);
               });
           } else {
             utils.sendEmail(emailAddress, file);
