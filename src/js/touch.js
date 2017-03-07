@@ -115,19 +115,6 @@ function disablePinchEvents() {
 }
 
 function singleTap(event) {
-  // console.log(event.target);
-  // event.preventDefault();
-  // if (!eventTargetIsOnCanvas(event)) return;
-  // tutorial.hideContextualTuts();
-  // $(event.target).click();
-
-  // sound.stopPlaying();
-  // if (!eventTargetIsOnCanvas(event)) return;
-  // console.log(event);
-  // tutorial.hideContextualTuts();
-  //
-  // sound.stopPlaying();
-  //
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
       hitResult = paper.project.hitTest(point, hitOptions);
@@ -179,7 +166,6 @@ function panStart(event) {
   }
 
   window.kan.panning = true;
-  tutorial.hideContextualTuts();
 
   hammerCanvas.off('panstart');
   // hammerCanvas.get('pan').set({enable: false});
@@ -471,7 +457,6 @@ function panEnd(event) {
   move.id = group.id;
   window.kan.moves.push(move);
 
-
   ui.unditherButtonsByName(['new', 'undo', 'play-stop', 'share']);
   $body.addClass(sound.playEnabledClass);
 
@@ -513,19 +498,12 @@ function panEnd(event) {
     const tutorialCompletion = window.kan.tutorialCompletion;
     let tutName = null;
 
+    console.log('window.kan.shapesSinceTut', window.kan.shapesSinceTut);
+
     if (!tutorialCompletion['fill'] && truedShape.closed) {
       tutName = 'fill';
-    } else {
-      let groups = paper.project.getItems({
-        match: function(el) {
-          return el.className === 'Group'
-        }
-      });
-      if (!tutorialCompletion['pinch'] && groups.length >= 3) {
-        tutName = 'pinch';
-      } else if (!tutorialCompletion['swipe'] && groups.length >= 5) {
-        tutName = 'swipe';
-      }
+    } else if (!tutorialCompletion['pinch'] && window.kan.shapesSinceTut === tutorial.shapeLimit) {
+      tutName = 'pinch';
     }
 
     if (tutName !== null) {
@@ -533,7 +511,15 @@ function panEnd(event) {
       tutorial.addContextualTut(tutName);
       window.kan.tutorialCompletion[tutName] = true;
       group.data.tut = tutName;
+      group.data.hasTut = true;
     }
+  }
+
+  if (window.kan.shapesSinceTut >= tutorial.shapeLimit) {
+    tutorial.hideContextualTuts();
+    window.kan.shapesSinceTut = 0;
+  } else {
+    window.kan.shapesSinceTut++;
   }
 
   if (window.kan.scheduledOverlay !== null) {
@@ -578,7 +564,6 @@ function panCancel(event) {
 function pinchStart(event) {
   // console.log('pinchstart');
   timing.preventInactivityTimeout();
-  tutorial.hideContextualTuts();
   window.kan.interacting = true;
   window.kan.pinching = true;
   // event.preventDefault();
@@ -597,6 +582,9 @@ function pinchStart(event) {
       hitResult = shape.hitTestGroupBounds(point);
 
   if (hitResult) {
+    if (!!hitResult && hitResult.data.hasTut) {
+      tutorial.hideContextualTuts();
+    }
     window.kan.pinching = true;
     window.kan.pinchedGroup = hitResult;
     window.kan.lastScale = 1;
@@ -746,7 +734,6 @@ function pinchEnd(event) {
     window.kan.moves.push(move);
 
     if (Math.abs(event.velocity) > 1) {
-      tutorial.hideContextualTutByName('swipe');
 
       // hide any connected tuts
       if (!!$pinchedTut) {
