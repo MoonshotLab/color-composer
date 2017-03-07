@@ -544,7 +544,7 @@ function panEnd(event) {
     }, timing.overlayDelay);
   }
 
-  sound.asyncPlayShape(shapeSoundObj);
+  sound.asyncPlayShapeSound(shapeSoundObj);
 
   // console.log('pan done');
   hammerCanvas.set({ enable: false });

@@ -171,7 +171,7 @@ export function asyncPlayShape(shapeSoundObj) {
   });
 }
 
-function asyncPlayShapeSound(shapeSoundObj) {
+export function asyncPlayShapeSound(shapeSoundObj) {
   return new Promise(function(resolve, reject) {
     try {
       // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);

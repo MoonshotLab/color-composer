@@ -2,78 +2,68 @@ const sound = require('./sound');
 const color = require('./color');
 
 const Promise = require('bluebird');
-Promise.config({
-  cancellation: true
-})
 
-function asyncAnimateShadowBlur(item, totalDuration) {
-  return new Promise(function(resolve, reject, onCancel) {
-    item.data.originalShadowBlur = item.shadowBlur;
-
+function asyncAnimateScale(item, totalDuration) {
+  return new Promise(function(resolve, reject) {
     try {
+      if (item.data.animating === true) {
+        resolve('shape already animating, ignoring');
+      }
+      item.data.animating = true;
+      item.stop({
+        goToEnd: true
+      });
       item.animate([
         {
           properties: {
-            shadowBlur: 30
+            scale: 1.15,
           },
           settings: {
             duration: totalDuration / 4,
-            easing: "easeInOut",
+            easing: "easeOut",
             complete: function() {
-              console.log('animation step 1')
+              console.log('scale animation step 1')
             },
           }
         },
         {
           properties: {
-            shadowBlur: 15
+            scale: 1,
           },
           settings: {
-            duration: totalDuration / 2,
-            easing: "easeInOut",
-            // complete: function() {
-            //   console.log('animation step 2')
-            // },
-          }
-        },
-        {
-          properties: {
-            shadowBlur: 0
-          },
-          settings: {
-            duration: totalDuration / 4,
-            easing: "easeInOut",
+            duration: totalDuration - (totalDuration / 4),
+            easing: "easeIn",
             complete: function() {
               item.data.animating = false;
-              resolve('asyncAnimateShadowBlur done');
+              resolve('asyncAnimateScale done');
             }
           }
         },
       ]);
     } catch(e) {
-      item.shadowBlur = item.data.originalShadowBlur;
+      item.stop({
+        goToEnd: true
+      });
       reject(e);
     }
-
-    onCancel(function() {
-      item.shadowBlur = item.data.originalShadowBlur;
-    })
   })
 }
 
-function asyncAnimateSaturationAndBrightness(item, totalDuration, finalColor) {
-  return new Promise(function(resolve, reject, onCancel) {
-    item.data.originalFillColor = item.fillColor;
-
+function asyncAnimateBrightness(item, totalDuration, finalColor) {
+  return new Promise(function(resolve, reject) {
     try {
+      if (item.data.animating === true) {
+        resolve('shape already animating, ignoring');
+      }
+      item.data.animating = true;
+      item.data.originalFillColor = item.fillColor;
+      item.stop({
+        goToEnd: true
+      });
       item.animate([
         {
           properties: {
-            // scale: 1,
-            // rotate: -5,
             fillColor: {
-              // hue: "+1"
-              // saturation: "+10",
               brightness: "+0.2",
             }
           },
@@ -81,19 +71,13 @@ function asyncAnimateSaturationAndBrightness(item, totalDuration, finalColor) {
             duration: totalDuration / 4,
             easing: "easeInOut",
             complete: function() {
-              console.log('animation step 1')
+              console.log('brightness animation step 1')
             },
           }
         },
         {
           properties: {
-            // scale: 1,
-            // rotate: 0,
             fillColor: {
-              // hue: "0",
-              // saturation: group.data.originalColor.saturation,
-              // brightness: group.data.originalColor.brightness,
-              // saturation: "-10",
               brightness: "-0.2",
             }
           },
@@ -103,19 +87,17 @@ function asyncAnimateSaturationAndBrightness(item, totalDuration, finalColor) {
             complete: function() {
               item.data.animating = false;
               item.fillColor = finalColor;
-              resolve('asyncAnimateSaturationAndBrightness done');
+              resolve('asyncAnimateBrightness done');
             }
           }
         },
       ]);
     } catch(e) {
-      item.fillColor = item.data.originalFillColor;
+      item.stop({
+        goToEnd: true
+      });
       reject(e);
     }
-
-    onCancel(function() {
-      item.fillColor = item.data.originalFillColor;
-    });
   })
 }
 
@@ -142,33 +124,37 @@ export function asyncPlayShapeAnimation(shapeId) {
         }
 
         if (group !== null && group.children.length > 0 && Object.keys(group._namedChildren).length > 0) {
+          if (group.data.animating === true) {
+            console.log('nope');
+            resolve('group already animating, ignoring');
+          }
           const totalDuration = sound.measureLength;
           const transparent = color.transparent;
           let animationPromises = [];
 
           const namedChildren = group._namedChildren;
 
-          animationPromises.push(asyncAnimateShadowBlur(group, totalDuration));
-          if ('outer' in namedChildren && namedChildren.outer.length > 0) {
-            const outer = namedChildren.outer[0];
-            outer.fillColor = group.data.originalColor;
-            animationPromises.push(asyncAnimateSaturationAndBrightness(outer, totalDuration, group.data.color));
-          }
-
-          if ('loop' in namedChildren && namedChildren.loop.length > 0) {
-            namedChildren.loop.forEach(function(loop) {
-              if (!!loop.fillColor && loop.fillColor !== transparent) {
-                loop.fillColor = group.data.originalColor;
-                animationPromises.push(asyncAnimateSaturationAndBrightness(loop, totalDuration, group.data.color));
-              }
-            })
-          }
-
-          if ('pop' in namedChildren && namedChildren.pop.length > 0) {
-            namedChildren.pop.forEach(function(pop) {
-              animationPromises.push(asyncAnimateSaturationAndBrightness(pop, totalDuration, pop.fillColor));
-            })
-          }
+          animationPromises.push(asyncAnimateScale(group, totalDuration));
+          // if ('outer' in namedChildren && namedChildren.outer.length > 0) {
+          //   const outer = namedChildren.outer[0];
+          //   outer.fillColor = group.data.originalColor;
+          //   animationPromises.push(asyncAnimateBrightness(outer, totalDuration, group.data.color));
+          // }
+          //
+          // if ('loop' in namedChildren && namedChildren.loop.length > 0) {
+          //   namedChildren.loop.forEach(function(loop) {
+          //     if (!!loop.fillColor && loop.fillColor !== transparent) {
+          //       loop.fillColor = group.data.originalColor;
+          //       animationPromises.push(asyncAnimateBrightness(loop, totalDuration, group.data.color));
+          //     }
+          //   })
+          // }
+          //
+          // if ('pop' in namedChildren && namedChildren.pop.length > 0) {
+          //   namedChildren.pop.forEach(function(pop) {
+          //     animationPromises.push(asyncAnimateBrightness(pop, totalDuration, pop.fillColor));
+          //   })
+          // }
 
           Promise.all(animationPromises)
             .then(function() {
@@ -207,11 +193,11 @@ export function asyncPlayShapeAnimation(shapeId) {
 //     // outer.fillColor = 'pink';
 //     console.log(outer);
 //     group.data.animating = true;
-//     asyncAnimateShadowBlur(group, totalDuration);
+//     asyncAnimateScale(group, totalDuration);
 //
 //     outer.fillColor = group.data.originalColor;
 //     console.log('outer.fillColor', outer.fillColor);
-//     asyncAnimateSaturationAndBrightness(outer, totalDuration, group.data.color);
+//     asyncAnimateBrightness(outer, totalDuration, group.data.color);
 //
 //     console.log('group._namedChildren', group._namedChildren);
 //     if (!!group._namedChildren && !!group._namedChildren.loop && !!group._namedChildren.loop.length > 0) {
@@ -220,7 +206,7 @@ export function asyncPlayShapeAnimation(shapeId) {
 //         if (!!loop.fillColor && loop.fillColor !== color.transparent) {
 //           console.log('loop.fillColor', loop.fillColor);
 //           loop.fillColor = group.data.originalColor;
-//           asyncAnimateSaturationAndBrightness(loop, totalDuration, group.data.color);
+//           asyncAnimateBrightness(loop, totalDuration, group.data.color);
 //         }
 //       })
 //     }
@@ -228,7 +214,7 @@ export function asyncPlayShapeAnimation(shapeId) {
 //     if (!!group._namedChildren && !!group._namedChildren.pop && !!group._namedChildren.pop.length > 0) {
 //       group._namedChildren.pop.forEach(function(pop) {
 //         console.log('pop.fillColor', pop.fillColor);
-//         asyncAnimateSaturationAndBrightness(pop, totalDuration, pop.fillColor);
+//         asyncAnimateBrightness(pop, totalDuration, pop.fillColor);
 //       })
 //     }
 //   }
