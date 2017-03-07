@@ -130,9 +130,9 @@ export function handleSharePressed() {
   clearInterval(window.kan.inactivityTimeout);
   ui.enterShareMode();
   overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
-    // .then(function() {
-    //   return asyncRecord();
-    // })
+    .then(function() {
+      return asyncRecord();
+    })
     .then(function(s3Id) {
       console.log('recording done');
       ui.exitShareMode();
