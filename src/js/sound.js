@@ -172,38 +172,23 @@ function animateShapePlay(shape) {
     group.animate([
       {
         properties: {
-          scale: 1,
-          rotate: -5,
-        },
-        settings: {
-          duration: totalDuration / 4,
-          easing: "easeInOut",
-          // complete: function() {
-          //   console.log('animation step 1')
-          // },
-        }
-      },
-      {
-        properties: {
           scale: 1.15,
-          rotate: 5,
         },
         settings: {
-          duration: totalDuration / 2,
-          easing: "easeInOut",
-          // complete: function() {
-          //   console.log('animation step 2')
-          // },
+          duration: totalDuration / 4,
+          easing: "easeOut",
+          complete: function() {
+            console.log('scale animation step 1')
+          },
         }
       },
       {
         properties: {
           scale: 1,
-          rotate: 0,
         },
         settings: {
-          duration: totalDuration / 4,
-          easing: "easeInOut",
+          duration: totalDuration - (totalDuration / 4),
+          easing: "easeIn",
           complete: function() {
             this.data.animating = false;
             // console.log('animation step 3')
