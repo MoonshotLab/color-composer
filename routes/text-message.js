@@ -10,11 +10,9 @@ const utils = require('./../lib/utils');
 router.post('/', function(req, res) {
   console.log('received a text-message request for e-mail');
 
-  console.log(req);
-
   const emailAddress = utils.extractEmailFromString(req.body.Body);
 
-  if(emailAddress.length > 0 && validator.isEmail(emailAddress)) {
+  if(emailAddress !== null && emailAddress.length > 0 && validator.isEmail(emailAddress)) {
     const phoneNumber = req.body.From.replace('+', '');
 
     db.findRecordByPhoneNumber(phoneNumber).then(function(record){
