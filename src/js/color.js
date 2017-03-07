@@ -1,5 +1,7 @@
 const config = require('./../../config');
 
+const util = require('./util');
+
 export const transparent = new Color(0, 0);
 
 export function getPathColorName(path) {
@@ -22,8 +24,11 @@ export function getColorName(color) {
 }
 
 export function getRandomPop() {
-  const pops = config.palette.pops;
-  return pops[Math.floor(Math.random() * pops.length)];
+  return util.randomPick(config.palette.pops);
+}
+
+export function getRandomColor() {
+  return util.randomPick(config.palette.colors);
 }
 
 export function getIndexedPopColor(index) {

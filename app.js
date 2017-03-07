@@ -10,6 +10,7 @@ const path = require('path');
 const git = require('git-rev');
 
 const config = require('./config');
+const util = require('./lib/util');
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -24,7 +25,8 @@ app.listen(port, function() {
 app.get('/', function (req, res) {
   res.render('index', {
     config: config,
-    range: require('array-range')
+    range: require('array-range'),
+    selectedColor: util.randomPickFromArray(config.palette.colors)
   });
 });
 

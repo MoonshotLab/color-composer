@@ -205,37 +205,49 @@ function initLogoRefresh() {
   });
 }
 
-function initColorPalette() {
-  const $paletteWrap = $('ul.palette-colors');
-  const $paletteColors = $paletteWrap.find('li');
+export function selectRandomColorFromPalette() {
+  const randomColorHex = color.getRandomColor();
+  const $svg = $(`svg.palette-color[data-color='${randomColorHex}']`);
+
+  if (!!$svg && $svg.length > 0) {
+    selectColorFromPaletteUsingSvgElement($svg);
+  }
+}
+
+function selectColorFromPaletteUsingSvgElement($svg) {
   const paletteColorSize = 20;
   const paletteSelectedColorSize = 30;
   const paletteSelectedClass = 'palette-selected';
 
+  if (!$svg.hasClass(paletteSelectedClass)) {
+    $('.' + paletteSelectedClass)
+      .removeClass(paletteSelectedClass)
+      .attr('width', paletteColorSize)
+      .attr('height', paletteColorSize)
+      .find('rect')
+      .attr('rx', 0)
+      .attr('ry', 0);
+
+    $svg.addClass(paletteSelectedClass)
+      .attr('width', paletteSelectedColorSize)
+      .attr('height', paletteSelectedColorSize)
+      .find('rect')
+      .attr('rx', paletteSelectedColorSize / 2)
+      .attr('ry', paletteSelectedColorSize / 2)
+
+    window.kan.currentColor = $svg.data('color');
+  }
+}
+
+function initColorPalette() {
+  const $paletteWrap = $('ul.palette-colors');
+  const $paletteColors = $paletteWrap.find('li');
+
   // hook up click
   $paletteColors.on('click tap touch', function() {
     if (!$body.hasClass(playingClass)) {
-      let $svg = $(this).find('svg.palette-color');
-
-      if (!$svg.hasClass(paletteSelectedClass)) {
-        $('.' + paletteSelectedClass)
-          .removeClass(paletteSelectedClass)
-          .attr('width', paletteColorSize)
-          .attr('height', paletteColorSize)
-          .find('rect')
-          .attr('rx', 0)
-          .attr('ry', 0);
-
-        $svg.addClass(paletteSelectedClass)
-          .attr('width', paletteSelectedColorSize)
-          .attr('height', paletteSelectedColorSize)
-          .find('rect')
-          .attr('rx', paletteSelectedColorSize / 2)
-          .attr('ry', paletteSelectedColorSize / 2)
-
-        window.kan.currentColor = $svg.find('rect').attr('fill');
-        // console.log('%ccolor', 'color:red', color.getColorName(window.kan.currentColor));
-      }
+      const $svg = $(this).find('svg.palette-color');
+      selectColorFromPaletteUsingSvgElement($svg);
     };
   });
 }
