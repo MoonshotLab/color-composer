@@ -8,6 +8,7 @@ const ui = require('./ui');
 const timing = require('./timing');
 const overlays = require('./overlays');
 const sound = require('./sound');
+const video = require('./video');
 
 const drawCanvas = document.getElementById(config.canvasId);
 
@@ -129,9 +130,9 @@ export function handleSharePressed() {
   clearInterval(window.kan.inactivityTimeout);
   ui.enterShareMode();
   overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
-    .then(function() {
-      return asyncRecord();
-    })
+    // .then(function() {
+    //   return asyncRecord();
+    // })
     .then(function(s3Id) {
       console.log('recording done');
       ui.exitShareMode();
@@ -150,12 +151,16 @@ export function handleSharePressed() {
     // })
     .then(function() {
       // close overlay
+      overlays.openOverlay('share-confirmation');
+      setTimeout(function() {
+        video.enterTutorialMode();
+      }, 1000 * 4);
       console.log('close overlay');
     })
     .catch(function(e) {
       // close overlay
-      console.error(e);
-      timing.preventInactivityTimeout();
+      console.log('error in share mode, going into tutorial');
       ui.exitShareMode(); // make sure
+      video.enterTutorialMode();
     })
 }

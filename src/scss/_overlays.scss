@@ -88,6 +88,18 @@
       filter: blur(1px);
     }
   }
+
+  &.share-confirmation-active {
+    .overlay.share-confirmation {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls,
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
 }
 
 // overlay defaults
