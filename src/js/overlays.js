@@ -21,7 +21,7 @@ const $footer = $body.find('.overlay.tips .footer');
 const $sharePhone = $body.find('#phone');
 const $shareKeypad = $body.find('.keypad');
 
-const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare'];
+const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation'];
 const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
 
 const overlayActiveClass = 'overlay-active';
@@ -42,7 +42,7 @@ export function openOverlay(overlayName) {
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
-    $body.find('.overlay.closeable:not(.tips)').on(tapEvent, function() {
+    $body.find('.overlay.closeable:not(.tips):not(.share-phone)').on(tapEvent, function() {
       closeAndResetOverlays();
     });
 
@@ -73,6 +73,9 @@ export function openOverlay(overlayName) {
         break;
       case 'share-prepare':
         openSharePrepareOverlay();
+        break;
+      case 'share-confirmation':
+        openShareConfirmationOverlay();
         break;
     }
   } else {
@@ -130,6 +133,9 @@ function openSharePrepareOverlay() {
   $body.addClass('share-prepare-active');
 }
 
+function openShareConfirmationOverlay() {
+  $body.addClass('share-confirmation-active');
+}
 
 // card slider navigation
 export function cardNavNext() {
@@ -161,8 +167,10 @@ function cardInteractions() {
 
     if ( $(e.target).closest('.card-wrap').length == 1 ) {
       // directly on a card, navigate to the next one
-      cardNavNext();
+      console.log('hi');
+      // cardNavNext();
     } else {
+      console.log('no');
       // outside elements, close everything and reset
       closeAndResetOverlays();
     }
@@ -219,13 +227,14 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
     // normal inactivity timeout is disabled, start an alternate one
     let inactivityTimeout = setTimeout(function() {
       reject('timeout');
-    }, timing.continueInactivityDelay);
+    }, timing.continueInactivityDelay / 2);
 
     $shareKeypad.find('.send').on(tapEvent, e => {
       const phoneNumWithHyphens = $sharePhone.text();
-      const phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
+      let phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
 
       if (validator.isMobilePhone(phoneNumRaw, 'en-US')) {
+        if(phoneNumRaw.length == 10) phoneNumRaw = '1' + phoneNumRaw;
         clearTimeout(inactivityTimeout);
         resolve({
           phone: phoneNumRaw,
@@ -233,6 +242,7 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
         });
       } else {
         console.log('malformed phone number');
+        // show error!
       }
     });
   })
@@ -252,6 +262,10 @@ function phoneNumberInputs() {
   $shareKeypad.find('.clear').on(tapEvent, function(e) {
     $sharePhone.html('');
   });
+
+  // $('body.share-active').on(tapEvent, function(e) {
+  //   if ($(e.target).closest(''))
+  // })
 }
 
 // "randomly" place fiddly bits on the cards

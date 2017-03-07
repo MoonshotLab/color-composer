@@ -63,6 +63,7 @@
     "async": "^2.1.5",
     "axios": "^0.15.3",
     "bluebird": "^3.5.0",
+    "body-parser": "^1.17.1",
     "child-process-promise": "^2.2.0",
     "debug": "^2.3.3",
     "dotenv": "^2.0.0",

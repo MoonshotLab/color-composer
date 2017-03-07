@@ -12,7 +12,7 @@ router.post('/', function(req, res) {
 
   const emailAddress = utils.extractEmailFromString(req.body.Body);
 
-  if(emailAddress.length > 0 && validator.isEmail(emailAddress)) {
+  if(emailAddress !== null && emailAddress.length > 0 && validator.isEmail(emailAddress)) {
     const phoneNumber = req.body.From.replace('+', '');
 
     db.findRecordByPhoneNumber(phoneNumber).then(function(record){
@@ -21,11 +21,11 @@ router.post('/', function(req, res) {
       if (record) {
         const file = path.join(process.cwd(), 'tmp', record.s3Id + '.mp4');
         fs.stat(file, function(err, stat){
-          console.log('found record, downloading and e-mailing to', emailAddress);
+          console.log('found record, downloading and emailing to', emailAddress);
           if (err) {
             utils.asyncDownloadFilesFromS3(record.s3Id)
-              .then(function() {
-                utils.sendEmail(emailAddress, file);
+              .then(function(stream) {
+                utils.sendEmail(emailAddress, stream);
               });
           } else {
             utils.sendEmail(emailAddress, file);

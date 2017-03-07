@@ -15,6 +15,8 @@ router.get('/:id', function(req, res) {
 router.post('/new', function(req, res) {
   console.log('received info, making record for', req.query.phone, 'at', req.query.s3Id);
   if (req.query.postKey == process.env.SECRET_KEY) {
+    let phone = req.query.phone;
+    if (phone.length === 10) phone = '1' + phone;
     db.findRecordByS3Id(req.query.s3Id)
       .then(function(record) {
         if (record) {
