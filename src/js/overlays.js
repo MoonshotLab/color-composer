@@ -223,9 +223,10 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
 
     $shareKeypad.find('.send').on(tapEvent, e => {
       const phoneNumWithHyphens = $sharePhone.text();
-      const phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
+      let phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
 
       if (validator.isMobilePhone(phoneNumRaw, 'en-US')) {
+        if(phoneNumRaw.length == 10) phoneNumRaw = '1' + phoneNumRaw;
         clearTimeout(inactivityTimeout);
         resolve({
           phone: phoneNumRaw,
@@ -233,6 +234,7 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
         });
       } else {
         console.log('malformed phone number');
+        // show error!
       }
     });
   })
