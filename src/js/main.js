@@ -32,7 +32,6 @@ export function resetWindow() {
     tutorialCompletion: {
       "fill": false,
       "pinch": false,
-      "swipe": false
     },
     inactivityTimeout: null,
     playPromptTimeout: null,

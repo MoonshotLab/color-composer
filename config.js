@@ -47,8 +47,4 @@ exports.contextualTuts = [
     type: "pinch",
     copy: "<strong>Pinch</strong> shapes with <strong>two fingers</strong> to <strong>resize</strong> and <strong>move</strong> them.",
   },
-  {
-    type: "swipe",
-    copy: "To <strong>remove</strong> shapes, select a shape with <strong>two fingers</strong> then <strong>throw</strong> toward edge of canvas."
-  },
 ];
