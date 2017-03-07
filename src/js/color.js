@@ -1,4 +1,4 @@
-const config = require('./client-config');
+const config = require('./config');
 
 export const transparent = new Color(0, 0);
 

@@ -1,4 +1,4 @@
-const config = require('./client-config');
+const config = require('./config');
 require('howler');
 
 const sound = require('./sound');

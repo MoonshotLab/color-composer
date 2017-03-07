@@ -1,6 +1,6 @@
 const ShapeDetector = require('./lib/shape-detector');
 
-const config = require('./client-config');
+const config = require('./config');
 
 const util = require('./util');
 const color = require('./color');

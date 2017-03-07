@@ -1,4 +1,4 @@
-const config = require('./client-config');
+const config = require('./config');
 
 const main = require('./main');
 const overlays = require('./overlays');

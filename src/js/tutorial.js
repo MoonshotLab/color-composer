@@ -1,4 +1,4 @@
-const config = require('./client-config');
+const config = require('./config');
 
 const contextualTuts = config.contextualTuts;
 const tutArrowHeight = 16;

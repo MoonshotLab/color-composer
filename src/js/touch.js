@@ -1,6 +1,6 @@
 require('hammerjs');
 
-const config = require('./client-config');
+const config = require('./config');
 const sound = require('./sound');
 const color = require('./color');
 const shape = require('./shape');

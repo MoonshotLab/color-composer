@@ -1,4 +1,4 @@
-const config = require('./client-config');
+const config = require('./config');
 
 // Converts from degrees to radians.
 export function rad(degrees) {

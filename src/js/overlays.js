@@ -1,4 +1,4 @@
-const config = require('./client-config');
+const config = require('./config');
 
 const validator = require('validator');
 
