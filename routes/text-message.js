@@ -25,7 +25,10 @@ router.post('/', function(req, res) {
           if (err) {
             utils.asyncDownloadFilesFromS3(record.s3Id)
               .then(function() {
-                utils.sendEmail(emailAddress, file);
+                let bufferFile = fs.readFile(file, function(err, data) {
+                  if (err) throw err;
+                  utils.sendEmail(emailAddress, data);
+                });
               });
           } else {
             utils.sendEmail(emailAddress, file);
