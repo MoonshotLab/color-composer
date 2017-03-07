@@ -340,7 +340,7 @@ export function getShapePrediction(path) {
 
   let shapeJSON = path.exportJSON();
   let shapeData = processShapeData(shapeJSON);
-  // console.log(JSON.stringify(shapeData));
+  console.log(JSON.stringify(shapeData));
   let shapePrediction = detector.spot(shapeData);
 
   if (shapePrediction.score === 0) {
@@ -362,6 +362,13 @@ export function getShapePrediction(path) {
     if (closedShapes.includes(prediction.pattern) === false) {
       // closed shape should be one of the above, make a random pick
       prediction.pattern = util.randomPick(closedShapes);
+    } else if (prediction.score < 0.65 && prediction.pattern !== 'circle') {
+      // for some reason triangles and squares are often confused. if the confidence is low enough, they're probably swapped
+      if (prediction.pattern === 'square') {
+        prediction.pattern = 'triangle';
+      } else if (prediction.pattern === 'triangle') {
+        prediction.pattern = 'square';
+      }
     }
   } else if (path.intersects(path) === true) {
     prediction.pattern = 'other';
@@ -373,7 +380,7 @@ export function getShapePrediction(path) {
     prediction.pattern = 'line'; // lines are the only shape that is not closed and does not intersect
   }
 
-  // console.log('shape prediction', prediction);
+  console.log('shape prediction', prediction);
 
   return prediction;
 }
