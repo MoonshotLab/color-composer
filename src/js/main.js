@@ -10,7 +10,6 @@ const animation = require('./animation');
 
 export function resetWindow() {
   window.kan = {
-    currentColor: '#2B5E2E',
     composition: [],
     compositionInterval: null,
     compositionTimeout: null,
