@@ -20,6 +20,7 @@ const $footer = $body.find('.overlay.tips .footer');
 
 const $sharePhone = $body.find('#phone');
 const $shareKeypad = $body.find('.keypad');
+const $shareSend = $shareKeypad.find('.send');
 
 const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation'];
 const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
@@ -230,7 +231,14 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
       reject('timeout');
     }, timing.continueInactivityDelay / 2);
 
-    $shareKeypad.find('.send').on(tapEvent, e => {
+    $shareKeypad.on(tapEvent, function(e) {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(function() {
+        reject('timeout');
+      }, timing.continueInactivityDelay / 2);
+    })
+
+    $shareSend.on(tapEvent, e => {
       const phoneNumWithHyphens = $sharePhone.text();
       let phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
 
