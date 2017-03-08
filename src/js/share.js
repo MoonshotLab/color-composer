@@ -56,10 +56,8 @@ export function asyncRecord() {
         return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
           .then(function(values) {
             let [audioBlob, videoBlob] = values;
-            console.log('audioBlob', audioBlob);
-            console.log('videoBlob', videoBlob);
-            alert(JSON.stringify(audioBlob));
-            alert(JSON.stringify(videoBlob));
+            // console.log('audioBlob', audioBlob);
+            // console.log('videoBlob', videoBlob);
 
             console.log('sending files');
 
