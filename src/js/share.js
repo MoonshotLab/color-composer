@@ -58,6 +58,8 @@ export function asyncRecord() {
             let [audioBlob, videoBlob] = values;
             console.log('audioBlob', audioBlob);
             console.log('videoBlob', videoBlob);
+            alert(JSON.stringify(audioBlob));
+            alert(JSON.stringify(videoBlob));
 
             console.log('sending files');
 
