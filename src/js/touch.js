@@ -363,7 +363,7 @@ function panEnd(event) {
 
   shapePath.remove();
   truedShape.visible = false;
-  truedShape.strokeColor = new Color(0, 0);
+  truedShape.strokeColor = transparent;
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
 
