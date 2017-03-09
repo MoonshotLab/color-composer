@@ -122,7 +122,7 @@ function singleTap(event) {
   if (hitResult) {
     let item = hitResult.item;
     // item.selected = !item.selected;
-    console.log(item);
+    // console.log(item);
   }
 }
 
@@ -411,7 +411,7 @@ function panEnd(event) {
   shapeMask.closed = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
-  console.log('enclosedLoops', enclosedLoops);
+  // console.log('enclosedLoops', enclosedLoops);
   if (enclosedLoops.length > 0 || truedShape.closed === true) {
     group.data.line = false;
   } else {
@@ -498,7 +498,7 @@ function panEnd(event) {
     const tutorialCompletion = window.kan.tutorialCompletion;
     let tutName = null;
 
-    console.log('window.kan.shapesSinceTut', window.kan.shapesSinceTut);
+    // console.log('window.kan.shapesSinceTut', window.kan.shapesSinceTut);
 
     if (!tutorialCompletion['fill'] && truedShape.closed) {
       tutName = 'fill';
@@ -550,7 +550,7 @@ function panEnd(event) {
 }
 
 function panCancel(event) {
-  console.log('pancancel');
+  // console.log('pancancel');
   event.srcEvent.stopPropagation();
   // event.preventDefault();
 
@@ -782,7 +782,7 @@ function pinchEnd(event) {
   // console.log('pinch done');
   // hammerCanvas.set({ enable: false });
   setTimeout(function() {
-    console.log('touch enabled');
+    // console.log('touch enabled');
     hammerCanvas.on('pinchstart', pinchStart);
     enablePanAndPinchEvents();
     enableTapEvents();
@@ -798,7 +798,7 @@ function pinchEnd(event) {
 function pinchCancel(event) {
   // console.log(event);
   event.srcEvent.stopPropagation();
-  console.log('pinchcancel');
+  // console.log('pinchcancel');
   // event.preventDefault();
 
   hammerCanvas.set({ enable: true });

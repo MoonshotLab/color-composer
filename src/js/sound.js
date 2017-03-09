@@ -250,9 +250,9 @@ export function startComposition(composition, loop = false) {
         }
 
         asyncPlayShape(shapeSoundObj).then(function(res) {
-          console.log(res);
+          // console.log(res);
         }).error(function(e) {
-          console.log('Error playing shapeSoundObj', e);
+          // console.log('Error playing shapeSoundObj', e);
         });
       }, shapeSoundObj.startTime);
       window.kan.soundTimeouts.push(soundTimeout);

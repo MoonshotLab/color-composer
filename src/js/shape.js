@@ -134,7 +134,7 @@ export function cleanUpGroup(group) {
       delete group._namedChildren['outer 1'];
     }
   } catch(e) {
-    console.log('issue deleting unwanted child');
+    // console.log('issue deleting unwanted child');
   }
 
   return group;
@@ -368,7 +368,7 @@ export function getShapePrediction(path) {
 
   let shapeJSON = path.exportJSON();
   let shapeData = processShapeData(shapeJSON);
-  console.log(JSON.stringify(shapeData));
+  // console.log(JSON.stringify(shapeData));
   let shapePrediction = detector.spot(shapeData);
 
   if (shapePrediction.score === 0) {
@@ -408,7 +408,7 @@ export function getShapePrediction(path) {
     prediction.pattern = 'line'; // lines are the only shape that is not closed and does not intersect
   }
 
-  console.log('shape prediction', prediction);
+  // console.log('shape prediction', prediction);
 
   return prediction;
 }
@@ -477,45 +477,35 @@ export function findInteriorCurves(path) {
 
   let pathClone = path.clone();
   let intersections = pathClone.getIntersections();
-  console.log('intersections', intersections);
+  // console.log('intersections', intersections);
 
   if (intersections.length > 0) {
-    console.log('aaa');
     let dividedPath = pathClone.resolveCrossings();
-    console.log('dividedPath', dividedPath);
+    // console.log('dividedPath', dividedPath);
 
     if (dividedPath.className === 'CompoundPath') {
-      console.log('bbb');
       dividedPath.children.forEach(function(child) {
-        console.log('child', child);
+        // console.log('child', child);
         if (child.length > 0 && child.closed) {
-          console.log('ccc');
           let enclosedLoop = child;
           if (pathClone.closed) {
-            console.log('ddd');
             enclosedLoop.fillColor = pathClone.strokeColor;
             enclosedLoop.data.transparent = false;
           } else {
-            console.log('eee');
             enclosedLoop.fillColor = transparent;
             enclosedLoop.data.transparent = true;
           }
-          console.log('fff');
           enclosedLoop.data.interior = true;
           enclosedLoop.visible = true;
           enclosedLoop.closed = true;
           enclosedLoop.strokeColor = transparent;
           interiorCurves.push(enclosedLoop);
-        } else {
-          console.log('kkk');
         }
 
         // child.remove();
       })
     } else {
-      console.log('ggg');
       if (pathClone.closed) {
-        console.log('hhh');
         let enclosedLoop = pathClone.clone();
         enclosedLoop.visible = true;
         enclosedLoop.fillColor = pathClone.strokeColor;
@@ -526,9 +516,7 @@ export function findInteriorCurves(path) {
       }
     }
   } else {
-    console.log('iii');
     if (pathClone.closed) {
-      console.log('jjj');
       let enclosedLoop = pathClone.clone();
       enclosedLoop.visible = true;
       enclosedLoop.fillColor = pathClone.strokeColor;

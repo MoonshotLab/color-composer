@@ -127,7 +127,7 @@ export function asyncAddCompositionToDb(data) {
 
 export function handleSharePressed() {
   if (util.anyShapesOnCanvas() !== true) {
-    console.log('nope');
+    // console.log('nope');
     return;
   }
 
@@ -139,13 +139,13 @@ export function handleSharePressed() {
       return asyncRecord();
     })
     .then(function(s3Id) {
-      console.log('recording done');
+      // console.log('recording done');
       ui.exitShareMode();
       overlays.openOverlay('share');
       return overlays.asyncWaitForWellFormedPhoneNumber(s3Id);
     })
     .then(function(resp) {
-      console.log('received well formed phone number');
+      // console.log('received well formed phone number');
       return asyncAddCompositionToDb(resp);
     })
     .then(function() {
