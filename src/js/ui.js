@@ -140,7 +140,7 @@ function undoPressed() {
         }
 
 
-        const numGroups = util.getNumGroups();
+        const numGroups = util.getNumVisibleGroups();
         // console.log('numGroups', numGroups);
 
         if (numGroups <= 0) {
@@ -196,7 +196,7 @@ function playPressed() {
   // console.log(playing, util.getNumGroups() > 2, !playing && util.getNumGroups() > 2, $body);
 
   clearTimeout(window.kan.playPromptTimeout);
-  if (!playing && util.getNumGroups() > 2) {
+  if (!playing && util.getNumVisibleGroups() > 2) {
     // console.log('starting playing');
     sound.startPlaying();
   } else {

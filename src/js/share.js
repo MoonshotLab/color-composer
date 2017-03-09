@@ -9,6 +9,7 @@ const timing = require('./timing');
 const overlays = require('./overlays');
 const sound = require('./sound');
 const video = require('./video');
+const util = require('./util');
 
 const drawCanvas = document.getElementById(config.canvasId);
 
@@ -125,9 +126,13 @@ export function asyncAddCompositionToDb(data) {
 }
 
 export function handleSharePressed() {
-  console.log('sharePressed');
+  if (util.anyShapesOnCanvas() !== true) {
+    console.log('nope');
+    return;
+  }
+
   overlays.openOverlay('share-prepare');
-  clearInterval(window.kan.inactivityTimeout);
+  // clearInterval(window.kan.inactivityTimeout);
   ui.enterShareMode();
   overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
     .then(function() {
@@ -137,7 +142,7 @@ export function handleSharePressed() {
       console.log('recording done');
       ui.exitShareMode();
       overlays.openOverlay('share');
-      return overlays.asyncWaitForWellFormedPhoneNumber(s3Id)
+      return overlays.asyncWaitForWellFormedPhoneNumber(s3Id);
     })
     .then(function(resp) {
       console.log('received well formed phone number');
@@ -149,12 +154,16 @@ export function handleSharePressed() {
       setTimeout(function() {
         video.enterTutorialMode();
       }, 1000 * 4);
-      console.log('close overlay');
+      console.log('close overlay, done!');
     })
     .catch(function(e) {
-      // close overlay
-      console.log('error in share mode, going into tutorial');
       ui.exitShareMode(); // make sure
-      video.enterTutorialMode();
+      if (e === 'timeout') {
+        console.log('error in share mode, going into tutorial');
+        video.enterTutorialMode();
+      } else {
+        // continue, share modal did not time out, reject silently
+        console.log('error in share mode,', e);
+      }
     })
 }

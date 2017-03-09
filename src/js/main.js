@@ -35,6 +35,7 @@ export function resetWindow() {
     },
     inactivityTimeout: null,
     playPromptTimeout: null,
+    sharePromptTimeout: null,
     userHasDrawnFirstShape: false,
     firstTimePlaying: true,
     shapesSinceTut: 0,

@@ -232,13 +232,21 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
   return new Promise(function(resolve, reject) {
     // normal inactivity timeout is disabled, start an alternate one
     let inactivityTimeout = setTimeout(function() {
-      reject('timeout');
+      if ($body.hasClass('share-active')) {
+        reject('timeout');
+      } else {
+        reject('share-closed');
+      }
     }, timing.continueInactivityDelay / 2);
 
     $shareKeypad.on(tapEvent, function(e) {
       clearTimeout(inactivityTimeout);
       inactivityTimeout = setTimeout(function() {
-        reject('timeout');
+        if ($body.hasClass('share-active')) {
+          reject('timeout');
+        } else {
+          reject('share-closed');
+        }
       }, timing.continueInactivityDelay / 2);
     });
 
