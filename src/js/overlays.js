@@ -7,6 +7,7 @@ const video = require('./video');
 const timing = require('./timing');
 const tutorial = require('./tutorial');
 const util = require('./util');
+const ui = require('./ui');
 
 const hammerCanvas = touch.hammerCanvas;
 
@@ -21,6 +22,8 @@ const $footer = $body.find('.overlay.tips .footer');
 const $sharePhone = $body.find('#phone');
 const $shareKeypad = $body.find('.keypad');
 const $shareSend = $shareKeypad.find('.send');
+const $sharePhoneWrap = $('.share-phone .output');
+const invalidPhoneNumberClass = 'invalid-number';
 
 const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation'];
 const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
@@ -188,6 +191,7 @@ function resetTips() {
 export function closeAndResetOverlays() {
   $body.removeClass('overlay-active');
   $body.removeClass(overlayOpenClasses);
+  $sharePhoneWrap.removeClass(invalidPhoneNumberClass);
   resetTips();
 }
 
@@ -236,13 +240,14 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
       inactivityTimeout = setTimeout(function() {
         reject('timeout');
       }, timing.continueInactivityDelay / 2);
-    })
+    });
 
-    $shareSend.on(tapEvent, e => {
+    $shareSend.on(tapEvent, function(e) {
       const phoneNumWithHyphens = $sharePhone.text();
       let phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
 
       if (validator.isMobilePhone(phoneNumRaw, 'en-US')) {
+        $sharePhoneWrap.removeClass(invalidPhoneNumberClass);
         if(phoneNumRaw.length == 10) phoneNumRaw = '1' + phoneNumRaw;
         clearTimeout(inactivityTimeout);
         resolve({
@@ -250,8 +255,7 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
           s3Id: s3Id
         });
       } else {
-        console.log('malformed phone number');
-        // show error!
+        $sharePhoneWrap.addClass(invalidPhoneNumberClass);
       }
     });
   })

@@ -329,6 +329,28 @@ article {
     width: 60%;
     padding-right: 5%;
     text-align: left;
+
+    &:before {
+      visibility: hidden;
+      content: 'Enter a valid phone number: xxx-xxx-xxxx';
+      text-transform: uppercase;
+      position: absolute;
+      top: -2em;
+      color: #E20046;
+      font-size: .65vw;
+      line-height: 1.5;
+      margin-left: 0.4rem;
+    }
+
+    &.invalid-number {
+      #phone {
+        border-color: #E20046;
+      }
+
+      &:before {
+        visibility: visible;
+      }
+    }
   }
 
   #phone {

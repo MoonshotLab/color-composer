@@ -25,10 +25,10 @@ export function preventInactivityTimeout() {
   console.log(`prevent timeout: ${util.getTime()}`);
   // overlays.closeAndResetOverlays();
 
-  clearTimeout(window.kan.inactivityTimeout);
-  clearInterval(window.kan.continueCountdownInterval);
-
-  window.kan.inactivityTimeout = setTimeout(function() {
-    overlays.openOverlay('continue');
-  }, drawInactivityDelay);
+  // clearTimeout(window.kan.inactivityTimeout);
+  // clearInterval(window.kan.continueCountdownInterval);
+  //
+  // window.kan.inactivityTimeout = setTimeout(function() {
+  //   overlays.openOverlay('continue');
+  // }, drawInactivityDelay);
 }

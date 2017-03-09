@@ -143,12 +143,6 @@ export function handleSharePressed() {
       console.log('received well formed phone number');
       return asyncAddCompositionToDb(resp);
     })
-    // .catch(function(e) {
-    //   // could be a time out?
-    //   console.log('something went wrong', e);
-    // })
-    // .then(function() {
-    // })
     .then(function() {
       // close overlay
       overlays.openOverlay('share-confirmation');

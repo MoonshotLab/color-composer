@@ -55,7 +55,6 @@ $(window).on('load', function() {
     overlays.init();
     timing.init();
     shape.init();
-    animation.init();
     sound.init()
       .then(function() {
         // sound.init() is async because it loads in the sound files

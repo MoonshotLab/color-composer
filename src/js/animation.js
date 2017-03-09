@@ -21,9 +21,6 @@ function asyncAnimateScale(item, totalDuration) {
           settings: {
             duration: totalDuration / 4,
             easing: "easeOut",
-            complete: function() {
-              console.log('scale animation step 1')
-            },
           }
         },
         {
@@ -70,9 +67,6 @@ function asyncAnimateBrightness(item, totalDuration, finalColor) {
           settings: {
             duration: totalDuration / 4,
             easing: "easeInOut",
-            complete: function() {
-              console.log('brightness animation step 1')
-            },
           }
         },
         {
@@ -104,14 +98,11 @@ function asyncAnimateBrightness(item, totalDuration, finalColor) {
 export function asyncPlayShapeAnimation(shapeId) {
   return new Promise(function(resolve, reject, onCancel) {
     try {
-      console.log('asyncPlayShapeAnimation shapeId', shapeId);
       const item = paper.project.getItem({
         match: function(el) {
           return (el.id === shapeId);
         }
       });
-
-      console.log('item', item);
 
       if (!!item) {
         let group = null;
@@ -125,7 +116,6 @@ export function asyncPlayShapeAnimation(shapeId) {
 
         if (group !== null && group.children.length > 0 && Object.keys(group._namedChildren).length > 0) {
           if (group.data.animating === true) {
-            console.log('nope');
             resolve('group already animating, ignoring');
           }
           const totalDuration = sound.measureLength;
@@ -176,85 +166,30 @@ export function asyncPlayShapeAnimation(shapeId) {
   });
 }
 
-// export function animateShapePlay(shape) {
-//   const totalDuration = sound.measureLength;
-//
-//   const item = paper.project.getItem({
-//     className: 'Path',
-//     match: function(el) {
-//       return (el.id === shape.pathId);
-//     }
-//   });
-//
-//   if (!!item) {
-//     let group = item.parent;
-//     console.log(group);
-//     let outer = group._namedChildren.outer[0];
-//     // outer.fillColor = 'pink';
-//     console.log(outer);
-//     group.data.animating = true;
-//     asyncAnimateScale(group, totalDuration);
-//
-//     outer.fillColor = group.data.originalColor;
-//     console.log('outer.fillColor', outer.fillColor);
-//     asyncAnimateBrightness(outer, totalDuration, group.data.color);
-//
-//     console.log('group._namedChildren', group._namedChildren);
-//     if (!!group._namedChildren && !!group._namedChildren.loop && !!group._namedChildren.loop.length > 0) {
-//       group._namedChildren.loop.forEach(function(loop) {
-//         console.log('loop', loop);
-//         if (!!loop.fillColor && loop.fillColor !== color.transparent) {
-//           console.log('loop.fillColor', loop.fillColor);
-//           loop.fillColor = group.data.originalColor;
-//           asyncAnimateBrightness(loop, totalDuration, group.data.color);
+// function initAnimateShadowBlur() {
+//   animatePaper.extendPropHooks({
+//     "shadowBlur": {
+//       get: function(tween) {
+//         // console.log('get', tween);
+//         if (!tween.item.data._animatePaperVals) {
+//           tween.item.data._animatePaperVals = {};
 //         }
-//       })
+//         if (typeof tween.item.data._animatePaperVals.shadowBlur === "undefined") {
+//             tween.item.data._animatePaperVals.shadowBlur = tween.item.shadowBlur;
+//         }
+//         // console.log('get', tween.item.shadowBlur);
+//         var output = tween.item.data._animatePaperVals.shadowBlur;
+//         return output;
+//       },
+//       set: function(tween) {
+//         // console.log('set', tween);
+//         var curBlur = tween.item.data._animatePaperVals.shadowBlur;
+//         var trueBlur = tween.now - curBlur;
+//         //
+//         tween.item.data._animatePaperVals.shadowBlur = tween.now;
+//         tween.item.shadowBlur += trueBlur;
+//         // console.log('set', tween.item.shadowBlur);
+//       },
 //     }
-//
-//     if (!!group._namedChildren && !!group._namedChildren.pop && !!group._namedChildren.pop.length > 0) {
-//       group._namedChildren.pop.forEach(function(pop) {
-//         console.log('pop.fillColor', pop.fillColor);
-//         asyncAnimateBrightness(pop, totalDuration, pop.fillColor);
-//       })
-//     }
-//   }
+//   })
 // }
-
-function initAnimateShadowBlur() {
-  animatePaper.extendPropHooks({
-    "shadowBlur": {
-      get: function(tween) {
-        // console.log('get', tween);
-        if (!tween.item.data._animatePaperVals) {
-          tween.item.data._animatePaperVals = {};
-        }
-        if (typeof tween.item.data._animatePaperVals.shadowBlur === "undefined") {
-            tween.item.data._animatePaperVals.shadowBlur = tween.item.shadowBlur;
-        }
-        // console.log('get', tween.item.shadowBlur);
-        var output = tween.item.data._animatePaperVals.shadowBlur;
-        return output;
-      },
-      set: function(tween) {
-        // console.log('set', tween);
-        var curBlur = tween.item.data._animatePaperVals.shadowBlur;
-        var trueBlur = tween.now - curBlur;
-        //
-        tween.item.data._animatePaperVals.shadowBlur = tween.now;
-        tween.item.shadowBlur += trueBlur;
-        // console.log('set', tween.item.shadowBlur);
-      },
-      // ease: function(tween, easedPercent) {
-      //   console.log('ease', tween, easedPercent);
-      //   console.log('ease', tween.item.shadowBlur);
-      //   tween.now = (tween.end - tween.start) * easedPercent;
-      //   console.log('tween.now', tween.now);
-      //   return tween.now;
-      // }
-    }
-  })
-}
-
-export function init() {
-  initAnimateShadowBlur();
-}
