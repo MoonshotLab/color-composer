@@ -60,7 +60,7 @@ export function asyncRecord() {
             // console.log('audioBlob', audioBlob);
             // console.log('videoBlob', videoBlob);
 
-            console.log('sending files');
+            // console.log('sending files');
 
             const formData = new FormData();
             formData.append('audio', audioBlob);
@@ -86,10 +86,10 @@ export function asyncRecord() {
       }).error(function(e) {
         return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
           .then(function(values) {
-            console.log(values)
+            // console.log(values)
           })
           .catch(function(e) {
-            console.error(e);
+            // console.error(e);
           })
           .finally(function() {
             reject(e);
@@ -154,7 +154,7 @@ export function handleSharePressed() {
       setTimeout(function() {
         video.enterTutorialMode();
       }, 1000 * 4);
-      console.log('close overlay, done!');
+      // console.log('close overlay, done!');
     })
     .catch(function(e) {
       ui.exitShareMode(); // make sure

@@ -274,9 +274,9 @@ export function startComposition(composition, loop = false) {
 
         // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);
         asyncPlayShape(shapeSoundObj).then(function(res) {
-          console.log(res);
+          // console.log(res);
         }).error(function(e) {
-          console.log('Error playing shapeSoundObj', e);
+          // console.log('Error playing shapeSoundObj', e);
         });
       }, shapeSoundObj.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
@@ -309,7 +309,7 @@ export function asyncPlayCompositionMultipleTimes(repeats = 1) {
     }
 
     Promise.each(promisedRepeats, function() {
-      console.log('repeat');
+      // console.log('repeat');
     }).then(function() {
       resolve('Repeats done');
     }).error(function(e) {
