@@ -126,6 +126,9 @@ export function asyncAddCompositionToDb(data) {
 }
 
 export function handleSharePressed() {
+  clearTimeout(window.kan.sharePromptTimeout);
+  clearTimeout(window.kan.playPromptTimeout);
+
   if (util.anyShapesOnCanvas() !== true) {
     // console.log('nope');
     return;
