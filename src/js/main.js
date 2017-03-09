@@ -49,21 +49,25 @@ export function resetWindow() {
 
 $(window).on('load', function() {
   function run() {
-    resetWindow();
-    util.setSha();
-    ui.init();
-    overlays.init();
-    timing.init();
-    shape.init();
-    sound.init()
-      .then(function() {
-        // sound.init() is async because it loads in the sound files
-        touch.init();
-      })
-      .fail(function(e) {
-        console.error('error initting shape sounds:', e);
-        location.reload();
-      })
+    if (window.location.hash.length > 0 && window.location.hash == '#gallery') {
+      resetWindow();
+      util.setSha();
+      ui.init();
+      overlays.init();
+      timing.init();
+      shape.init();
+      sound.init()
+        .then(function() {
+          // sound.init() is async because it loads in the sound files
+          touch.init();
+        })
+        .fail(function(e) {
+          console.error('error initting shape sounds:', e);
+          location.reload();
+        })
+    } else {
+      window.location.replace('http://www.nelson-atkins.org/');
+    }
   }
 
   try {
