@@ -6,7 +6,19 @@
 ## Config
 Add a `.env` file with the following vars:
 ```
-PORT=11235
+PORT=''
+DB_URI=''
+S3_KEY=''
+S3_SECRET=''
+S3_BUCKET=''
+TWILIO_NUMBER=''
+TWILIO_SID=''
+TWILIO_TOKEN=''
+ROOT_URL=''
+SECRET_KEY=''
+MAILGUN_DOMAIN=''
+MAILGUN_SENDER=''
+MAILGUN_KEY=''
 ```
 
 ## Run
