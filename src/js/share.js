@@ -52,7 +52,7 @@ export function asyncRecord() {
       canvasRecorder.startRecording();
       audioRecorder.record();
 
-      sound.asyncPlayCompositionOnce().then(() => {
+      sound.asyncPlayCompositionOnce().then(function() {
         return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
           .then(function(values) {
             let [audioBlob, videoBlob] = values;
@@ -82,7 +82,7 @@ export function asyncRecord() {
             console.error(e);
             reject(e);
           });
-      }).error((e) => {
+      }).error(function(e) {
         return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
           .then(function(values) {
             console.log(values)

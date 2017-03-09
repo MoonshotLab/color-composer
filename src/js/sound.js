@@ -163,10 +163,10 @@ export function quantizePosition(position, viewWidth) {
 export function asyncPlayShape(shapeSoundObj) {
   return new Promise(function(resolve, reject) {
     Promise.all([asyncPlayShapeSound(shapeSoundObj), animation.asyncPlayShapeAnimation(shapeSoundObj.groupId)])
-      .then(() => {
+      .then(function() {
         resolve(`Group ${shapeSoundObj.groupId} fully done playing`);
       })
-      .error((e) => {
+      .error(function(e) {
         reject(`Group ${shapeSoundObj.groupId} errored while playing: ${e}`);
       });
   });
@@ -251,7 +251,7 @@ export function startComposition(composition, loop = false) {
 
         asyncPlayShape(shapeSoundObj).then(function(res) {
           console.log(res);
-        }).error((e) => {
+        }).error(function(e) {
           console.log('Error playing shapeSoundObj', e);
         });
       }, shapeSoundObj.startTime);
@@ -275,7 +275,7 @@ export function startComposition(composition, loop = false) {
         // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);
         asyncPlayShape(shapeSoundObj).then(function(res) {
           console.log(res);
-        }).error((e) => {
+        }).error(function(e) {
           console.log('Error playing shapeSoundObj', e);
         });
       }, shapeSoundObj.startTime);
@@ -310,9 +310,9 @@ export function asyncPlayCompositionMultipleTimes(repeats = 1) {
 
     Promise.each(promisedRepeats, function() {
       console.log('repeat');
-    }).then(() => {
+    }).then(function() {
       resolve('Repeats done');
-    }).error((e) => {
+    }).error(function(e) {
       reject(e);
     });
   });
@@ -328,17 +328,17 @@ export function asyncPlayCompositionOnce() {
 
     shape.startKeepaliveAnimation();
 
-    Base.each(composition, (shape, i) => {
+    Base.each(composition, function(shape, i) {
       shapePromises.push(asyncPlayShapeWithDelay(shape));
     });
 
-    Promise.all(shapePromises).then((res) => {
+    Promise.all(shapePromises).then(function(res) {
       const endTime = new Date().getTime();
       const playTime = endTime - startTime;
 
       // wait for composition to be fully done before repeating (play is naturally truncated when the last shape finishes playing)
       if (playTime < compositionLength) {
-        return Promise.delay(compositionLength - playTime).then(() => {
+        return Promise.delay(compositionLength - playTime).then(function() {
           shape.stopKeepaliveAnimation();
           resolve(`Composition fully done, after a wait`);
         })
@@ -346,7 +346,7 @@ export function asyncPlayCompositionOnce() {
         shape.stopKeepaliveAnimation();
         resolve(`Composition fully done, with no wait`);
       }
-    }).error((e) => {
+    }).error(function(e) {
       shape.stopKeepaliveAnimation();
       reject(e);
     });
@@ -355,11 +355,11 @@ export function asyncPlayCompositionOnce() {
 
 function asyncPlayShapeWithDelay(shape) {
   return new Promise(function(resolve, reject) {
-    const soundTimeout = setTimeout(() => {
+    const soundTimeout = setTimeout(function() {
       // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-      asyncPlayShape(shape).then((res) => {
+      asyncPlayShape(shape).then(function(res) {
         resolve(res);
-      }).error((e) => {
+      }).error(function(e) {
         reject(`Error playing shape with delay: ${e}`);
       });
     }, shape.startTime);

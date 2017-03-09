@@ -38,7 +38,7 @@ function initKeepaliveShape() {
 
 export function startKeepaliveAnimation() {
   keepaliveShape.visible = true;
-  keepaliveInterval = setInterval(() => {
+  keepaliveInterval = setInterval(function() {
     keepaliveShape.rotation += 5;
   }, 40);
 };
