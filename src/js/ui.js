@@ -110,7 +110,7 @@ function undoPressed() {
   sound.stopPlaying();
   tutorial.hideContextualTuts();
 
-  const transparent = new Color(0, 0);
+  const transparent = color.transparent;
   // console.log('undo pressed');
   if (!(window.kan.moves.length > 0)) {
     // console.log('no moves yet');

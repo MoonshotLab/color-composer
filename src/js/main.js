@@ -6,7 +6,6 @@ const timing = require('./timing');
 const util = require('./util');
 const sound = require('./sound');
 const shape = require('./shape');
-const animation = require('./animation');
 
 export function resetWindow() {
   window.kan = {

@@ -21,6 +21,7 @@ export const playingClass = 'playing';
 export const playEnabledClass = 'play-enabled';
 
 export function init() {
+  Howler.autoSuspend = false; // don't dump sounds from cache after inactivity (causes some issues in kiosk mode)
   return asyncInitShapeSounds();
 }
 
