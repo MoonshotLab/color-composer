@@ -403,8 +403,8 @@ article {
       }
 
       &.send {
-        background: url('img/canvas/1.jpg') bottom left no-repeat;
-        background-size: 400%;
+        background: url('img/send-bg.jpg') center center no-repeat;
+        background-size: cover;
       }
 
       span {
