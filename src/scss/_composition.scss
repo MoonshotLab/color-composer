@@ -1,3 +1,9 @@
+html.adownload {
+  .composition-dl-share-copy {
+    display: none;
+  }
+}
+
 body#composition-detail {
   background-color: black;
   color: white;
@@ -72,6 +78,10 @@ body#composition-detail {
     span {
       @extend %visually-hidden;
     }
+  }
+
+  .composition-dl-share-copy {
+    font-weight: bold;
   }
 
   .main-footer {
