@@ -1,6 +1,8 @@
 body#composition-detail {
   background-color: black;
+  color: white;
   text-align: center;
+  font-family: 'Open Sans', sans-serif;
 
   path {
     stroke: red;
@@ -19,6 +21,7 @@ body#composition-detail {
   #logo {
     width: 30%;
     min-width: 15rem;
+    max-width: 25rem;
     margin-top: 3rem;
     margin-bottom: 3rem;
   }
@@ -30,11 +33,7 @@ body#composition-detail {
 
     @media(min-width: 750px) {
       margin-top: 2rem;
-      margin-bottom: 4rem;
-    }
-
-    @media(min-width: 1000px) {
-      margin-bottom: 8rem;
+      margin-bottom: 2rem;
     }
   }
 
@@ -44,10 +43,6 @@ body#composition-detail {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
-
-    @media(min-width: 750px) {
-      margin-bottom: 4rem;
-    }
   }
 
   .share-item {
@@ -76,6 +71,35 @@ body#composition-detail {
 
     span {
       @extend %visually-hidden;
+    }
+  }
+
+  .main-footer {
+    border-top: 1px solid white;
+    padding: 2rem 0;
+    display: flex;
+    flex-wrap: none;
+    justify-content: space-between;
+
+    #copyright {
+      font-size: 10px;
+
+      @media(min-width: 550px) {
+        font-size: 12px;
+      }
+
+      @media(min-width: 750px) {
+        font-size: 14px;
+      }
+    }
+
+    .nama-logo-wrap {
+      max-width: 25%;
+    }
+
+    #nama-logo {
+      width: 100%;
+      max-width: 15rem;
     }
   }
 }

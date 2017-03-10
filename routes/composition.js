@@ -8,7 +8,8 @@ router.get('/:id', function(req, res) {
   res.render('composition', {
     rootUrl : process.env.ROOT_URL,
     uuid    : req.params.id,
-    s3Path  : 'https://s3.amazonaws.com/' + process.env.S3_BUCKET
+    s3Path  : 'https://s3.amazonaws.com/' + process.env.S3_BUCKET,
+    year    : new Date().getFullYear()
   });
 });
 
