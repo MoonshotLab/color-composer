@@ -118,7 +118,7 @@ export function asyncPlayShapeAnimation(shapeId) {
           if (group.data.animating === true) {
             resolve('group already animating, ignoring');
           }
-          const totalDuration = sound.measureLength * 0.75;
+          const totalDuration = sound.measureLength * 0.5;
           const transparent = color.transparent;
           let animationPromises = [];
 
