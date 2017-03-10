@@ -279,6 +279,7 @@ function initUndoButton() {
 }
 
 function initPlayButton() {
+  overlays.closeAndResetOverlays();
   $('.main-controls .play-stop .play').on(tapEvent, sound.startPlaying);
   $('.main-controls .play-stop .stop').on(tapEvent, sound.stopPlaying);
 }
