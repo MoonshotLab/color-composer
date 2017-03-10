@@ -237,7 +237,7 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
       } else {
         reject('share-closed');
       }
-    }, timing.continueInactivityDelay / 2);
+    }, timing.continueInactivityDelay);
 
     $shareKeypad.on(tapEvent, function(e) {
       clearTimeout(inactivityTimeout);
@@ -247,7 +247,7 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
         } else {
           reject('share-closed');
         }
-      }, timing.continueInactivityDelay / 2);
+      }, timing.continueInactivityDelay);
     });
 
     $shareSend.on(tapEvent, function(e) {
