@@ -5,10 +5,10 @@ const video = require('./video');
 const timing = require('./timing');
 const util = require('./util');
 const sound = require('./sound');
+const shape = require('./shape');
 
 export function resetWindow() {
   window.kan = {
-    currentColor: '#2B5E2E',
     composition: [],
     compositionInterval: null,
     compositionTimeout: null,
@@ -32,10 +32,10 @@ export function resetWindow() {
     tutorialCompletion: {
       "fill": false,
       "pinch": false,
-      "swipe": false
     },
     inactivityTimeout: null,
     playPromptTimeout: null,
+    sharePromptTimeout: null,
     userHasDrawnFirstShape: false,
     firstTimePlaying: true,
     shapesSinceTut: 0,
@@ -49,27 +49,32 @@ export function resetWindow() {
 
 $(window).on('load', function() {
   function run() {
-    resetWindow();
-    util.setSha();
-    ui.init();
-    overlays.init();
-    timing.init();
-    sound.init()
-      .then(() => {
-        // sound.init() is async because it loads in the sound files
-        touch.init();
-      })
-      .fail((e) => {
-        console.error('error initting shape sounds:', e);
-        location.reload();
-      })
+    if (window.location.hash.length > 0 && window.location.hash == '#gallery') {
+      resetWindow();
+      util.setSha();
+      ui.init();
+      overlays.init();
+      timing.init();
+      shape.init();
+      sound.init()
+        .then(function() {
+          // sound.init() is async because it loads in the sound files
+          touch.init();
+        })
+        .fail(function(e) {
+          console.error('error initting shape sounds:', e);
+          location.reload();
+        })
+    } else {
+      window.location.replace('http://www.nelson-atkins.org/');
+    }
   }
 
   try {
     run();
   } catch(e) {
     console.error(e);
-    setTimeout(() => {
+    setTimeout(function() {
       // wait 5 seconds then reload
       location.reload();
     }, 5 * 1000);

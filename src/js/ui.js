@@ -1,4 +1,5 @@
-const config = require('./../../config');
+const config = require('./config');
+require('howler');
 
 const sound = require('./sound');
 const tutorial = require('./tutorial');
@@ -6,6 +7,8 @@ const overlays = require('./overlays');
 const util = require('./util');
 const color = require('./color');
 const shape = require('./shape');
+const share = require('./share');
+const touch = require('./touch');
 
 const $body = $('body');
 const tapEvent = 'click tap touch';
@@ -18,12 +21,12 @@ const $undoButton = $('.controls .undo');
 const $playButton = $('.controls .play-stop');
 const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
-const $shareSend = $('#share-send');
 
-export const canvas = $('#canvas')[0];
+export const drawCanvas = $('#canvas')[0];
 export const tipsOverlay = $('.overlay.tips')[0];
 
 const ditheredClass = 'dithered';
+const shareModeClass = 'share-mode';
 
 export function init() {
   initLogoRefresh();
@@ -33,15 +36,12 @@ export function init() {
   initPlayButton();
   initTipsButton();
   initShareButton();
-  initShareModal();
   initContextualTuts();
   resetCanvas();
 }
 
-function initShareModal() {
-  $shareSend.on(tapEvent, function() {
-    ga('send', 'event', 'share', 'mobileLinkSent');
-  })
+function ditherAllButtons() {
+  $('.controls > *').addClass(ditheredClass);
 }
 
 function unditherAllButtons() {
@@ -82,6 +82,19 @@ function unditherButtonsByName(buttonNames) {
   ditherButtonsByName(buttonNames, true);
 }
 
+export function enterShareMode() {
+  sound.stopPlaying(true);
+  ditherAllButtons();
+  clearTimeout(window.kan.playPromptTimeout);
+  touch.disableAllEvents();
+}
+
+export function exitShareMode() {
+  unditherAllButtons();
+  Howler.mute(false);
+  touch.enableAllEvents();
+}
+
 function newPressed() {
   // console.log('new pressed');
   window.kan.composition = [];
@@ -97,7 +110,7 @@ function undoPressed() {
   sound.stopPlaying();
   tutorial.hideContextualTuts();
 
-  const transparent = new Color(0, 0);
+  const transparent = color.transparent;
   // console.log('undo pressed');
   if (!(window.kan.moves.length > 0)) {
     // console.log('no moves yet');
@@ -119,30 +132,33 @@ function undoPressed() {
         util.clearGroupPops(item);
         item.remove();
 
+        if ('removedGroup' in lastMove) {
+          // bring back removed group
+          lastMove.removedGroup.visible = true;
+          lastMove.removedGroup.data.fresh = true;
+          shape.updatePops();
+        }
 
-        const numGroups = util.getNumGroups();
+
+        const numGroups = util.getNumVisibleGroups();
         // console.log('numGroups', numGroups);
 
         if (numGroups <= 0) {
-          ditherButtonsByName(['undo', 'new']);
-        }
-
-        if (numGroups < 3) {
-          ditherButtonsByName(['play-stop', 'share']);
+          ditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
           $body.removeClass(sound.playEnabledClass);
         } else {
-          unditherButtonsByName(['play-stop', 'share']);
+          unditherButtonsByName(['undo', 'new', 'play-stop', 'share']);
           $body.addClass(sound.playEnabledClass);
         }
+
         break;
       case 'fillChange':
         if (lastMove.transparent) {
           item.fillColor = lastMove.fill;
-          item.strokeColor = lastMove.fill;
         } else {
           item.fillColor = transparent;
-          item.strokeColor = transparent;
         }
+        item.strokeColor = transparent;
       case 'transform':
         item.data.fresh = true;
         if (!!lastMove.position) {
@@ -180,7 +196,7 @@ function playPressed() {
   // console.log(playing, util.getNumGroups() > 2, !playing && util.getNumGroups() > 2, $body);
 
   clearTimeout(window.kan.playPromptTimeout);
-  if (!playing && util.getNumGroups() > 2) {
+  if (!playing && util.getNumVisibleGroups() > 2) {
     // console.log('starting playing');
     sound.startPlaying();
   } else {
@@ -192,16 +208,6 @@ function playPressed() {
 function tipsPressed() {
   sound.stopPlaying();
   overlays.openOverlay('tips');
-  // console.log('tips pressed');
-}
-
-function sharePressed() {
-  console.log('share pressed');
-  ga('send', 'event', 'share', 'modalFired');
-  sound.stopPlaying();
-  if ($body.hasClass(sound.playEnabledClass)) {
-    overlays.openOverlay('share');
-  }
 }
 
 function initLogoRefresh() {
@@ -210,37 +216,47 @@ function initLogoRefresh() {
   });
 }
 
-function initColorPalette() {
-  const $paletteWrap = $('ul.palette-colors');
-  const $paletteColors = $paletteWrap.find('li');
+export function selectRandomColorFromPalette() {
+  const randomColorHex = color.getRandomColor();
+  const $svg = $(`svg.palette-color[data-color='${randomColorHex}']`);
+
+  if (!!$svg && $svg.length > 0) {
+    selectColorFromPaletteUsingSvgElement($svg);
+  }
+}
+
+function selectColorFromPaletteUsingSvgElement($svg) {
   const paletteColorSize = 20;
   const paletteSelectedColorSize = 30;
   const paletteSelectedClass = 'palette-selected';
 
+  if (!$svg.hasClass(paletteSelectedClass)) {
+    $('.' + paletteSelectedClass)
+      .removeClass(paletteSelectedClass)
+      .attr('width', paletteColorSize)
+      .attr('height', paletteColorSize)
+      .find('rect')
+      .attr('rx', 0)
+      .attr('ry', 0);
+
+    $svg.addClass(paletteSelectedClass)
+      .attr('width', paletteSelectedColorSize)
+      .attr('height', paletteSelectedColorSize)
+      .find('rect')
+      .attr('rx', paletteSelectedColorSize / 2)
+      .attr('ry', paletteSelectedColorSize / 2);
+  }
+}
+
+function initColorPalette() {
+  const $paletteWrap = $('ul.palette-colors');
+  const $paletteColors = $paletteWrap.find('li');
+
   // hook up click
   $paletteColors.on('click tap touch', function() {
     if (!$body.hasClass(playingClass)) {
-      let $svg = $(this).find('svg.palette-color');
-
-      if (!$svg.hasClass(paletteSelectedClass)) {
-        $('.' + paletteSelectedClass)
-          .removeClass(paletteSelectedClass)
-          .attr('width', paletteColorSize)
-          .attr('height', paletteColorSize)
-          .find('rect')
-          .attr('rx', 0)
-          .attr('ry', 0);
-
-        $svg.addClass(paletteSelectedClass)
-          .attr('width', paletteSelectedColorSize)
-          .attr('height', paletteSelectedColorSize)
-          .find('rect')
-          .attr('rx', paletteSelectedColorSize / 2)
-          .attr('ry', paletteSelectedColorSize / 2)
-
-        window.kan.currentColor = $svg.find('rect').attr('fill');
-        // console.log('%ccolor', 'color:red', color.getColorName(window.kan.currentColor));
-      }
+      const $svg = $(this).find('svg.palette-color');
+      selectColorFromPaletteUsingSvgElement($svg);
     };
   });
 }
@@ -262,6 +278,7 @@ function initUndoButton() {
 }
 
 function initPlayButton() {
+  overlays.closeAndResetOverlays();
   $('.main-controls .play-stop .play').on(tapEvent, sound.startPlaying);
   $('.main-controls .play-stop .stop').on(tapEvent, sound.stopPlaying);
 }
@@ -275,11 +292,7 @@ function initTipsButton() {
 }
 
 function initShareButton() {
-  $('.controls .share').on(tapEvent, function() {
-    if (!$body.hasClass(playingClass)) {
-      sharePressed();
-    }
-  });
+  $('.controls .share').on(tapEvent, share.handleSharePressed);
 }
 
 function initContextualTuts() {

@@ -1,4 +1,6 @@
-const config = require('./../../config');
+const config = require('./config');
+
+const util = require('./util');
 
 export const transparent = new Color(0, 0);
 
@@ -22,11 +24,22 @@ export function getColorName(color) {
 }
 
 export function getRandomPop() {
-  const pops = config.palette.pops;
-  return pops[Math.floor(Math.random() * pops.length)];
+  return util.randomPick(config.palette.pops);
+}
+
+export function getRandomColor() {
+  return util.randomPick(config.palette.colors);
 }
 
 export function getIndexedPopColor(index) {
   const pops = config.palette.pops;
   return pops[index % pops.length];
+}
+
+export function getCurrentColor() {
+  return $('.palette-color.palette-selected').data('color');
+}
+
+export function getCurrentColorName() {
+  return getColorName(getCurrentColor());
 }

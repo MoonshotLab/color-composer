@@ -1,10 +1,12 @@
 require('howler');
+const Promise = require("bluebird");
 
 const ui = require('./ui');
 const shape = require('./shape');
 const color = require('./color');
 const overlays = require('./overlays');
 const tutorial = require('./tutorial');
+const animation = require('./animation');
 const util = require('./util');
 
 const $body = $('body');
@@ -12,13 +14,14 @@ const $body = $('body');
 const measures = 4;
 const bpm = 120;
 const beatLength = (60 / bpm) * 1000; // ms
-const measureLength = beatLength * 4;
+export const measureLength = beatLength * 4;
 export const compositionLength = measureLength * measures;
 
 export const playingClass = 'playing';
 export const playEnabledClass = 'play-enabled';
 
 export function init() {
+  Howler.autoSuspend = false; // don't dump sounds from cache after inactivity (causes some issues in kiosk mode)
   return asyncInitShapeSounds();
 }
 
@@ -46,10 +49,19 @@ export function getShapeSoundObj(path) {
   soundObj.duration = quantizedSoundDuration;
   soundObj.pathId = path.id;
   soundObj.spriteName = colorName;
-
-  if (!!path.parent && path.parent.className === 'Group') {
-    soundObj.groupId = path.parent.id;
+  soundObj.groupId = path.parent.id;
+  soundObj.play = function() {
+    return new Promise(function(resolve, reject) {
+      soundObj.sound.play(soundObj.spriteName);
+      soundObj.sound.on('end', function() {
+        resolve(`Group ${soundObj.groupId} done playing sound`);
+      });
+      soundObj.sound.on('loaderror', function() {
+        reject(`Group ${soundObj.groupId} failed to load sound`);
+      });
+    })
   }
+
 
   return soundObj;
 }
@@ -88,7 +100,7 @@ export function stopPlaying(mute = false) {
 
 function asyncGetShapeSoundFromShapeName(shapeName) {
   const shapeSoundJSONPath = `./audio/shapes/${shapeName}/${shapeName}.json`;
-  return $.getJSON(shapeSoundJSONPath).then((resp) => {
+  return $.getJSON(shapeSoundJSONPath).then(function(resp) {
     const shapeSoundData = formatShapeSoundData(shapeName, resp);
     const sound = new Howl(shapeSoundData);
     return {
@@ -104,7 +116,7 @@ export function asyncInitShapeSounds() {
 
   const shapeNames = shape.shapeNames;
   let promises = [];
-  Base.each(shapeNames, (shapeName) => {
+  Base.each(shapeNames, function(shapeName) {
     promises.push(asyncGetShapeSoundFromShapeName(shapeName));
   });
 
@@ -125,7 +137,7 @@ export function formatShapeSoundData(shapeName, data) {
 
   returnData.src = data.urls.map((url) => `./audio/shapes/${shapeName}/${url}`);
   returnData.sprite = data.sprite;
-  returnData.html5 = true;
+  returnData.html5 = false;
   returnData.loop = false;
 
   return returnData;
@@ -148,60 +160,32 @@ export function quantizePosition(position, viewWidth) {
   return returnPosition = Math.floor(position / smallestInterval) * smallestInterval;
 }
 
-function animateShapePlay(shape) {
-  const item = paper.project.getItem({
-    className: 'Path',
-    match: function(el) {
-      return (el.id === shape.pathId);
+export function asyncPlayShape(shapeSoundObj) {
+  return new Promise(function(resolve, reject) {
+    Promise.all([asyncPlayShapeSound(shapeSoundObj), animation.asyncPlayShapeAnimation(shapeSoundObj.groupId)])
+      .then(function() {
+        resolve(`Group ${shapeSoundObj.groupId} fully done playing`);
+      })
+      .error(function(e) {
+        reject(`Group ${shapeSoundObj.groupId} errored while playing: ${e}`);
+      });
+  });
+}
+
+export function asyncPlayShapeSound(shapeSoundObj) {
+  return new Promise(function(resolve, reject) {
+    try {
+      // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);
+      shapeSoundObj.play().then(function(res) {
+        resolve(res);
+      })
+      .catch(function(e) {
+        reject(e);
+      });
+    } catch(e) {
+      reject(`Error playing shapeSoundObj sound: ${e}`);
     }
   });
-  if (!!item) {
-    let group = item.parent;
-    group.data.animating = true;
-    const totalDuration = measureLength / 2;
-    group.animate([
-      {
-        properties: {
-          scale: 1,
-          rotate: -5,
-        },
-        settings: {
-          duration: totalDuration / 4,
-          easing: "easeInOut",
-          // complete: function() {
-          //   console.log('animation step 1')
-          // },
-        }
-      },
-      {
-        properties: {
-          scale: 1.15,
-          rotate: 5,
-        },
-        settings: {
-          duration: totalDuration / 2,
-          easing: "easeInOut",
-          // complete: function() {
-          //   console.log('animation step 2')
-          // },
-        }
-      },
-      {
-        properties: {
-          scale: 1,
-          rotate: 0,
-        },
-        settings: {
-          duration: totalDuration / 4,
-          easing: "easeInOut",
-          complete: function() {
-            this.data.animating = false;
-            // console.log('animation step 3')
-          }
-        }
-      },
-    ]);
-  }
 }
 
 export function removeShapeFromComposition(shapeGroup) {
@@ -231,7 +215,7 @@ export function removeShapeFromComposition(shapeGroup) {
 
 export function clearSoundTimeouts() {
   if (window.kan.soundTimeouts.length > 0) {
-    window.kan.soundTimeouts.forEach((soundTimeout) => {
+    window.kan.soundTimeouts.forEach(function(soundTimeout) {
       clearTimeout(soundTimeout);
     });
   }
@@ -253,22 +237,24 @@ export function startComposition(composition, loop = false) {
     // console.log('playing composition first time');
     let trimmedCompositionObj = getTrimmedCompositionObj(composition);
 
-    Base.each(trimmedCompositionObj.composition, (shape, i) => {
-      let soundTimeout = setTimeout(() => {
+    Base.each(trimmedCompositionObj.composition, function(shapeSoundObj, i) {
+      let soundTimeout = setTimeout(function() {
         if (!window.kan.playing) {
           // console.log('not playing, returning');
           return;
         }
 
-        if (shape.spriteName === null) {
-          // console.log('%cshape is null', 'color:red', shape);
+        if (shapeSoundObj.spriteName === null) {
+          // console.log('%cshapeSoundObj is null', 'color:red', shapeSoundObj);
           return;
         }
 
-        // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-        shape.sound.play(shape.spriteName);
-        animateShapePlay(shape);
-      }, shape.startTime);
+        asyncPlayShape(shapeSoundObj).then(function(res) {
+          // console.log(res);
+        }).error(function(e) {
+          // console.log('Error playing shapeSoundObj', e);
+        });
+      }, shapeSoundObj.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
     });
 
@@ -279,17 +265,20 @@ export function startComposition(composition, loop = false) {
   function playCompositionOnce() {
     clearSoundTimeouts();
     // console.log('repeat');
-    Base.each(composition, (shape, i) => {
-      let soundTimeout = setTimeout(() => {
+    Base.each(composition, function(shapeSoundObj, i) {
+      let soundTimeout = setTimeout(function() {
         if (!window.kan.playing) {
           // console.log('not playing, returing');
           return;
         }
 
-        // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-        shape.sound.play(shape.spriteName);
-        animateShapePlay(shape);
-      }, shape.startTime);
+        // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);
+        asyncPlayShape(shapeSoundObj).then(function(res) {
+          // console.log(res);
+        }).error(function(e) {
+          // console.log('Error playing shapeSoundObj', e);
+        });
+      }, shapeSoundObj.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
     });
     iterations++;
@@ -311,6 +300,73 @@ export function startComposition(composition, loop = false) {
   }
 }
 
+export function asyncPlayCompositionMultipleTimes(repeats = 1) {
+  return new Promise(function(resolve, reject) {
+    let promisedRepeats = [];
+
+    for (let i = 0; i < repeats; i++) {
+      promisedRepeats.push(asyncPlayCompositionOnce());
+    }
+
+    Promise.each(promisedRepeats, function() {
+      // console.log('repeat');
+    }).then(function() {
+      resolve('Repeats done');
+    }).error(function(e) {
+      reject(e);
+    });
+  });
+}
+
+export function asyncPlayCompositionOnce() {
+  return new Promise(function(resolve, reject) {
+    const composition = window.kan.composition;
+    const startTime = new Date().getTime();
+    clearSoundTimeouts();
+
+    let shapePromises = [];
+
+    shape.startKeepaliveAnimation();
+
+    Base.each(composition, function(shape, i) {
+      shapePromises.push(asyncPlayShapeWithDelay(shape));
+    });
+
+    Promise.all(shapePromises).then(function(res) {
+      const endTime = new Date().getTime();
+      const playTime = endTime - startTime;
+
+      // wait for composition to be fully done before repeating (play is naturally truncated when the last shape finishes playing)
+      if (playTime < compositionLength) {
+        return Promise.delay(compositionLength - playTime).then(function() {
+          shape.stopKeepaliveAnimation();
+          resolve(`Composition fully done, after a wait`);
+        })
+      } else {
+        shape.stopKeepaliveAnimation();
+        resolve(`Composition fully done, with no wait`);
+      }
+    }).error(function(e) {
+      shape.stopKeepaliveAnimation();
+      reject(e);
+    });
+  })
+}
+
+function asyncPlayShapeWithDelay(shape) {
+  return new Promise(function(resolve, reject) {
+    const soundTimeout = setTimeout(function() {
+      // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
+      asyncPlayShape(shape).then(function(res) {
+        resolve(res);
+      }).error(function(e) {
+        reject(`Error playing shape with delay: ${e}`);
+      });
+    }, shape.startTime);
+    window.kan.soundTimeouts.push(soundTimeout);
+  });
+}
+
 export function stopComposition() {
   clearInterval(window.kan.compositionInterval);
   clearTimeout(window.kan.compositionTimeout);
@@ -322,7 +378,7 @@ export function getTrimmedCompositionObj(composition) {
   let trimmedComposition = [];
   let startTime = getCompositionStartTime(composition);
 
-  composition.forEach((sound) => {
+  composition.forEach(function(sound) {
     let modifiedSound = util.shallowCopy(sound);
     modifiedSound.startTime = sound.startTime - startTime;
     if (modifiedSound.startTime < 0) modifiedSound.startTime = 0; // this shouldn't happen
@@ -338,7 +394,7 @@ export function getTrimmedCompositionObj(composition) {
 function getCompositionStartTime(composition) {
   let startTime = compositionLength;
 
-  composition.forEach((sound) => {
+  composition.forEach(function(sound) {
     // console.log(sound);
     // console.log(sound.startTime)
     if ('startTime' in sound && sound.startTime < startTime) {

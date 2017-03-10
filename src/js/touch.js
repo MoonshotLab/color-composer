@@ -1,6 +1,6 @@
 require('hammerjs');
 
-const config = require('./../../config');
+const config = require('./config');
 const sound = require('./sound');
 const color = require('./color');
 const shape = require('./shape');
@@ -9,6 +9,7 @@ const tutorial = require('./tutorial');
 const timing = require('./timing');
 const overlays = require('./overlays');
 const ui = require('./ui');
+const animation = require('./animation');
 
 const $body = $('body');
 
@@ -37,7 +38,7 @@ export function init() {
   hammerTips.add(new Hammer.Swipe({ direction: Hammer.DIRECTION_ALL }));
   hammerTips.on('swipe', overlays.cardNavNext);
 
-  hammerCanvas = new Hammer.Manager(ui.canvas);
+  hammerCanvas = new Hammer.Manager(ui.drawCanvas);
   hammerCanvas.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
   hammerCanvas.add(new Hammer.Tap({ event: 'singletap' }));
   hammerCanvas.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
@@ -62,9 +63,19 @@ export function init() {
   // hammerCanvas.on('pinchcancel', pinchCancel);
 }
 
-function enablePanAndPinchEvents() {
-  enablePanEvents();
-  enablePinchEvents();
+export function enableAllEvents(enable = true) {
+  enableTapEvents(enable);
+  enablePanAndPinchEvents(enable);
+}
+
+export function disableAllEvents() {
+  enableAllEvents(false);
+}
+
+function enablePanAndPinchEvents(enable = true) {
+  enable = enable === true;
+  enablePanEvents(enable);
+  enablePinchEvents(enable);
 }
 
 function enableTapEvents(enable = true) {
@@ -104,19 +115,6 @@ function disablePinchEvents() {
 }
 
 function singleTap(event) {
-  // console.log(event.target);
-  // event.preventDefault();
-  // if (!eventTargetIsOnCanvas(event)) return;
-  tutorial.hideContextualTuts();
-  // $(event.target).click();
-
-  // sound.stopPlaying();
-  // if (!eventTargetIsOnCanvas(event)) return;
-  // console.log(event);
-  // tutorial.hideContextualTuts();
-  //
-  // sound.stopPlaying();
-  //
   const pointer = event.center,
       point = new Point(pointer.x, pointer.y),
       hitResult = paper.project.hitTest(point, hitOptions);
@@ -124,12 +122,13 @@ function singleTap(event) {
   if (hitResult) {
     let item = hitResult.item;
     // item.selected = !item.selected;
-    console.log(item);
+    // console.log(item);
   }
 }
 
 function doubleTap(event) {
   event.preventDefault();
+
   // console.log('doubletap');
 
   const pointer = event.center,
@@ -138,6 +137,7 @@ function doubleTap(event) {
 
   if (!eventTargetIsOnCanvas(event)) return;
 
+  sound.stopPlaying();
 
   if (hitResult) {
     shape.toggleFill(hitResult.item);
@@ -154,6 +154,7 @@ function panStart(event) {
   // console.log('panstart');
   // paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
+  const currentColor = color.getCurrentColor();
   timing.preventInactivityTimeout();
 
   if (!eventTargetIsOnCanvas(event)) {
@@ -168,7 +169,6 @@ function panStart(event) {
   }
 
   window.kan.panning = true;
-  tutorial.hideContextualTuts();
 
   hammerCanvas.off('panstart');
   // hammerCanvas.get('pan').set({enable: false});
@@ -190,13 +190,13 @@ function panStart(event) {
   const point = new Point(pointer.x, pointer.y);
 
   outerPath = new Path();
-  outerPath.fillColor = window.kan.currentColor;
+  outerPath.fillColor = currentColor;
   // outerPath.fillColor = new Color(0, 0.5);
 
   sizes = [];
 
   let shapePath = new Path({
-    strokeColor: window.kan.currentColor,
+    strokeColor: currentColor,
     name: 'shapePath',
     strokeWidth: 5,
     visible: false,
@@ -296,8 +296,10 @@ function panEnd(event) {
   const pointer = event.center;
   const point = new Point(pointer.x, pointer.y);
 
+  const currentColor = color.getCurrentColor();
   const transparent = color.transparent;
-  const colorName = color.getColorName(window.kan.currentColor);
+
+  let move = { type: 'newGroup' };
 
   let shapePath = window.kan.shapePath;
 
@@ -316,6 +318,17 @@ function panEnd(event) {
     return;
   }
 
+  const visibleGroups = util.getVisibleGroups();
+  if (visibleGroups.length >= config.maxShapes) {
+    // too many shapes on canvas, remove first shape
+    // TODO: place on moves stack so that they can be restored with an undo
+    const firstGroup = visibleGroups[0];
+    shape.destroyGroupPops(firstGroup);
+    sound.removeShapeFromComposition(firstGroup);
+    move.removedGroup = firstGroup;
+    // firstGroup.remove();
+    firstGroup.visible = false;
+  }
 
   window.kan.pathData[shape.stringifyPoint(point)] = {
     point: point,
@@ -327,7 +340,6 @@ function panEnd(event) {
   let truedShape = shape.getTruedShape(shapePath);
 
   // group.data.color = truedShape.strokeColor;
-  // console.log('currentGradient:', config.palette.gradients[window.kan.currentColor]);
 
   const shapeSize = truedShape.strokeBounds;
   const centerPoint = new Point(shapeSize.width / 2, shapeSize.height / 2);
@@ -350,10 +362,10 @@ function panEnd(event) {
   //   radius: 5,
   //   fillColor: 'green',
   // }));
-  group.data.originalColor = window.kan.currentColor;
+  group.data.originalColor = currentColor;
   group.data.color = {
     gradient: {
-      stops: config.palette.gradients[window.kan.currentColor],
+      stops: config.palette.gradients[currentColor],
     },
     origin: origin,
     destination: destination,
@@ -364,7 +376,7 @@ function panEnd(event) {
 
   shapePath.remove();
   truedShape.visible = false;
-  truedShape.strokeColor = new Color(0, 0);
+  truedShape.strokeColor = transparent;
   window.kan.shapePath = truedShape;
   truedShape.name = 'shapePath';
 
@@ -384,7 +396,7 @@ function panEnd(event) {
   const outlineGroup = shape.getOutlineGroup(truedShape);
   const outline = outlineGroup._namedChildren.outer[0].clone();
   outline.name = 'outer';
-  outline.fillColor = window.kan.currentColor;
+  outline.fillColor = currentColor;
   outline.fillColor = group.data.color;
 
   const outlineCenter = outlineGroup._namedChildren.middle[0].clone();
@@ -397,23 +409,25 @@ function panEnd(event) {
 
   let shapeMask = outline.clone();
   shapeMask.fillColor = outline.fillColor;
-  shapeMask.strokeColor = outline.strokeColor;
+  shapeMask.strokeColor = transparent;
   shapeMask.closed = true;
 
   let enclosedLoops = shape.findInteriorCurves(outlineCenter);
+  // console.log('enclosedLoops', enclosedLoops);
   if (enclosedLoops.length > 0 || truedShape.closed === true) {
     group.data.line = false;
   } else {
     group.data.line = true;
   }
 
-  enclosedLoops.forEach((loop) => {
+  enclosedLoops.forEach(function(loop) {
     shapeMask.unite(loop);
     shapeMask.sendToBack();
     loop.name = 'loop';
     loop.data.loop = true;
     loop.visible = true;
     group.addChild(loop);
+    loop.bringToFront();
   });
 
 
@@ -421,7 +435,7 @@ function panEnd(event) {
   let crossings = shapeMask.resolveCrossings();
   if (!!crossings && !!crossings.children && crossings.children.length > 0) {
     let maxArea = 0, maxChild = null;
-    crossings.children.forEach((child) => {
+    crossings.children.forEach(function(child) {
       if (child.area > maxArea) {
         maxChild = child;
         maxArea = child.area;
@@ -439,30 +453,23 @@ function panEnd(event) {
   shapeMask.sendToBack();
 
   shape.cleanUpGroup(group);
+  group.shadowColor = group.data.originalColor;
+  group.shadowBlur = 0;
 
-  window.kan.moves.push({
-    type: 'newGroup',
-    id: group.id
-  });
+  move.id = group.id;
+  window.kan.moves.push(move);
 
-
-  ui.unditherButtonsByName(['new', 'undo']);
+  ui.unditherButtonsByName(['new', 'undo', 'play-stop', 'share']);
+  $body.addClass(sound.playEnabledClass);
 
   if (window.kan.userHasDrawnFirstShape !== true) {
     // first shape!
     // set play prompt timeout
-    window.kan.playPromptTimeout = setTimeout(() => {
+    window.kan.playPromptTimeout = setTimeout(function() {
       overlays.openOverlay('play-prompt');
     }, timing.playPromptDelay);
 
     window.kan.userHasDrawnFirstShape = true;
-  } else {
-    const groups = util.getAllGroups();
-    if (groups.length >= 3) {
-      $body.addClass(sound.playEnabledClass);
-      ui.unditherButtonsByName(['play-stop', 'share']);
-    }
-    // console.log(groups.length, $body.hasClass(sound.playEnabledClass));
   }
 
   if (config.runAnimations) {
@@ -493,19 +500,12 @@ function panEnd(event) {
     const tutorialCompletion = window.kan.tutorialCompletion;
     let tutName = null;
 
+    // console.log('window.kan.shapesSinceTut', window.kan.shapesSinceTut);
+
     if (!tutorialCompletion['fill'] && truedShape.closed) {
       tutName = 'fill';
-    } else {
-      let groups = paper.project.getItems({
-        match: function(el) {
-          return el.className === 'Group'
-        }
-      });
-      if (!tutorialCompletion['pinch'] && groups.length >= 3) {
-        tutName = 'pinch';
-      } else if (!tutorialCompletion['swipe'] && groups.length >= 5) {
-        tutName = 'swipe';
-      }
+    } else if (!tutorialCompletion['pinch'] && window.kan.shapesSinceTut === tutorial.shapeLimit) {
+      tutName = 'pinch';
     }
 
     if (tutName !== null) {
@@ -513,20 +513,30 @@ function panEnd(event) {
       tutorial.addContextualTut(tutName);
       window.kan.tutorialCompletion[tutName] = true;
       group.data.tut = tutName;
+      group.data.hasTut = true;
     }
+  }
+
+  if (window.kan.shapesSinceTut >= tutorial.shapeLimit) {
+    tutorial.hideContextualTuts();
+    window.kan.shapesSinceTut = 0;
+  } else {
+    window.kan.shapesSinceTut++;
   }
 
   if (window.kan.scheduledOverlay !== null) {
     let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
-    setTimeout(() => {
+    setTimeout(function() {
       overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
 
+  sound.asyncPlayShapeSound(shapeSoundObj);
+
   // console.log('pan done');
   hammerCanvas.set({ enable: false });
-  setTimeout(() => {
+  setTimeout(function() {
     hammerCanvas.set({ enable: true });
     console.log('touch enabled');
     hammerCanvas.on('panstart', panStart);
@@ -542,7 +552,7 @@ function panEnd(event) {
 }
 
 function panCancel(event) {
-  console.log('pancancel');
+  // console.log('pancancel');
   event.srcEvent.stopPropagation();
   // event.preventDefault();
 
@@ -556,7 +566,6 @@ function panCancel(event) {
 function pinchStart(event) {
   // console.log('pinchstart');
   timing.preventInactivityTimeout();
-  tutorial.hideContextualTuts();
   window.kan.interacting = true;
   window.kan.pinching = true;
   // event.preventDefault();
@@ -575,6 +584,9 @@ function pinchStart(event) {
       hitResult = shape.hitTestGroupBounds(point);
 
   if (hitResult) {
+    if (!!hitResult && hitResult.data.hasTut) {
+      tutorial.hideContextualTuts();
+    }
     window.kan.pinching = true;
     window.kan.pinchedGroup = hitResult;
     window.kan.lastScale = 1;
@@ -724,7 +736,6 @@ function pinchEnd(event) {
     window.kan.moves.push(move);
 
     if (Math.abs(event.velocity) > 1) {
-      tutorial.hideContextualTutByName('swipe');
 
       // hide any connected tuts
       if (!!$pinchedTut) {
@@ -759,7 +770,7 @@ function pinchEnd(event) {
   if (window.kan.scheduledOverlay !== null) {
     let scheduledOverlay = window.kan.scheduledOverlay;
     window.kan.scheduledOverlay = null;
-    setTimeout(() => {
+    setTimeout(function() {
       overlays.openOverlay(scheduledOverlay);
     }, timing.overlayDelay);
   }
@@ -772,8 +783,8 @@ function pinchEnd(event) {
 
   // console.log('pinch done');
   // hammerCanvas.set({ enable: false });
-  setTimeout(() => {
-    console.log('touch enabled');
+  setTimeout(function() {
+    // console.log('touch enabled');
     hammerCanvas.on('pinchstart', pinchStart);
     enablePanAndPinchEvents();
     enableTapEvents();
@@ -789,7 +800,7 @@ function pinchEnd(event) {
 function pinchCancel(event) {
   // console.log(event);
   event.srcEvent.stopPropagation();
-  console.log('pinchcancel');
+  // console.log('pinchcancel');
   // event.preventDefault();
 
   hammerCanvas.set({ enable: true });
@@ -828,7 +839,7 @@ function throwPinchedGroup() {
 
 function eventTargetIsOnCanvas(event) {
   if (!event) return false;
-  if (event.target != ui.canvas) return false;
+  if (event.target != ui.drawCanvas) return false;
   return true;
 
 }

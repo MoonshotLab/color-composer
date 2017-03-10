@@ -1,12 +1,12 @@
-div.overlay.intro
+div.overlay.intro.closeable
   div.contents
-    div.header <span class="icon-close"></span><span>Tips</span>
+    div.header <span class="icon-close"></span><span>Start</span>
     div.card-wrap
       article
         div.wrap
-          div.title Can you create a Kandinsky-#[br]inspired soundscape?
-          div.text Artist Vasily Kandinsky saw paintings not just as shape and color, but also as tone and volume. Try <em>drawing shapes</em> and <em>using color</em> to create your own soundscape. Later, hit the TIPS button for more advice.
-div.overlay.continue
+          div.title Put on the headphones and draw some shapes!
+          div.text Artist Vasily Kandinsky saw paintings not just as shape and color, but also as tone and volume. Try using shape and color to create your own soundscape!<br><br>For more advice, use the TIPS button.
+div.overlay.continue.closeable
   div.contents
     div.header <span class="icon-close"></span><span>Continue?</span>
     div.card-wrap
@@ -14,7 +14,7 @@ div.overlay.continue
         div.wrap
           div.title Use any gesture to continue drawing.
           div.text Your composition will be cleared in <span class="countdown-num">30</span> seconds.
-div.overlay.play-prompt
+div.overlay.play-prompt.closeable
   div.contents
     div.header <span class="icon-close"></span><span>Play</span>
     div.card-wrap
@@ -22,7 +22,7 @@ div.overlay.play-prompt
         div.wrap
           div.title Activate your painting!
           div.text Vasily Kandinsky associated sounds with specific colors and forms (although they may not have sounded like this). Hit the PLAY button below to hear what your composition sounds like.
-div.overlay.share-prompt
+div.overlay.share-prompt.closeable
   div.contents
     div.header <span class="icon-close"></span><span>Share</span>
     div.card-wrap
@@ -30,10 +30,14 @@ div.overlay.share-prompt
         div.wrap
           div.title Are you ready to share?
           div.text Hit the SHARE button below for the option to send a video of your composition to your device. Save it for later or share it on your social streams!
-div.overlay.tips
+div.overlay.tips.closeable
   div.contents
     div.header <span class="icon-close"></span><span>Tips</span>
     div.card-wrap
+      article
+        div.wrap
+          div.title Don’t be afraid to overlap#[br]your shapes.
+          div.text Kandinsky often layered geometric forms in his paintings.
       article.current
         div.wrap
           div.title Create a <em>dynamic</em> arrangement of shapes and lines.
@@ -53,22 +57,25 @@ div.overlay.tips
         div.wrap
           div.title Include some circles!
           div.text Kandinsky claimed "of the three primary forms, [the circle] points most clearly to the fourth dimension."
-      article
-        div.wrap
-          div.title Don’t be afraid to overlap#[br]your shapes.
-          div.text Kandinsky often layered geometric forms in his paintings.
     div.footer
       span.current 0
       span.sep of
       span.next 0
-div.overlay.share-soon
+div.overlay.share-soon.closeable
   div.contents
     div.header <span class="icon-close"></span><span>Share</span>
     div.card-wrap
       article
         div.wrap
           div.title Coming soon...
-div.overlay.share-phone
+div.overlay.share-prepare
+  div.contents
+    div.card-wrap
+      article
+        div.wrap
+          div.title Please wait while your video is being prepared.
+          div.text You will be able to share it shortly!
+div.overlay.share-phone.closeable
   div.contents
     div.header <span class="icon-close"></span><span>Share</span>
     div.card-wrap
@@ -77,7 +84,7 @@ div.overlay.share-phone
           div.output
             span#phone
             div.instructions Enter your phone number and we’ll send you a text with a link to your composition.
-            div.legal I HEREBY AUTHORIZE THE NELSON ATKINS MUSEUM OF ART TO SEND ME A TEXT MESSAGE WITH MY CUSTOM VIDEO. NOTE, DATA MESSAGING RATES MAY APPLY.
+            div.legal I HEREBY AUTHORIZE THE NELSON-ATKINS MUSEUM OF ART TO SEND ME A TEXT MESSAGE WITH MY CUSTOM VIDEO. NOTE, DATA MESSAGING RATES MAY APPLY.
           div.keypad
             button.plain.num.one 1
             button.plain.num.two 2
@@ -95,3 +102,10 @@ div.overlay.share-phone
             button.plain.func.send
               span.icon-check
               span.text#share-send Send
+div.overlay.share-confirmation
+  div.contents
+    div.card-wrap
+      article
+        div.wrap
+          div.title Link sent!
+          div.text You will receive a text message shortly.

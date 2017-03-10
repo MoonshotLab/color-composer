@@ -1,9 +1,11 @@
 const ShapeDetector = require('./lib/shape-detector');
 
-const config = require('./../../config');
+const config = require('./config');
 
 const util = require('./util');
 const color = require('./color');
+
+export let keepaliveShape;
 
 export const cornerThresholdDeg = 30;
 export const thresholdDistMultiplier = 0.1;
@@ -12,9 +14,38 @@ export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
 export const shapeNames = ["line", "circle", "square", "triangle", "other"];
 
+const transparent = color.transparent;
+
 function clearPops() {
   const pops = util.getAllPops();
-  pops.forEach((pop) => pop.remove());
+  pops.forEach(function(pop) {
+    pop.remove();
+  });
+}
+
+let keepaliveInterval = null;
+
+// the canvas recorder automatically trims 'still' frames, so I add a semitransparent 1px square to trick the recorder into recording :)
+function initKeepaliveShape() {
+  keepaliveShape = Path.Rectangle({
+   point: [1, 1],
+   size: [1, 1],
+   strokeColor: new Color(0, 0.001),
+   visible: false,
+   name: 'keepalive'
+ });
+}
+
+export function startKeepaliveAnimation() {
+  keepaliveShape.visible = true;
+  keepaliveInterval = setInterval(function() {
+    keepaliveShape.rotation += 5;
+  }, 40);
+};
+
+export function stopKeepaliveAnimation() {
+  keepaliveShape.visible = false;
+  clearInterval(keepaliveInterval);
 }
 
 export function destroyGroupPops(group) {
@@ -22,7 +53,9 @@ export function destroyGroupPops(group) {
   const groupPopsBefore = util.getGroupPops(group);
   // console.log('pops to be destroyed', groupPopsBefore);
   if (groupPopsBefore.length > 0) {
-    groupPopsBefore.forEach((pop) => pop.remove());
+    groupPopsBefore.forEach(function(pop) {
+      pop.remove()
+    });
   }
   const groupPopsAfter = util.getGroupPops(group);
   // console.log('group pops after', groupPopsAfter);
@@ -35,7 +68,7 @@ export function fillInGroupPopsById(groupId) {
   });
 
   if (!!group && group.children.length > 0) {
-    group.children.forEach((groupChild) => {
+    group.children.forEach(function(groupChild) {
       if (groupChild.name === 'loop') {
         toggleFill(groupChild);
       }
@@ -58,12 +91,11 @@ export function toggleFill(item) {
     if (item.data.transparent) {
       // console.log('transparent');
       item.fillColor = transparent;
-      item.strokeColor = transparent;
     } else {
       // console.log('not transparent');
       item.fillColor = parent.data.color;
-      item.strokeColor = parent.data.color;
     }
+    item.strokeColor = transparent;
 
     window.kan.moves.push({
       type: 'fillChange',
@@ -85,14 +117,25 @@ export function toggleFill(item) {
 }
 
 export function cleanUpGroup(group) {
-  // console.log('cleaning up group');
   const acceptableNames = ['mask', 'outer', 'shapePath', 'loop', 'pop'];
 
-  group.children.forEach((groupChild) => {
-    if (groupChild.name === null || !acceptableNames.includes(groupChild.name) || !groupChild.length > 0) {
+  group.children.forEach(function(groupChild) {
+    if (groupChild.className === 'CompoundPath' || groupChild.name === null || !acceptableNames.includes(groupChild.name) || !groupChild.length > 0) {
       groupChild.remove();
     }
   });
+
+  // NO IDEA WHY I STILL HAVE TO DO THIS, IT SHOULD BE DELETED BY NOW
+  try {
+    if ('outer 1' in group._namedChildren) {
+      group._namedChildren['outer 1'].forEach(function(child) {
+        child.remove();
+      });
+      delete group._namedChildren['outer 1'];
+    }
+  } catch(e) {
+    // console.log('issue deleting unwanted child');
+  }
 
   return group;
 }
@@ -106,7 +149,7 @@ export function updatePops() {
   // console.log('popCandidates', popCandidates);
   // clearPops();
 
-  freshGroups.forEach((freshGroup, i) => {
+  freshGroups.forEach(function(freshGroup, i) {
     // if (i >= 4) return;
     // console.log('freshGroup', freshGroup);
 
@@ -117,7 +160,7 @@ export function updatePops() {
     // freshOuter.selected = true;
     // console.log('freshOuter', freshOuter);
     // freshOuter.selected = true;
-    popCandidates.forEach((otherGroup, j) => {
+    popCandidates.forEach(function(otherGroup, j) {
       const otherGroupOuter = otherGroup._namedChildren.mask[0];
       if (freshGroup.id !== otherGroup.id) {
         // console.log('otherGroup', otherGroup);
@@ -129,7 +172,7 @@ export function updatePops() {
           // const popColor = color.getIndexedPopColor(i + j);
           const popColor = color.getRandomPop();
           thisPop.fillColor = popColor;
-          thisPop.strokeColor = popColor;
+          thisPop.strokeColor = transparent;
           thisPop.data.pop = true;
           thisPop.name = 'pop';
           thisPop.data.popGroup = freshGroup.id;
@@ -143,7 +186,7 @@ export function updatePops() {
         cleanUpGroup(freshGroup);
 
         // figure out if this pop intersects any other pops
-        // allPops.forEach((otherPop, k) => {
+        // allPops.forEach(function(otherPop, k) {
         //   console.log('checking other pop', otherPop);
         //   if (thisPop.id !== otherPop.id && thisPop.intersects(otherPop)) {
         //     let popIntersection = thisPop.getIntersections(otherPop);
@@ -347,6 +390,13 @@ export function getShapePrediction(path) {
     if (closedShapes.includes(prediction.pattern) === false) {
       // closed shape should be one of the above, make a random pick
       prediction.pattern = util.randomPick(closedShapes);
+    } else if (prediction.score < 0.65 && prediction.pattern !== 'circle') {
+      // for some reason triangles and squares are often confused. if the confidence is low enough, they're probably swapped
+      if (prediction.pattern === 'square') {
+        prediction.pattern = 'triangle';
+      } else if (prediction.pattern === 'triangle') {
+        prediction.pattern = 'square';
+      }
     }
   } else if (path.intersects(path) === true) {
     prediction.pattern = 'other';
@@ -385,7 +435,7 @@ export function parsePoint(pointStr) {
 export function getClosestPointFromPathData(point, pathData) {
   let leastDistance, closestPoint;
 
-  Base.each(pathData, (datum, i) => {
+  Base.each(pathData, function(datum, i) {
     let distance = point.getDistance(datum.point);
     if (!leastDistance || distance < leastDistance) {
       leastDistance = distance;
@@ -402,7 +452,7 @@ export function processShapeData(json) {
 
   if ('segments' in jsonObj) {
     let segments = jsonObj.segments;
-    Base.each(segments, (segment, i) => {
+    Base.each(segments, function(segment, i) {
       if (segment.length === 3) {
         let positionInfo = segment[0]; // indexes 1 and 2 are superfluous matrix details
         returnShape.push({
@@ -427,18 +477,19 @@ export function findInteriorCurves(path) {
 
   let pathClone = path.clone();
   let intersections = pathClone.getIntersections();
+  // console.log('intersections', intersections);
 
   if (intersections.length > 0) {
     let dividedPath = pathClone.resolveCrossings();
-    // console.log(dividedPath);
+    // console.log('dividedPath', dividedPath);
 
     if (dividedPath.className === 'CompoundPath') {
-      Base.each(dividedPath.children, (child, i) => {
+      dividedPath.children.forEach(function(child) {
+        // console.log('child', child);
         if (child.length > 0 && child.closed) {
-          let enclosedLoop = child.clone();
+          let enclosedLoop = child;
           if (pathClone.closed) {
             enclosedLoop.fillColor = pathClone.strokeColor;
-            enclosedLoop.data.interior = true;
             enclosedLoop.data.transparent = false;
           } else {
             enclosedLoop.fillColor = transparent;
@@ -447,14 +498,18 @@ export function findInteriorCurves(path) {
           enclosedLoop.data.interior = true;
           enclosedLoop.visible = true;
           enclosedLoop.closed = true;
+          enclosedLoop.strokeColor = transparent;
           interiorCurves.push(enclosedLoop);
         }
+
+        // child.remove();
       })
     } else {
       if (pathClone.closed) {
         let enclosedLoop = pathClone.clone();
         enclosedLoop.visible = true;
         enclosedLoop.fillColor = pathClone.strokeColor;
+        enclosedLoop.strokeColor = transparent;
         enclosedLoop.data.interior = true;
         enclosedLoop.data.transparent = false;
         interiorCurves.push(enclosedLoop);
@@ -465,6 +520,7 @@ export function findInteriorCurves(path) {
       let enclosedLoop = pathClone.clone();
       enclosedLoop.visible = true;
       enclosedLoop.fillColor = pathClone.strokeColor;
+      enclosedLoop.strokeColor = transparent;
       enclosedLoop.data.interior = true;
       enclosedLoop.data.transparent = false;
       interiorCurves.push(enclosedLoop);
@@ -514,7 +570,7 @@ export function getBruteExtendedPath(path) {
     let crossings = extendedPath.resolveCrossings();
     if (!!crossings && !!crossings.children && crossings.children.length > 0) {
       let maxArea = 0, maxChild = null;
-      crossings.children.forEach((child) => {
+      crossings.children.forEach(function(child) {
         if (child.area > maxArea) {
           maxChild = child;
           maxArea = child.area;
@@ -537,7 +593,7 @@ export function getTrimmedPath(path) {
   let thresholdDist = thresholdDistMultiplier * pathClone.length;
 
   let intersections = pathClone.getIntersections();
-  intersections.forEach((intersection, i) => {
+  intersections.forEach(function(intersection, i) {
     if (intersection.offset === 0) {
       intersections.splice(i, 1);
     }
@@ -572,7 +628,7 @@ export function getTrimmedPath(path) {
         if (trimmedPath.length === 0) return pathClone;
         if (trimmedPath.className === 'CompoundPath' && trimmedPath.children.length > 0) {
           let closedChildren = [];
-          trimmedPath.children.forEach((child, i) => {
+          trimmedPath.children.forEach(function(child, i) {
             if (child.length > 0 && child.closed) {
               let childClone = child.clone();
               childClone.visible = false;
@@ -628,7 +684,7 @@ export function getTrimmedPath(path) {
 
 
 export function hitTestGroupBounds(point) {
-  let groups = util.getAllGroups();
+  let groups = util.getVisibleGroups();
   return hitTestBounds(point, groups);
 }
 
@@ -644,4 +700,8 @@ export function hitTestBounds(point, children) {
   }
 
   return null;
+}
+
+export function init() {
+  initKeepaliveShape();
 }

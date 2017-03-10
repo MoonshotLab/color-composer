@@ -1,0 +1,210 @@
+/*.vjs-sublime-skin{color:#fff}.vjs-sublime-skin .vjs-poster:focus,.vjs-sublime-skin .vjs-control:focus{outline:none}.vjs-sublime-skin .vjs-big-play-button{line-height:50px;margin:-25px;opacity:1;position:absolute;top:50%;left:50%;height:50px;width:50px;-webkit-transition:opacity 100ms cubic-bezier(.455,.03,.515,.955);-moz-transition:opacity 100ms cubic-bezier(.455,.03,.515,.955);transition:opacity 100ms cubic-bezier(.455,.03,.515,.955);z-index:2}.vjs-sublime-skin .vjs-big-play-button:before{border-color:transparent transparent transparent #fff;border-style:solid;border-width:25px 0 25px 50px;content:"";display:block}.vjs-sublime-skin.vjs-controls-disabled .vjs-big-play-button,.vjs-sublime-skin.vjs-has-started .vjs-big-play-button,.vjs-sublime-skin.vjs-using-native-controls .vjs-big-play-button{opacity:0;pointer-events:none}.vjs-sublime-skin .vjs-control-bar{height:50px;opacity:0;pointer-events:none;position:absolute;right:0;bottom:0;left:0;z-index:2}.vjs-sublime-skin.vjs-has-started .vjs-control-bar{opacity:1;pointer-events:auto;-webkit-transition:opacity 100ms cubic-bezier(.455,.03,.515,.955);-moz-transition:opacity 100ms cubic-bezier(.455,.03,.515,.955);transition:opacity 100ms cubic-bezier(.455,.03,.515,.955)}.vjs-sublime-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar{opacity:0;-webkit-transition:opacity 1s cubic-bezier(.455,.03,.515,.955);-moz-transition:opacity 1s cubic-bezier(.455,.03,.515,.955);transition:opacity 1s cubic-bezier(.455,.03,.515,.955)}.vjs-sublime-skin.vjs-has-started .vjs-poster,.vjs-sublime-skin.vjs-using-native-controls .vjs-control-bar,.vjs-sublime-skin.vjs-controls-disabled .vjs-control-bar{display:none}.vjs-sublime-skin .vjs-progress-control{position:absolute;top:0;right:95px;bottom:0;left:50px}.vjs-sublime-skin .vjs-progress-control .vjs-progress-holder{cursor:pointer;height:20px;margin-top:-10px;position:absolute;top:50%;right:0;left:0}.vjs-sublime-skin .vjs-progress-control .vjs-progress-holder:after{background-color:rgba(255,255,255,.3);border-radius:2px;content:"";display:block;height:4px;margin-top:-2px;position:absolute;top:50%;right:0;left:0}.vjs-sublime-skin .vjs-progress-control .vjs-play-progress{background-color:rgba(255,255,255,.7);border-radius:2px;height:4px;margin-top:-2px;position:absolute;top:50%;right:0;left:0}.vjs-sublime-skin .vjs-play-control{cursor:pointer;margin-top:-8px;position:absolute;top:50%;left:20px;height:16px;width:15px}.vjs-sublime-skin .vjs-play-control:before{border-color:transparent transparent transparent #fff;border-style:solid;border-width:8px 0 8px 15px;content:"";display:block}.vjs-sublime-skin.vjs-playing .vjs-play-control:before,.vjs-sublime-skin.vjs-playing .vjs-play-control:after{background-color:#fff;border:none;content:"";display:block;height:100%;position:absolute;top:0;bottom:0;left:0;width:6px}.vjs-sublime-skin.vjs-playing .vjs-play-control:after{left:auto;right:0}.vjs-sublime-skin .vjs-fullscreen-control{border:3px solid #fff;box-sizing:border-box;cursor:pointer;margin-top:-7px;position:absolute;top:50%;right:20px;height:14px;width:22px}.vjs-sublime-skin.vjs-fullscreen .vjs-fullscreen-control{background:#fff}.vjs-sublime-skin.vjs-fullscreen .vjs-fullscreen-control:after{background:#000;content:"";display:block;position:absolute;bottom:0;left:0;height:5px;width:5px}.vjs-sublime-skin .vjs-volume-control{cursor:pointer;margin-top:-7px;position:absolute;top:50%;right:55px;height:14px;width:22px}.vjs-sublime-skin .vjs-volume-bar{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAcCAQAAACw95UnAAAAMElEQVRIx2NgoBL4n4YKGUYNHkEG4zJg1OCRYDCpBowaPJwMppbLRg0eNXjUYBLEAXWNUA6QNm1lAAAAAElFTkSuQmCC);background-size:22px 14px;height:100%;width:100%}.vjs-sublime-skin .vjs-volume-level{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAcAQAAAAAyhWABAAAAAnRSTlMAAHaTzTgAAAAZSURBVHgBYwAB/g9EUv+JokCqiaT+U4MCAPKPS7WUUOc1AAAAAElFTkSuQmCC);background-size:22px 14px;height:100%}.vjs-sublime-skin .vjs-current-time,.vjs-sublime-skin .vjs-time-divider,.vjs-sublime-skin .vjs-duration,.vjs-sublime-skin .vjs-remaining-time,.vjs-sublime-skin .vjs-load-progress,.vjs-sublime-skin .vjs-play-progress .vjs-control-text,.vjs-sublime-skin .vjs-play-control .vjs-control-content,.vjs-sublime-skin .vjs-fullscreen-control .vjs-control-text,.vjs-sublime-skin .vjs-slider-handle,.vjs-sublime-skin .vjs-volume-handle,.vjs-sublime-skin .vjs-live-controls,.vjs-sublime-skin .vjs-playback-rate,.vjs-sublime-skin .vjs-subtitles-button,.vjs-sublime-skin .vjs-captions-button,.vjs-sublime-skin .vjs-mute-control,.vjs-sublime-skin .vjs-hidden{display:none}.video-js{background-color:#000;padding:0;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle}.video-js .vjs-tech{position:absolute;top:0;left:0;height:100%;width:100%}.video-js:-moz-full-screen{position:absolute}.video-js.vjs-fullscreen{position:fixed;overflow:hidden;z-index:1000;left:0;top:0;bottom:0;right:0;width:100%!important;height:100%!important}.video-js:-webkit-full-screen{width:100%!important;height:100%!important}.video-js.vjs-fullscreen.vjs-user-inactive{cursor:none}body.vjs-full-window{height:100%;margin:0;overflow-y:auto;padding:0}.vjs-poster{background-repeat:no-repeat;background-position:50% 50%;background-size:contain;cursor:pointer;height:100%;margin:0;padding:0;position:relative;width:100%}.vjs-poster img{display:block;margin:0 auto;max-height:100%;padding:0;width:100%}.video-js.vjs-using-native-controls .vjs-poster{display:none}*/
+.video-js {
+  /* The base font size controls the size of everything, not just text.
+     All dimensions use em-based sizes so that the scale along with the font size.
+     Try increasing it to 15px and see what happens. */
+  font-size: 10px;
+  /* The main font color changes the ICON COLORS as well as the text */
+  color: #fff;
+}
+
+/* The "Big Play Button" is the play button that shows before the video plays.
+   To center it set the align values to center and middle. The typical location
+   of the button is the center, but there is trend towards moving it to a corner
+   where it gets out of the way of valuable content in the poster image.*/
+.vjs-sublime-skin .vjs-big-play-button {
+  /* The font size is what makes the big play button...big.
+     All width/height values use ems, which are a multiple of the font size.
+     If the .video-js font-size is 10px, then 3em equals 30px.*/
+  font-size: 8em;
+  /* We're using SCSS vars here because the values are used in multiple places.
+     Now that font size is set, the following em values will be a multiple of the
+     new font size. If the font-size is 3em (30px), then setting any of
+     the following values to 3em would equal 30px. 3 * font-size. */
+  /* 1.5em = 45px default */
+  line-height: 1.5em;
+  height: 1.5em;
+  width: 3em;
+  /* 0.06666em = 2px default */
+  border: 0;
+  /* 0.3em = 9px default */
+  border-radius: 0.3em;
+  /* Align center */
+  left: 50%;
+  top: 50%;
+  margin-left: -1.5em;
+  margin-top: -0.75em;
+}
+
+/* The default color of control backgrounds is mostly black but with a little
+   bit of blue so it can still be seen on all-black video frames, which are common. */
+.video-js .vjs-control-bar,
+.video-js .vjs-big-play-button,
+.video-js .vjs-menu-button .vjs-menu-content {
+  /* IE8 - has no alpha support */
+  background-color: #2B333F;
+  /* Opacity: 1.0 = 100%, 0.0 = 0% */
+  background-color: rgba(43, 51, 63, 0.7);
+  background-color: transparent;
+}
+
+/* Slider - used for Volume bar and Progress bar */
+.video-js .vjs-slider {
+  background-color: #73859f;
+  background-color: rgba(115, 133, 159, 0.5);
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  height: 6.5px;
+}
+
+/* The slider bar color is used for the progress bar and the volume bar
+   (the first two can be removed after a fix that's coming) */
+.video-js .vjs-volume-level,
+.video-js .vjs-play-progress,
+.video-js .vjs-slider-bar {
+  background: #fff;
+}
+
+/* Enlarged Slider to enable easier tracking. Adjust all the height:6.5px to preferred height for the slider if necessary. */
+.video-js .vjs-progress-holder .vjs-load-progress,
+.video-js .vjs-progress-holder .vjs-load-progress div,
+.video-js .vjs-progress-holder .vjs-play-progress,
+.video-js .vjs-progress-holder .vjs-tooltip-progress-bar {
+  height: 6.5px;
+}
+
+/* The main progress bar also has a bar that shows how much has been loaded. */
+.video-js .vjs-load-progress {
+  /* For IE8 we'll lighten the color */
+  background: ligthen(#73859f, 25%);
+  /* Otherwise we'll rely on stacked opacities */
+  background: rgba(115, 133, 159, 0.5);
+}
+
+/* The load progress bar also has internal divs that represent
+   smaller disconnected loaded time ranges */
+.video-js .vjs-load-progress div {
+  /* For IE8 we'll lighten the color */
+  background: ligthen(#73859f, 50%);
+  /* Otherwise we'll rely on stacked opacities */
+  background: rgba(115, 133, 159, 0.75);
+}
+
+.vjs-sublime-skin .vjs-poster {
+  outline: none;
+  outline: 0;
+}
+
+.vjs-sublime-skin:hover .vjs-big-play-button {
+  background-color: transparent;
+}
+
+.vjs-sublime-skin .vjs-fullscreen-control:before, .vjs-sublime-skin.vjs-fullscreen .vjs-fullscreen-control:before {
+  content: '';
+}
+
+.vjs-sublime-skin.vjs-fullscreen .vjs-fullscreen-control {
+  background: #fff;
+}
+
+.vjs-sublime-skin .vjs-fullscreen-control {
+  border: 3px solid #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-top: -7px;
+  top: 50%;
+  height: 14px;
+  width: 22px;
+  margin-right: 10px;
+}
+
+.vjs-sublime-skin.vjs-fullscreen .vjs-fullscreen-control:after {
+  background: #000;
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  width: 5px;
+}
+
+.vjs-sublime-skin .vjs-progress-holder {
+  margin: 0;
+}
+
+.vjs-sublime-skin .vjs-progress-control .vjs-progress-holder:after {
+  border-radius: 2px;
+  display: block;
+  height: 6.5px;
+}
+
+.vjs-sublime-skin .vjs-progress-control .vjs-load-progres, .vjs-sublime-skin .vjs-progress-control .vjs-play-progress {
+  border-radius: 2px;
+  height: 6.5px;
+}
+
+.vjs-sublime-skin .vjs-playback-rate {
+  display: none;
+}
+
+.vjs-sublime-skin .vjs-progress-control {
+  margin-right: 40px;
+}
+
+.vjs-sublime-skin .vjs-time-control {
+  right: 40px;
+}
+
+.vjs-sublime-skin .vjs-mute-control:before, .vjs-sublime-skin .vjs-volume-menu-button:before, .vjs-sublime-skin .vjs-mute-control.vjs-vol-0:before, .vjs-sublime-skin .vjs-volume-menu-button.vjs-vol-0:before, .vjs-sublime-skin .vjs-mute-control.vjs-vol-1:before, .vjs-sublime-skin .vjs-volume-menu-button.vjs-vol-1:before, .vjs-sublime-skin .vjs-mute-control.vjs-vol-2:before, .vjs-sublime-skin .vjs-volume-menu-button.vjs-vol-2:before {
+  content: '';
+}
+
+.vjs-sublime-skin .vjs-menu-button-inline .vjs-menu, .vjs-sublime-skin .vjs-menu-button-inline:focus .vjs-menu, .vjs-sublime-skin .vjs-menu-button-inline.vjs-slider-active .vjs-menu {
+  display: block;
+  opacity: 1;
+}
+
+.vjs-sublime-skin .vjs-volume-menu-button {
+  width: 3em;
+  position: absolute;
+  right: 0;
+  margin-right: 40px;
+}
+
+.vjs-sublime-skin .vjs-menu-button .vjs-menu-content, .vjs-sublime-skin .vjs-menu-button-inline:hover, .vjs-sublime-skin .vjs-menu-button-inline:focus, .vjs-sublime-skin .vjs-menu-button-inline.vjs-slider-active {
+  width: 3em;
+}
+
+.vjs-sublime-skin .vjs-menu-button-inline .vjs-menu {
+  left: 0;
+}
+
+.vjs-sublime-skin .vjs-mouse-display:before, .vjs-sublime-skin .vjs-play-progress:before, .vjs-sublime-skin .vjs-volume-level:before {
+  content: '';
+}
+
+.vjs-sublime-skin .vjs-mouse-display:after, .vjs-sublime-skin .vjs-play-progress:after, .vjs-sublime-skin .vjs-time-tooltip {
+  width: 5.5em;
+}
+
+.vjs-sublime-skin .vjs-volume-bar {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAcCAQAAACw95UnAAAAMElEQVRIx2NgoBL4n4YKGUYNHkEG4zJg1OCRYDCpBowaPJwMppbLRg0eNXjUYBLEAXWNUA6QNm1lAAAAAElFTkSuQmCC);
+  background-size: 22px 14px;
+  background-repeat: no-repeat;
+  height: 100%;
+  width: 100%;
+  max-width: 22px;
+  max-height: 14px;
+  margin: 7px 4px;
+  border-radius: 0;
+}
+
+.vjs-sublime-skin .vjs-volume-level {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAcAQAAAAAyhWABAAAAAnRSTlMAAHaTzTgAAAAZSURBVHgBYwAB/g9EUv+JokCqiaT+U4MCAPKPS7WUUOc1AAAAAElFTkSuQmCC);
+  background-size: 22px 14px;
+  background-repeat: no-repeat;
+  max-width: 22px;
+  max-height: 14px;
+  height: 100%;
+}

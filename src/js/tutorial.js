@@ -1,4 +1,6 @@
-const config = require('./../../config');
+const config = require('./config');
+
+export const shapeLimit = 2;
 
 const contextualTuts = config.contextualTuts;
 const tutArrowHeight = 16;
@@ -66,7 +68,6 @@ export function resetContextualTuts() {
   window.kan.tutorialCompletion = {
     "fill": false,
     "pinch": false,
-    "swipe": false
   };
 }
 

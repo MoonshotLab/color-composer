@@ -1,4 +1,4 @@
-const config = require('./../../config');
+const config = require('./config');
 
 const main = require('./main');
 const overlays = require('./overlays');
@@ -29,7 +29,7 @@ export function enterTutorialMode() {
   $body.on(tapEvent, exitTutorialMode);
   main.resetWindow();
   ui.resetCanvas();
-  window.kan.refreshCheckInterval = setInterval(() => {
+  window.kan.refreshCheckInterval = setInterval(function() {
     $.get('/hash')
       .done(function(res) {
         if (res !== window.kan.hash) {
@@ -51,7 +51,7 @@ export function exitTutorialMode() {
   });
   console.log('exiting tutorial mode');
   sound.reinitShapeSounds()
-    .then(() => {
+    .then(function() {
       clearInterval(window.kan.refreshCheckInterval);
       Howler.mute(false);
       pauseVideo();
@@ -63,11 +63,11 @@ export function exitTutorialMode() {
 
       overlays.openOverlay('intro');
 
-      window.kan.inactivityTimeout = setTimeout(() => {
+      window.kan.inactivityTimeout = setTimeout(function() {
         overlays.openOverlay('continue');
       }, timing.continueInactivityDelay);
     })
-  .fail((e) => {
+  .fail(function(e) {
     console.error('error initting shape sounds:', e);
     location.reload();
   });

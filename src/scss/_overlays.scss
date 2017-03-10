@@ -66,11 +66,35 @@
   &.share-active {
     // FIXME: this is where you toggle the sharing modal per system
     // .share-tips, .share-phone, .share-soon, etc.
-    .overlay.share-soon {
+    .overlay.share-phone {
       opacity: 1;
       z-index: 3;
     }
     .main-controls > li:not(.share),
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
+  &.share-prepare-active {
+    .overlay.share-prepare {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls,
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
+  &.share-confirmation-active {
+    .overlay.share-confirmation {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls,
     .aux-controls-wrap {
       opacity: 0.25;
       filter: blur(1px);
@@ -85,19 +109,20 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 13rem);
   transition: opacity 0.5s;
   opacity: 0;
   z-index: -1;
 
   .contents {
     position: absolute;
-    top: 40%;
+    top: 50%;
     left: 50%;
     width: 40vw;
     height: 40vh;
     transform: translate(-50%, -50%);
     z-index: 5;
+    margin-top: 30px;
   }
 
   .header {
@@ -218,40 +243,35 @@
 
 // card background graphics - placed here for clarity
 article {
-  &[data-bg="0"],
-  &[data-bg="10"] {
+  &[data-bg="0"] {
     background-position:
       92% 5%,
       10% 90%,
       1000% 1000%,
       4% 10% !important;
   }
-  &[data-bg="1"],
-  &[data-bg="6"] {
+  &[data-bg="1"] {
     background-position:
       10% 7%,
       5% 17%,
       92% 90%,
       1000% 1000% !important;
   }
-  &[data-bg="2"],
-  &[data-bg="7"] {
+  &[data-bg="2"] {
     background-position:
       75% 95%,
       1000% 1000%,
       92% 7%,
       5% 20% !important;
   }
-  &[data-bg="3"],
-  &[data-bg="8"] {
+  &[data-bg="3"] {
     background-position:
       1000% 1000%,
       12% 95%,
       5% 75%,
       95% 10% !important;
   }
-  &[data-bg="4"],
-  &[data-bg="9"] {
+  &[data-bg="4"] {
     background-position:
       5% 12%,
       1000% 1000%,
@@ -310,6 +330,28 @@ article {
     width: 60%;
     padding-right: 5%;
     text-align: left;
+
+    &:before {
+      visibility: hidden;
+      content: 'Enter a valid phone number: xxx-xxx-xxxx';
+      text-transform: uppercase;
+      position: absolute;
+      top: -2em;
+      color: #E20046;
+      font-size: .65vw;
+      line-height: 1.5;
+      margin-left: 0.4rem;
+    }
+
+    &.invalid-number {
+      #phone {
+        border-color: #E20046;
+      }
+
+      &:before {
+        visibility: visible;
+      }
+    }
   }
 
   #phone {
@@ -362,8 +404,8 @@ article {
       }
 
       &.send {
-        background: url('img/canvas/1.jpg') bottom left no-repeat;
-        background-size: 400%;
+        background: url('img/send-bg.jpg') center center no-repeat;
+        background-size: cover;
       }
 
       span {

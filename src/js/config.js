@@ -1,6 +1,8 @@
 exports.runAnimations = false;
 exports.pop = true;
 exports.canvasId = 'canvas';
+exports.maxShapes = 20;
+exports.postKey = 'mellon';
 
 exports.palette = {
   colors: ["#20171C", "#1E2A43", "#28377D", "#352747", "#CA2E26", "#9A2A1F", "#DA6C26", "#453121", "#916A47", "#DAAD27", "#7F7D31","#2B5E2E"],
@@ -40,14 +42,10 @@ exports.palette = {
 exports.contextualTuts = [
   {
     type: "fill",
-    copy: "<strong>Double-tap</strong> a filled shape to <strong>UNFILL</strong> it. Repeat to <strong>FILL</strong> an unfilled shape.",
+    copy: "<strong>Double-tap</strong> a filled shape to <strong>unfill</strong> it. Repeat to <strong>FILL</strong> an unfilled shape.",
   },
   {
     type: "pinch",
-    copy: "<strong>Pinch</strong> shapes with <strong>TWO FINGERS</strong> to <strong>resize</strong> and <strong>move</strong> them.",
-  },
-  {
-    type: "swipe",
-    copy: "To <strong>remove</strong> shapes, <strong>pinch</strong> with <strong>two fingers</strong> then <strong>swipe</strong> or hit <strong>undo</strong>."
+    copy: "<strong>Pinch</strong> shapes with <strong>two fingers</strong> to <strong>resize</strong> and <strong>move</strong> them.",
   },
 ];
