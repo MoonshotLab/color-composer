@@ -128,6 +128,7 @@ function singleTap(event) {
 
 function doubleTap(event) {
   event.preventDefault();
+
   // console.log('doubletap');
 
   const pointer = event.center,
@@ -136,6 +137,7 @@ function doubleTap(event) {
 
   if (!eventTargetIsOnCanvas(event)) return;
 
+  sound.stopPlaying();
 
   if (hitResult) {
     shape.toggleFill(hitResult.item);
