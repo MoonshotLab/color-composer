@@ -81,7 +81,12 @@ body#composition-detail {
   }
 
   .composition-dl-share-copy {
+    display: none;
     font-weight: bold;
+
+    @media(min-width: 1000px) {
+      display: block;
+    }
   }
 
   .main-footer {
