@@ -1,4 +1,4 @@
-doctype html
+doctype
 html
   head
     title My Kandinsky-inspired Soundscape
@@ -9,7 +9,7 @@ html
     meta(property='og:image', content= s3Path + '/' + uuid + '.jpg')
     meta(property='og:url', content= rootUrl + '/composition/' + uuid)
     include partials/favicon.pug
-    include partials/analytics.pug
+    script(src='/js/analytics.js')
     link(rel='stylesheet', href='/composition-main.css')
     //- link(rel='stylesheet', href='/css/videojs-sublime-skin.min.css')
     //- link(href="//vjs.zencdn.net/5.11/video-js.min.css" rel="stylesheet")
@@ -42,4 +42,5 @@ html
         div.nama-logo-wrap
           a(href='http://www.nelson-atkins.org/')
             img#nama-logo(src='/img/nama-logo.svg' alt='Nelson-Atkins Museum of Art')
-    script(src='js/composition-main.js')
+    script(src='/js/lib/jquery.min.js')
+    script(src='/js/composition-main.bundle.js')

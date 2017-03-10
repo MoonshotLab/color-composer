@@ -62,16 +62,19 @@ gulp.task('sass', function () {
 
 gulp.task('js', function() {
   var entries = [
-    'main.js',
-    'composition-main.js',
+    './src/js/main.js',
+    './src/js/composition-main.js',
   ];
 
   var tasks = entries.map(function(entry) {
+    var splitEntries = entry.split('/');
+    var entryFilename = splitEntries[splitEntries.length - 1];
+
     return browserify({ entries: [entry] })
       .transform("babelify", { presets: ["es2015"] })
       .bundle()
       .on('error', map_error)
-      .pipe(source(entry))
+      .pipe(source(entryFilename))
       .pipe(rename({
         extname: '.bundle.js'
       }))

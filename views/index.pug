@@ -8,7 +8,7 @@ html
     meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/main.css')
     include partials/favicon.pug
-    include partials/analytics.pug
+    script(src='js/analytics.js')
     meta(property='og:title', content='Color Composer')
     meta(property='og:description', content='Color Composer from the Nelson-Atkins Museum of Art.')
     meta(property='og:type', content='website')
@@ -68,4 +68,4 @@ html
     script(src='js/lib/RecordRTC.js')
     script(src='js/lib/recorder.js')
     script(src='js/lib/download.js')
-    script(src='js/main.js')
+    script(src='js/main.bundle.js')
