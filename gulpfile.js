@@ -17,6 +17,8 @@ var source      = require('vinyl-source-stream');
 var buffer      = require('vinyl-buffer');
 var uglify      = require('gulp-uglify');
 var sourcemaps  = require('gulp-sourcemaps');
+var es          = require('event-stream');
+var rename      = require('gulp-rename');
 
 // https://gist.github.com/Fishrock123/8ea81dad3197c2f84366
 var gutil = require('gulp-util')
@@ -59,17 +61,29 @@ gulp.task('sass', function () {
 });
 
 gulp.task('js', function() {
-  return browserify({entries: './src/js/main.js', debug: true})
-       .transform("babelify", { presets: ["es2015"] })
-       .bundle()
-       .on('error', map_error)
-       .pipe(source('main.js'))
-       .pipe(buffer())
-       .pipe(sourcemaps.init())
-       .pipe(uglify())
-       .pipe(sourcemaps.write('./maps'))
-       .pipe(gulp.dest('./public/js'))
-       .pipe(browserSync.stream());
+  var entries = [
+    'main.js',
+    'composition-main.js',
+  ];
+
+  var tasks = entries.map(function(entry) {
+    return browserify({ entries: [entry] })
+      .transform("babelify", { presets: ["es2015"] })
+      .bundle()
+      .on('error', map_error)
+      .pipe(source(entry))
+      .pipe(rename({
+        extname: '.bundle.js'
+      }))
+      .pipe(buffer())
+      .pipe(sourcemaps.init())
+      .pipe(uglify())
+      .pipe(sourcemaps.write('./maps'))
+      .pipe(gulp.dest('./public/js'))
+      .pipe(browserSync.stream());
+  });
+
+  return es.merge.apply(null, tasks);
 });
 
 gulp.task('watch', ['sass', 'js'], function() {
