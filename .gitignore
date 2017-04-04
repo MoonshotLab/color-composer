@@ -1,4 +1,6 @@
 .env
+.env.bak
+.env.nama
 .DS_Store
 node_modules/
 *.gypi
