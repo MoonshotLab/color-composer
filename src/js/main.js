@@ -49,7 +49,7 @@ export function resetWindow() {
 
 $(window).on('load', function() {
   function run() {
-    if (window.location.hash.length > 0 && window.location.hash == '#gallery') {
+    // if (window.location.hash.length > 0 && window.location.hash == '#gallery') {
       resetWindow();
       util.setSha();
       ui.init();
@@ -65,9 +65,9 @@ $(window).on('load', function() {
           console.error('error initting shape sounds:', e);
           location.reload();
         })
-    } else {
-      window.location.replace('http://www.nelson-atkins.org/');
-    }
+    // } else {
+    //   window.location.replace('http://www.nelson-atkins.org/');
+    // }
   }
 
   try {
