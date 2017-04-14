@@ -3,6 +3,8 @@ exports.pop = true;
 exports.canvasId = 'canvas';
 exports.maxShapes = 20;
 exports.postKey = 'mellon';
+exports.minWidth = 1200;
+exports.minHeight = 600;
 
 exports.palette = {
   colors: ["#20171C", "#1E2A43", "#28377D", "#352747", "#CA2E26", "#9A2A1F", "#DA6C26", "#453121", "#916A47", "#DAAD27", "#7F7D31","#2B5E2E"],

@@ -1,3 +1,5 @@
+const throttle = require('throttleit');
+
 const touch = require('./touch');
 const ui = require('./ui');
 const overlays = require('./overlays');
@@ -44,30 +46,28 @@ export function resetWindow() {
     scheduledOverlay: null,
     continueCountdownInterval: null,
     shapeSounds: null,
+    location: $('body').hasClass('gallery') ? 'gallery' : 'desktop',
+    resizeCanvasTimeout: null
   };
 }
 
 $(window).on('load', function() {
   function run() {
-    // if (window.location.hash.length > 0 && window.location.hash == '#gallery') {
-      resetWindow();
-      util.setSha();
-      ui.init();
-      overlays.init();
-      timing.init();
-      shape.init();
-      sound.init()
-        .then(function() {
-          // sound.init() is async because it loads in the sound files
-          touch.init();
-        })
-        .fail(function(e) {
-          console.error('error initting shape sounds:', e);
-          location.reload();
-        })
-    // } else {
-    //   window.location.replace('http://www.nelson-atkins.org/');
-    // }
+    resetWindow();
+    util.setSha();
+    ui.init();
+    overlays.init();
+    timing.init();
+    shape.init();
+    sound.init()
+      .then(function() {
+        // sound.init() is async because it loads in the sound files
+        touch.init();
+      })
+      .fail(function(e) {
+        console.error('error initting shape sounds:', e);
+        location.reload();
+      })
   }
 
   try {
@@ -80,3 +80,12 @@ $(window).on('load', function() {
     }, 5 * 1000);
   }
 });
+
+window.onresize = throttle(function() {
+  clearTimeout(window.kan.resizeCanvasTimeout);
+
+  ui.verifyBrowserWidth();
+  window.kan.resizeCanvasTimeout = setTimeout(function() {
+    ui.fixCanvasSize();
+  }, timing.browserWidthCheckDelay * 2);
+}, timing.browserWidthCheckDelay);

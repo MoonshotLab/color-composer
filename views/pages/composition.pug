@@ -1,0 +1,36 @@
+extends ../framed-layout.pug
+
+block og_meta
+  meta(property='og:title', content='My Kandinsky-inspired Soundscape')
+  meta(property='og:description', content='Color Composer from the Nelson-Atkins Museum of Art.')
+  meta(property='og:type', content='video.other')
+  meta(property='og:image', content= s3Path + '/' + uuid + '.jpg')
+  meta(property='og:url', content= rootUrl + '/composition/' + uuid)
+    
+block framed_content
+  video(width='100%', height='100%', poster=`${s3Path}/${uuid}.jpg`, controls, preload='auto')
+    source(src=`${s3Path}/${uuid}.mp4`)
+    source(src=`${s3Path}/${uuid}.webm`)
+
+  ul.composition-share
+    li.share-item#facebook
+      a(href=`http://www.facebook.com/share.php?u=${rootUrl}/composition/${uuid}&amp;title=%23BlochGalleriesKC`)
+        img(src='/img/facebook.svg')
+        span Facebook
+    li.share-item#twitter
+      a(href=`http://twitter.com/share?text=%23BlochGalleriesKC&url=${rootUrl}/composition/${uuid}`)
+        img(src='/img/twitter.svg')
+        span Twitter
+    li.share-item#download
+      a(href=`${s3Path}/${uuid}.mp4` download)
+        img(src='/img/download.svg')
+        span Download
+
+  p.composition-dl-share-copy To download, right-click video and select “Save As”
+
+
+block scripts
+  script(src='/js/lib/jquery.min.js')
+  script(src='/js/lib/download.js')
+  script(src='/js/lib/modernizr-custom.js')
+  script(src='/js/composition-main.bundle.js')

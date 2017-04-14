@@ -22,13 +22,17 @@ const $playButton = $('.controls .play-stop');
 const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
 
-export const drawCanvas = $('#canvas')[0];
+export const $drawCanvas = $(`#${config.canvasId}`);
+export const drawCanvas = $drawCanvas.eq(0)[0];
+
 export const tipsOverlay = $('.overlay.tips')[0];
 
 const ditheredClass = 'dithered';
 const shareModeClass = 'share-mode';
 
 export function init() {
+  fixCanvasSize();
+  verifyBrowserWidth();
   initLogoRefresh();
   initColorPalette();
   initNewButton();
@@ -38,6 +42,42 @@ export function init() {
   initShareButton();
   initContextualTuts();
   resetCanvas();
+}
+
+export function verifyBrowserWidth() {
+  console.log('verifyBrowserWidth');
+  const scaleFactor = 0.9;
+  const canvasWidth = $(window).width() * scaleFactor;
+  const canvasHeight = $(window).height() * scaleFactor;
+
+  if (canvasWidth < config.minWidth || canvasHeight < config.minHeight) {
+    showExpandBrowserMessage();
+  }  else {
+    hideExpandBrowserMessage();
+  }
+}
+
+function showExpandBrowserMessage() {
+  console.log('expand browser!');
+}
+
+function hideExpandBrowserMessage() {
+  console.log('no need to expand browser');
+}
+
+export function fixCanvasSize() {
+  console.log('fixCanvasSize');
+  const $frame = $('.framed-content').eq(0);
+  const containerWidth = $frame.width();
+  const containerHeight = containerWidth / 2 + 130;
+
+  if (window.kan.location === 'gallery') {
+    $drawCanvas.width('100%');
+    $drawCanvas.height('calc(100vh - 13rem)');
+  } else {
+    $drawCanvas.width(`${containerWidth / 10}rem`);
+    $drawCanvas.height(`${containerHeight / 10}rem`);
+  }
 }
 
 function ditherAllButtons() {

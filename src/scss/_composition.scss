@@ -4,117 +4,48 @@ html.adownload {
   }
 }
 
-body#composition-detail {
-  background-color: black;
-  color: white;
-  text-align: center;
-  font-family: 'Open Sans', sans-serif;
+.composition-share {
+  @extend %naked-list;
+  margin: 2rem 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
 
-  path {
-    stroke: red;
-    fill: blue;
+.share-item {
+  display: inline-block;
+  padding: 1rem;
+
+  @media(min-width: 1000px) {
+    padding: 1rem 2rem;
   }
 
-  a {
-    text-decoration: none;
-    color: white;
-
-    &:hover {
-      color: white;
-    }
-  }
-
-  #logo {
-    width: 30%;
-    min-width: 15rem;
-    max-width: 25rem;
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-  }
-
-  #composition-wrap {
-    max-width: 120rem;
-    width: 90%;
-    margin: 0 auto;
-
-    @media(min-width: 750px) {
-      margin-top: 2rem;
-      margin-bottom: 2rem;
-    }
-  }
-
-  #composition-share {
-    @extend %naked-list;
-    margin: 2rem 0;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-  }
-
-  .share-item {
-    display: inline-block;
-    padding: 1rem;
-
-    @media(min-width: 1000px) {
-      padding: 1rem 2rem;
-    }
-
-    &#download {
-      display: none;
-
-      @media(min-width: 1000px) {
-        display: block;
-      }
-    }
-
-    img {
-      width: 5rem;
-    }
-
-    a, img {
-      display: block;
-    }
-
-    span {
-      @extend %visually-hidden;
-    }
-  }
-
-  .composition-dl-share-copy {
+  &#download {
     display: none;
-    font-weight: bold;
 
     @media(min-width: 1000px) {
       display: block;
     }
   }
 
-  .main-footer {
-    border-top: 1px solid white;
-    padding: 2rem 0;
-    display: flex;
-    flex-wrap: none;
-    justify-content: space-between;
+  img {
+    width: 5rem;
+  }
 
-    #copyright {
-      font-size: 10px;
+  a, img {
+    display: block;
+  }
 
-      @media(min-width: 550px) {
-        font-size: 12px;
-      }
+  span {
+    @extend %visually-hidden;
+  }
+}
 
-      @media(min-width: 750px) {
-        font-size: 14px;
-      }
-    }
+.composition-dl-share-copy {
+  display: none;
+  font-weight: bold;
 
-    .nama-logo-wrap {
-      max-width: 25%;
-    }
-
-    #nama-logo {
-      width: 100%;
-      max-width: 15rem;
-    }
+  @media(min-width: 1000px) {
+    display: block;
   }
 }

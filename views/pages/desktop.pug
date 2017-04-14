@@ -1,0 +1,67 @@
+extends ../framed-layout.pug
+
+block og_meta
+  meta(property='og:title', content='Color Composer')
+  meta(property='og:description', content='Color Composer from the Nelson-Atkins Museum of Art.')
+  meta(property='og:type', content='website')
+  meta(property='og:image', content='https://color-composer.net/img/canvas/1.jpg')
+  meta(property='og:url', content= 'https://color-composer.net')
+    
+block framed_content
+  main
+    nav.control-panel
+      div.logo-wrap.controls-wrap
+        img.main-logo(src='img/logo.svg' alt='Color Composer')
+      div.main-controls-wrap.controls-wrap
+        ul.main-controls.controls
+          li.new.dithered
+            img(src='img/new.svg' alt='New Canvas')
+          li.undo.dithered
+            img(src='img/undo.svg' alt='Undo Last')
+          li.palette
+            ul.palette-colors
+              each color, index in config.palette.colors
+                li
+                  if color === selectedColor
+                    svg.palette-color.palette-selected(width=config.palette.selectedColorSize, height=config.palette.selectedColorSize, data-color=color)
+                      rect(width='100%', height='100%', fill=color, rx=config.palette.selectedColorSize / 2, ry=config.palette.selectedColorSize / 2)
+                  else
+                    svg.palette-color(width=config.palette.colorSize, height=config.palette.colorSize, data-color=color)
+                      rect(width='100%', height='100%', fill=color)
+          li.play-stop.dithered
+            img.play(src='img/play.svg' alt='Play')
+            img.stop(src='img/stop.svg' alt='Stop')
+          li.share.dithered
+            img(src='img/share.svg' alt='Share')
+        div.aux-controls-wrap.controls-wrap
+          ul.aux-controls.controls
+            li.tips
+              img(src='img/tips.svg' alt='Tips')
+    div.user-interaction
+      ul.contextual-tuts
+        each tut in config.contextualTuts
+          li.tut(data-tut-type= tut.type)
+            div.tut-close-wrap
+              img.tut-close(src='img/close.svg' alt='Close Contextual Tutorial')
+            span.tut-copy !{tut.copy}
+      canvas(id=config.canvasId)
+    each num in range(1, 11)
+      img(src=`img/canvas/${num}.jpg`, id=`canvas-${num}`, style='display: none;')
+  div#video-wrap
+    video(src='https://s3.amazonaws.com/nelson-atkins/cc_intro.mp4', autoplay, loop)
+  include ../partials/overlays.pug
+
+
+block scripts
+  script(src='js/lib/jquery.min.js')
+  script(src='js/lib/paper-full.min.js')
+  script.
+    paper.install(window);
+    const canvas = document.getElementById('#{config.canvasId}');
+    paper.setup(canvas);
+  script(src='js/lib/animatePaper.min.js')
+  script(src='js/lib/maskedInput.min.js')
+  script(src='js/lib/RecordRTC.js')
+  script(src='js/lib/recorder.js')
+  script(src='js/lib/download.js')
+  script(src='js/main.bundle.js')

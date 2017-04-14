@@ -1,0 +1,73 @@
+.framed-content-wrap {
+  color: white;
+  text-align: center;
+  max-width: 160rem;
+  width: 90%;
+  margin: 0 auto;
+
+  @media(min-width: 750px) {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  path {
+    stroke: red;
+    fill: blue;
+  }
+
+  a {
+    text-decoration: none;
+    color: white;
+    font-style: italic;
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  .framed-content {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .main-logo-wrap {
+    width: 30%;
+    min-width: 15rem;
+    max-width: 25rem;
+    margin: 3rem auto;
+
+    img {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .main-footer {
+    border-top: 1px solid white;
+    padding: 2rem 0;
+    display: flex;
+    flex-wrap: none;
+    justify-content: space-between;
+
+    #copyright {
+      font-size: 10px;
+
+      @media(min-width: 550px) {
+        font-size: 12px;
+      }
+
+      @media(min-width: 750px) {
+        font-size: 14px;
+      }
+    }
+
+    .nama-logo-wrap {
+      max-width: 25%;
+
+      img {
+        width: 100%;
+        max-width: 15rem;
+      }
+    }
+  }
+}

@@ -9,11 +9,32 @@ main {
 
 body {
   // overflow: hidden;
-  color: #000000;
+  font-family: 'Open Sans', sans-serif;
+  background-color: black;
+  color: black;
 }
 
 body.gallery {
   overflow: hidden;
+}
+
+body.mobile {
+  font-weight: bold;
+  background-color: #231f20;
+
+  a {
+    font-weight: normal;
+  }
+
+  .main-logo-wrap,
+  .main-footer {
+    filter: brightness(0.4);
+  }
+
+  .framed-content {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+  }
 }
 
 main {
@@ -30,11 +51,14 @@ path {
 }
 
 #canvas {
-  width: 100vw;
-  height: calc(100vh - 13rem);
   display: block;
   position: relative;
   z-index: 2;
+}
+
+body.gallery #canvas {
+  width: 100vw;
+  height: calc(100vh - 13rem);
   cursor: none;
 }
 
@@ -112,6 +136,8 @@ path {
 
 .logo-wrap {
   z-index: 10;
+  left: 0;
+
   .main-logo {
     width: 14.5rem;
     display: block;

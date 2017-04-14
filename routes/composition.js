@@ -5,11 +5,12 @@ const db = require('./../lib/db');
 const texter = require('./../lib/texter');
 
 router.get('/:id', function(req, res) {
-  res.render('composition', {
+  res.render('pages/composition', {
     rootUrl : process.env.ROOT_URL,
     uuid    : req.params.id,
     s3Path  : 'https://s3.amazonaws.com/' + process.env.S3_BUCKET,
-    year    : new Date().getFullYear()
+    bodyId: 'composition-detail',
+    title: 'My Kandinsky-inspired Soundscape'
   });
 });
 
