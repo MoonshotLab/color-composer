@@ -8,8 +8,12 @@ main {
 }
 
 body {
-  overflow: hidden;
+  // overflow: hidden;
   color: #000000;
+}
+
+body.gallery {
+  overflow: hidden;
 }
 
 main {

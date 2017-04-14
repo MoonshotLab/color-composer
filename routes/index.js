@@ -7,7 +7,8 @@ router.get('/', function (req, res) {
   res.render('index', {
     config: clientConfig,
     range: require('array-range'),
-    selectedColor: util.randomPickFromArray(clientConfig.palette.colors)
+    selectedColor: util.randomPickFromArray(clientConfig.palette.colors),
+    location: process.env.LOCATION
   });
 });
 
