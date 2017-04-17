@@ -1,6 +1,6 @@
 exports.runAnimations = false;
 exports.pop = true;
-exports.canvasId = 'canvas';
+exports.canvasId = 'drawCanvas';
 exports.maxShapes = 20;
 exports.postKey = 'mellon';
 exports.minWidth = 1200;

@@ -1,9 +1,9 @@
+.ui-wrap {
+  overflow: hidden; // prevent the blurred child from bleeding outside
+}
+
 // overlays
 .overlay-active {
-  .ui-wrap {
-    overflow: hidden; // prevent the blurred child from bleeding outside
-  }
-
   .user-interaction {
     filter: blur(3px);
   }
@@ -94,6 +94,31 @@
 
   &.share-confirmation-active {
     .overlay.share-confirmation {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls,
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
+  .overlay.window-too-small {
+    background: #000000;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    pointer-events: none;
+
+    .contents {
+      width: 50vw;
+      height: 50vw;
+    }
+  }
+
+  &.window-too-small-active {
+    .overlay.window-too-small {
       opacity: 1;
       z-index: 3;
     }

@@ -25,14 +25,15 @@ const $shareSend = $shareKeypad.find('.send');
 const $sharePhoneWrap = $('.share-phone .output');
 const invalidPhoneNumberClass = 'invalid-number';
 
-const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation'];
+const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation', 'window-too-small'];
 const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
 
 const overlayActiveClass = 'overlay-active';
 
 export function openOverlay(overlayName) {
-  // console.log('attempting to open overlay', overlayName);
+  console.log('attempting to open overlay', overlayName);
   if (window.kan.overlays === false) return;
+  if ($body.hasClass('window-too-small-active')) return; // don't open overlays if the window is too small
   if (allOverlays.includes(overlayName)) {
     if (window.kan.pinching === true || window.kan.panning === true) {
       if (overlayName === 'continue') {
@@ -80,6 +81,9 @@ export function openOverlay(overlayName) {
         break;
       case 'share-confirmation':
         openShareConfirmationOverlay();
+        break;
+      case 'window-too-small':
+        openWindowTooSmallOverlay();
         break;
     }
   } else {
@@ -140,6 +144,10 @@ function openSharePrepareOverlay() {
 
 function openShareConfirmationOverlay() {
   $body.addClass('share-confirmation-active');
+}
+
+function openWindowTooSmallOverlay() {
+  $body.addClass('window-too-small-active');
 }
 
 // card slider navigation

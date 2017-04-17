@@ -34,8 +34,8 @@ const shareModeClass = 'share-mode';
 
 export function init() {
   fixCanvasSize();
-  setupPaper();
   verifyBrowserWidth();
+  setupPaper();
   initLogoRefresh();
   initColorPalette();
   initNewButton();
@@ -66,11 +66,11 @@ export function verifyBrowserWidth() {
 }
 
 function showExpandBrowserMessage() {
-  console.log('expand browser!');
+  overlays.openOverlay('window-too-small');
 }
 
 function hideExpandBrowserMessage() {
-  console.log('no need to expand browser');
+  overlays.closeAndResetOverlays();
 }
 
 export function fixCanvasSize() {

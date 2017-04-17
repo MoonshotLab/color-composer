@@ -61,7 +61,11 @@ export function exitTutorialMode() {
       clearTimeout(window.kan.inactivityTimeout);
       clearInterval(window.kan.continueCountdownInterval);
 
-      overlays.openOverlay('intro');
+      ui.verifyBrowserWidth();
+
+      if ($body.hasClass('window-too-small-active') !== true) {
+        overlays.openOverlay('intro');
+      }
 
       window.kan.inactivityTimeout = setTimeout(function() {
         overlays.openOverlay('continue');
