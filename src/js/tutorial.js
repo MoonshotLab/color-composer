@@ -29,6 +29,8 @@ export function allTutsCompleted() {
 }
 
 export function addContextualTut(tutName) {
+  if (tutName === 'pinch' && window.kan.location !== 'gallery') return; // if we're on desktop, don't show the pinch tut
+
   if (!!window.kan.shapePath && window.kan.shapePath.length > 0) {
     hideContextualTuts();
     window.kan.shapesSinceTut = 0;
