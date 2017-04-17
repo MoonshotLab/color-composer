@@ -24,6 +24,8 @@ const $tipsButton = $('.controls .tips');
 
 export const $drawCanvas = $(`#${config.canvasId}`);
 export const drawCanvas = $drawCanvas.eq(0)[0];
+export let canvasTop = 0;
+export let canvasLeft = 0;
 
 export const tipsOverlay = $('.overlay.tips')[0];
 
@@ -32,6 +34,7 @@ const shareModeClass = 'share-mode';
 
 export function init() {
   fixCanvasSize();
+  setupPaper();
   verifyBrowserWidth();
   initLogoRefresh();
   initColorPalette();
@@ -42,6 +45,11 @@ export function init() {
   initShareButton();
   initContextualTuts();
   resetCanvas();
+}
+
+export function getNormalizedEventCenter(event) {
+  const bb = event.target.getBoundingClientRect();
+  return new Point(event.center.x - bb.left, event.center.y - bb.top);
 }
 
 export function verifyBrowserWidth() {
@@ -78,6 +86,14 @@ export function fixCanvasSize() {
     $drawCanvas.width(`${containerWidth / 10}rem`);
     $drawCanvas.height(`${containerHeight / 10}rem`);
   }
+
+  const offset = $drawCanvas.offset();
+  canvasTop = offset.top;
+  canvasLeft = offset.left;
+}
+
+function setupPaper() {
+  paper.setup(drawCanvas);
 }
 
 function ditherAllButtons() {

@@ -115,9 +115,9 @@ function disablePinchEvents() {
 }
 
 function singleTap(event) {
-  const pointer = event.center,
-      point = new Point(pointer.x, pointer.y),
-      hitResult = paper.project.hitTest(point, hitOptions);
+  const pointer = ui.getNormalizedEventCenter(event);
+  const point = new Point(pointer.x, pointer.y);
+  const hitResult = paper.project.hitTest(point, hitOptions);
 
   if (hitResult) {
     let item = hitResult.item;
@@ -131,9 +131,9 @@ function doubleTap(event) {
 
   // console.log('doubletap');
 
-  const pointer = event.center,
-      point = new Point(pointer.x, pointer.y),
-      hitResult = paper.project.hitTest(point, hitOptions);
+  const pointer = ui.getNormalizedEventCenter(event);
+  const point = new Point(pointer.x, pointer.y);
+  const hitResult = paper.project.hitTest(point, hitOptions);
 
   if (!eventTargetIsOnCanvas(event)) return;
 
@@ -150,8 +150,8 @@ function doubleTap(event) {
 }
 
 function panStart(event) {
-  // console.log(event);
-  // console.log('panstart');
+  console.log(event);
+  console.log('panstart');
   // paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
   const currentColor = color.getCurrentColor();
@@ -186,7 +186,7 @@ function panStart(event) {
 
   window.kan.prevAngle = Math.atan2(event.velocityY, event.velocityX);
 
-  const pointer = event.center;
+  const pointer = ui.getNormalizedEventCenter(event);
   const point = new Point(pointer.x, pointer.y);
 
   outerPath = new Path();
@@ -224,7 +224,7 @@ function panMove(event) {
 
   // don't let the user draw past the max length
   if (window.kan.shapePath.length <= maxShapeLength) {
-    const pointer = event.center;
+    const pointer = ui.getNormalizedEventCenter(event);
     let point = new Point(pointer.x, pointer.y);
 
     let angle = Math.atan2(event.velocityY, event.velocityX);
@@ -293,7 +293,7 @@ function panEnd(event) {
   }
   if (window.kan.panning !== true) return;
 
-  const pointer = event.center;
+  const pointer = ui.getNormalizedEventCenter(event);
   const point = new Point(pointer.x, pointer.y);
 
   const currentColor = color.getCurrentColor();
@@ -579,9 +579,9 @@ function pinchStart(event) {
 
   sound.stopPlaying();
 
-  const pointer = event.center,
-      point = new Point(pointer.x, pointer.y),
-      hitResult = shape.hitTestGroupBounds(point);
+  const pointer = ui.getNormalizedEventCenter(event);
+  const point = new Point(pointer.x, pointer.y);
+  const hitResult = shape.hitTestGroupBounds(point);
 
   if (hitResult) {
     if (!!hitResult && hitResult.data.hasTut) {
@@ -667,7 +667,7 @@ function pinchMove(event) {
     // console.log(`scaling by ${scaleDelta}`);
     // console.log(`rotating by ${rotationDelta}`);
 
-    const centerPoint = event.center;
+    const centerPoint = ui.getNormalizedEventCenter(event);
     pinchedGroup.position = centerPoint;
     if (!!$pinchedTut) {
       tutorial.moveContextualTut($pinchedTut, centerPoint);

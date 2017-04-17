@@ -74,10 +74,10 @@ $(window).on('load', function() {
     run();
   } catch(e) {
     console.error(e);
-    setTimeout(function() {
-      // wait 5 seconds then reload
-      location.reload();
-    }, 5 * 1000);
+    // setTimeout(function() {
+    //   // wait 5 seconds then reload
+    //   location.reload();
+    // }, 5 * 1000);
   }
 });
 
