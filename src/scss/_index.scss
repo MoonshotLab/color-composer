@@ -138,6 +138,10 @@ body.gallery #canvas {
   z-index: 10;
   left: 0;
 
+  body.desktop & {
+    display: none;
+  }
+
   .main-logo {
     width: 14.5rem;
     display: block;
@@ -153,8 +157,18 @@ body.gallery #canvas {
   transform: translateX(-50%);
 }
 
+.tips-desktop {
+  body.gallery & {
+    display: none;
+  }
+}
+
 .aux-controls-wrap {
   right: 3rem;
+
+  body.desktop & {
+    display: none;
+  }
 }
 
 .palette-colors {
