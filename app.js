@@ -11,6 +11,8 @@ const autoReap  = require('multer-autoreap');
 const path = require('path');
 
 const index = require('./routes/index');
+const gallery = require('./routes/gallery'); // TODO: REMOVE
+const desktop = require('./routes/desktop'); // TODO: REMOVE
 const hash = require('./routes/hash');
 const processVideo = require('./routes/process');
 const composition = require('./routes/composition');
@@ -32,6 +34,8 @@ app.use('/hash', hash);
 app.use('/process', processVideo);
 app.use('/composition', composition);
 app.use('/text-message', textMessage);
+app.use('/gallery', gallery); // TODO: REMOVE
+app.use('/desktop', desktop); // TODO: REMOVE
 app.use('/', index);
 app.use('*', function(req, res) {
   res.redirect('/');
