@@ -218,7 +218,7 @@ body.gallery #canvas {
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
-    position: fixed;
+    position: absolute;
     z-index: 10;
     min-width: 22rem;
     max-width: 28rem;

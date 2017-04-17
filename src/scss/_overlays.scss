@@ -1,5 +1,8 @@
 // overlays
 .overlay-active {
+  .ui-wrap {
+    overflow: hidden; // prevent the blurred child from bleeding outside
+  }
 
   .user-interaction {
     filter: blur(3px);
@@ -113,6 +116,7 @@
   transition: opacity 0.5s;
   opacity: 0;
   z-index: -1;
+  color: #000;
 
   .contents {
     position: absolute;
@@ -123,6 +127,7 @@
     transform: translate(-50%, -50%);
     z-index: 5;
     margin-top: 30px;
+    color: #000;
   }
 
   .header {
@@ -133,10 +138,12 @@
     letter-spacing: 0.5rem;
     text-align: center;
     text-transform: uppercase;
+    color: #000;
 
     span {
       display: inline-block;
       margin-right: 3rem;
+      color: #000;
     }
   }
 
@@ -152,6 +159,7 @@
     width: 100%;
     height: 100%;
     background-color: #fff;
+    color: #000;
     background-image:
       url('img/symbol-circle.gif'),
       url('img/symbol-square.gif'),
