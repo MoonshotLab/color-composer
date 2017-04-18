@@ -65,11 +65,12 @@ export function exitTutorialMode() {
 
       if ($body.hasClass('window-too-small-active') !== true && window.kan.location !== 'desktop') {
         overlays.openOverlay('intro');
+        
+        window.kan.inactivityTimeout = setTimeout(function() {
+          overlays.openOverlay('continue');
+        }, timing.continueInactivityDelay);
       }
 
-      window.kan.inactivityTimeout = setTimeout(function() {
-        overlays.openOverlay('continue');
-      }, timing.continueInactivityDelay);
     })
   .fail(function(e) {
     console.error('error initting shape sounds:', e);
