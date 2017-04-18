@@ -353,7 +353,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
       })
       .then(function() {
         console.log('video processed successfully');
-        if (process.env.location === 'desktop') {
+        if (process.env.LOCATION === 'desktop') {
           // desktop, notify client socket connection
           console.log('notifying client', clientId);
           io.sockets.in(clientId).emit('new_msg', {msg: 'video_done_processing'});
