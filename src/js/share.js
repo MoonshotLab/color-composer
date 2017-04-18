@@ -109,7 +109,8 @@ export function asyncAddCompositionToDb(data) {
       const queryString = qs.stringify({
         s3Id: s3Id,
         phone: phone,
-        postKey: config.postKey
+        postKey: config.postKey,
+        location: 'gallery'
       });
 
       return axios.post('/composition/new?' + queryString)
@@ -119,6 +120,38 @@ export function asyncAddCompositionToDb(data) {
         .catch(function(e) {
           reject(e);
         });
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
+function asyncAddDesktopCompositionToDb(s3Id) {
+  return new Promise(function(resolve, reject) {
+    try {
+      const queryString = qs.stringify({
+        s3Id: s3Id,
+        postKey: config.postKey,
+        location: 'desktop'
+      });
+
+      return axios.post('/composition/new?' + queryString)
+        .then(function() {
+          resolve('composition successfully posted');
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch(e) {
+      reject(e);
+    }
+  })
+}
+
+function asyncWaitForDesktopCompositionToFinishProcessing() {
+  return new Promise(function(resolve, reject) {
+    try {
+      resolve('hi');
     } catch(e) {
       reject(e);
     }
@@ -136,6 +169,14 @@ export function handleSharePressed() {
 
   ga('send', 'event', 'share', 'modalFired');
 
+  if (window.kan.location === 'gallery') {
+    handleGallerySharePressed();
+  } else {
+    handleDesktopSharePressed();
+  }
+}
+
+function handleGallerySharePressed() {
   overlays.openOverlay('share-prepare');
   // clearInterval(window.kan.inactivityTimeout);
   ui.enterShareMode();
@@ -161,6 +202,36 @@ export function handleSharePressed() {
         video.enterTutorialMode();
       }, 1000 * 4);
       // console.log('close overlay, done!');
+    })
+    .catch(function(e) {
+      ui.exitShareMode(); // make sure
+      if (e === 'timeout') {
+        console.log('error in share mode, going into tutorial');
+        video.enterTutorialMode();
+      } else {
+        // continue, share modal did not time out, reject silently
+        console.log('error in share mode,', e);
+      }
+    })
+}
+
+function handleDesktopSharePressed() {
+  ui.showDesktopSharePrepNotice();
+  ui.enterShareMode();
+  let s3Id = null;
+  asyncRecord()
+    .then(function(id) {
+      s3Id = id;
+      return asyncAddDesktopCompositionToDb(s3Id);
+      // console.log('recording done');
+    })
+    .then(function() {
+      return asyncWaitForDesktopCompositionToFinishProcessing();
+    })
+    .then(function() {
+      // redirect to composition
+      ga('send', 'event', 'share', 'desktopCompositionRedirect');
+      window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
     })
     .catch(function(e) {
       ui.exitShareMode(); // make sure

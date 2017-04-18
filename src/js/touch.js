@@ -150,8 +150,8 @@ function doubleTap(event) {
 }
 
 function panStart(event) {
-  console.log(event);
-  console.log('panstart');
+  // console.log(event);
+  // console.log('panstart');
   // paper.project.activeLayer.removeChildren(); // REMOVE
   // event.preventDefault();
   const currentColor = color.getCurrentColor();

@@ -22,6 +22,9 @@ const $playButton = $('.controls .play-stop');
 const $shareButton = $('.controls .share');
 const $tipsButton = $('.controls .tips');
 
+const $controlPanel = $('.control-panel');
+const $desktopPrepNotice = $('.prep-notice-wrap');
+
 export const $drawCanvas = $(`#${config.canvasId}`);
 export const drawCanvas = $drawCanvas.eq(0)[0];
 export let canvasTop = 0;
@@ -375,4 +378,9 @@ export function resetCanvas() {
   canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
   let layer = new Layer(); // init new layer that all other shapes will be drawn upon
   paper.project.activeLayer.name = 'canvas';
+}
+
+export function showDesktopSharePrepNotice() {
+  $controlPanel.hide();
+  $desktopPrepNotice.show();
 }
