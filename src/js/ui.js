@@ -25,6 +25,9 @@ const $tipsButton = $('.controls .tips');
 const $controlPanel = $('.control-panel');
 const $desktopPrepNotice = $('.prep-notice-wrap');
 
+const $tutorialVideo = $('#tutorial-video');
+const tutorialVideo = $tutorialVideo.eq(0)[0];
+
 export const $drawCanvas = $(`#${config.canvasId}`);
 export const drawCanvas = $drawCanvas.eq(0)[0];
 export let canvasTop = 0;
@@ -37,6 +40,7 @@ const shareModeClass = 'share-mode';
 
 export function init() {
   fixCanvasSize();
+  fixTutorialVideoSize();
   verifyBrowserWidth();
   setupPaper();
   initLogoRefresh();
@@ -93,6 +97,24 @@ export function fixCanvasSize() {
   const offset = $drawCanvas.offset();
   canvasTop = offset.top;
   canvasLeft = offset.left;
+}
+
+export function fixTutorialVideoSize() {
+  const $window = $(window);
+
+  const videoWidth = 1920;
+  const videoHeight = 1080;
+  const videoWidthToHeightRatio = videoWidth / videoHeight;
+
+  const windowWidthToHeightRatio = $window.width() / $window.height();
+
+  if (videoWidthToHeightRatio < windowWidthToHeightRatio) {
+    // entire width does not fit, make width 100% and height auto
+    $tutorialVideo.css({width: '100%', height: 'auto'});
+  } else {
+    // entire width fits, make height 100% and width auto
+    $tutorialVideo.css({width: 'auto', height: '100%'});
+  }
 }
 
 function setupPaper() {

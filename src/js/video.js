@@ -63,7 +63,7 @@ export function exitTutorialMode() {
 
       ui.verifyBrowserWidth();
 
-      if ($body.hasClass('window-too-small-active') !== true) {
+      if ($body.hasClass('window-too-small-active') !== true && window.kan.location !== 'desktop') {
         overlays.openOverlay('intro');
       }
 

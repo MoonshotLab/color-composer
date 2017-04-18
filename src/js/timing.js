@@ -30,7 +30,7 @@ export function init() {
 }
 
 export function preventInactivityTimeout() {
-  if (window.kan.stopTimeouts !== true) {
+  if (window.kan.stopTimeouts !== true && window.kan.location !== 'desktop') {
     console.log(`prevent timeout: ${util.getTime()}`);
 
     clearTimeout(window.kan.inactivityTimeout);

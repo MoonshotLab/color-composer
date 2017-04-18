@@ -97,5 +97,6 @@ window.onresize = throttle(function() {
   ui.verifyBrowserWidth();
   window.kan.resizeCanvasTimeout = setTimeout(function() {
     ui.fixCanvasSize();
+    ui.fixTutorialVideoSize();
   }, timing.browserWidthCheckDelay * 2);
 }, timing.browserWidthCheckDelay);
