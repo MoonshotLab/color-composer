@@ -8,8 +8,14 @@ const timing = require('./timing');
 const util = require('./util');
 const sound = require('./sound');
 const shape = require('./shape');
+const socket = require('./socket');
 
 export function resetWindow() {
+  let clientId = null;
+  if (!!window.kan && !!window.kan.uuid && window.kan.uuid !== null) {
+    clientId = window.kan.uuid; // preserve if already set
+  }
+
   window.kan = {
     composition: [],
     compositionInterval: null,
@@ -47,7 +53,9 @@ export function resetWindow() {
     continueCountdownInterval: null,
     shapeSounds: null,
     location: $('body').hasClass('gallery') ? 'gallery' : 'desktop',
-    resizeCanvasTimeout: null
+    resizeCanvasTimeout: null,
+    stopTimeouts: false,
+    uuid: clientId
   };
 }
 
@@ -55,6 +63,8 @@ $(window).on('load', function() {
   function run() {
     resetWindow();
     util.setSha();
+    util.setUuid();
+    socket.init();
     ui.init();
     overlays.init();
     timing.init();

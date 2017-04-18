@@ -5,6 +5,10 @@ if (fs.existsSync('.env')) {
 
 const express = require('express');
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+exports.io = io;
+
 const bodyParser= require('body-parser');
 const autoReap  = require('multer-autoreap');
 
@@ -26,8 +30,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const port = process.env.PORT || 3000;
-app.listen(port, function() {
+http.listen(port, function() {
   console.log('Server running on port ' + port);
+});
+
+io.sockets.on('connection', function (socket) {
+  socket.on('join', function (data) {
+    console.log(`client ${data.uuid} connected`);
+    socket.join(data.uuid); // join client room to transmit data to
+  });
 });
 
 app.use('/hash', hash);
@@ -40,5 +51,3 @@ app.use('/', index);
 app.use('*', function(req, res) {
   res.redirect('/');
 });
-
-module.exports = app;

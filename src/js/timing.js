@@ -30,12 +30,23 @@ export function init() {
 }
 
 export function preventInactivityTimeout() {
-  console.log(`prevent timeout: ${util.getTime()}`);
+  if (window.kan.stopTimeouts !== true) {
+    console.log(`prevent timeout: ${util.getTime()}`);
 
+    clearTimeout(window.kan.inactivityTimeout);
+    clearInterval(window.kan.continueCountdownInterval);
+
+    window.kan.inactivityTimeout = setTimeout(function() {
+      overlays.openOverlay('continue');
+    }, drawInactivityDelay);
+  }
+}
+
+export function clearTimeouts() {
+  console.log('clearing timeouts');
+  window.kan.stopTimeouts = true;
   clearTimeout(window.kan.inactivityTimeout);
+  clearTimeout(window.kan.sharePromptTimeout);
   clearInterval(window.kan.continueCountdownInterval);
-
-  window.kan.inactivityTimeout = setTimeout(function() {
-    overlays.openOverlay('continue');
-  }, drawInactivityDelay);
+  clearTimeout(window.kan.playPromptTimeout);
 }

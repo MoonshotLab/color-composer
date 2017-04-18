@@ -1,3 +1,5 @@
+const uuid = require('uuid/v1'); // v1 UUID (time-based)
+
 const config = require('./config');
 
 // Converts from degrees to radians.
@@ -113,6 +115,13 @@ export function setSha() {
     .fail(function(e) {
       console.error('error getting hash:', e);
     });
+}
+
+export function setUuid() {
+  const foo = uuid();
+  console.log('setting uuid', foo);
+  window.kan.uuid = foo;
+  console.log('window.kan.uuid', window.kan.uuid);
 }
 
 // http://blog.soulserv.net/understanding-object-cloning-in-javascript-part-i/

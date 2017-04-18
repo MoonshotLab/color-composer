@@ -11,6 +11,8 @@ const sound = require('./sound');
 const video = require('./video');
 const util = require('./util');
 
+const socket = require('./socket').socket;
+
 const drawCanvas = document.getElementById(config.canvasId);
 
 function asyncStopAudioRecordingAndExportBlob(recorder) {
@@ -65,6 +67,7 @@ export function asyncRecord() {
             const formData = new FormData();
             formData.append('audio', audioBlob);
             formData.append('video', videoBlob);
+            formData.append('uuid', window.kan.uuid);
 
             axios.post('/process', formData)
               .then(function(resp) {
@@ -151,7 +154,14 @@ function asyncAddDesktopCompositionToDb(s3Id) {
 function asyncWaitForDesktopCompositionToFinishProcessing() {
   return new Promise(function(resolve, reject) {
     try {
-      resolve('hi');
+      socket.on("new_msg", function(data) {
+        console.log('data!', data);
+        resolve(data.msg);
+      });
+
+      setTimeout(function() {
+        reject();
+      }, 5 * 60 * 1000); // reject after 5 minutes
     } catch(e) {
       reject(e);
     }
@@ -218,6 +228,7 @@ function handleGallerySharePressed() {
 function handleDesktopSharePressed() {
   ui.showDesktopSharePrepNotice();
   ui.enterShareMode();
+  timing.clearTimeouts();
   let s3Id = null;
   asyncRecord()
     .then(function(id) {

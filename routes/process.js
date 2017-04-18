@@ -9,6 +9,8 @@ const rimraf = require('rimraf'); // rm -rf
 const cp = require('child-process-promise');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
+const io = require('./../app').io;
+
 const db = require('./../lib/db');
 const s3 = require('./../lib/s3');
 const texter = require('./../lib/texter');
@@ -30,7 +32,7 @@ const uploadFieldsSpec = [
   }
 ];
 
-function getUuid() {
+function getTimeBasedIdentifier() {
   return new Date().getTime().toString();
 }
 
@@ -136,11 +138,11 @@ function asyncMakeIntoTransportStream(outPath) {
   })
 }
 
-function asyncConcatWithBumper(outPath, uuid) {
+function asyncConcatWithBumper(outPath, compositionId) {
   return new Promise(function(resolve, reject) {
     try {
       const mergedTsOutPath = path.join(outPath, 'merged.ts');
-      const finalOutPath = path.join(outPath, `${uuid}.mp4`);
+      const finalOutPath = path.join(outPath, `${compositionId}.mp4`);
       const command = [
         ffmpegPath,
         `-i "concat:${mergedTsOutPath}|${mergedTsOutPath}|${bumperTsPath}"`,
@@ -163,11 +165,11 @@ function asyncConcatWithBumper(outPath, uuid) {
   })
 }
 
-function asyncMakeWebMFromMp4(outPath, uuid) {
+function asyncMakeWebMFromMp4(outPath, compositionId) {
   return new Promise(function(resolve, reject) {
     try {
-      const mp4Path = path.join(outPath, `${uuid}.mp4`);
-      const webMPath = path.join(outPath, `${uuid}.webm`);
+      const mp4Path = path.join(outPath, `${compositionId}.mp4`);
+      const webMPath = path.join(outPath, `${compositionId}.webm`);
       const command = [
         ffmpegPath,
         `-i ${mp4Path}`,
@@ -192,11 +194,11 @@ function asyncMakeWebMFromMp4(outPath, uuid) {
   })
 }
 
-function asyncGenerateThumbnail(outPath, uuid) {
+function asyncGenerateThumbnail(outPath, compositionId) {
   return new Promise(function(resolve, reject) {
     try {
-      const finalVideoPath = path.join(outPath, `${uuid}.mp4`);
-      const thumbnailOutPath = path.join(outPath, `${uuid}.jpg`);
+      const finalVideoPath = path.join(outPath, `${compositionId}.mp4`);
+      const thumbnailOutPath = path.join(outPath, `${compositionId}.jpg`);
       const command = [
         ffmpegPath,
         `-i ${finalVideoPath}`,
@@ -231,7 +233,7 @@ function asyncRemoveFile(filePath) {
   })
 }
 
-function asyncCleanDirPreUpload(outPath, uuid) {
+function asyncCleanDirPreUpload(outPath, compositionId) {
   return new Promise(function(resolve, reject) {
     try {
       const mergedTsPath = path.join(outPath, 'merged.ts');
@@ -253,7 +255,7 @@ function asyncCleanDirPreUpload(outPath, uuid) {
   });
 }
 
-function asyncUploadToS3(outPath, uuid) {
+function asyncUploadToS3(outPath, compositionId) {
   return new Promise(function(resolve, reject) {
     try {
       fs.readdir(outPath, function(err, res) {
@@ -264,7 +266,7 @@ function asyncUploadToS3(outPath, uuid) {
           files.push(path.join(outPath, file));
         });
 
-        s3.asyncRemember(uuid, files)
+        s3.asyncRemember(compositionId, files)
           .then(function() {
             resolve('uploaded to s3');
           })
@@ -298,13 +300,18 @@ router.get('/', function(req, res) {
 
 router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
   if ('video' in req.files && 'audio' in req.files) {
-    const uuid = getUuid();
-    const outPath = path.join(cwd, 'tmp', uuid);
+    const compositionId = getTimeBasedIdentifier();
+    const outPath = path.join(cwd, 'tmp', compositionId);
 
     const videoBlob = req.files.video[0];
     const audioBlob = req.files.audio[0];
+    let clientId = null;
 
-    console.log(`processing ${uuid} at ${outPath}`);
+    if (!!req.body && !!req.body.uuid) {
+      clientId = req.body.uuid;
+    }
+
+    console.log(`processing ${compositionId} at ${outPath}`);
     console.log('makeDirectory');
     asyncMakeDirectory(outPath)
       .then(function() {
@@ -312,7 +319,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
         return asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob)
       })
       .then(function(resp) {
-        res.send(uuid);
+        res.send(compositionId);
         console.log('mergeAndResize');
         return asyncMergeAndResize(outPath, resp.videoBlobPath, resp.audioBlobPath);
       })
@@ -322,23 +329,23 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
       })
       .then(function() {
         console.log('concatWithBumper');
-        return asyncConcatWithBumper(outPath, uuid);
+        return asyncConcatWithBumper(outPath, compositionId);
       })
       .then(function() {
         console.log('generateThumbnail');
-        return asyncGenerateThumbnail(outPath, uuid);
+        return asyncGenerateThumbnail(outPath, compositionId);
       })
       .then(function() {
         console.log('makeWebm');
-        return asyncMakeWebMFromMp4(outPath, uuid);
+        return asyncMakeWebMFromMp4(outPath, compositionId);
       })
       .then(function() {
         console.log('cleanDirPreUpload');
-        return asyncCleanDirPreUpload(outPath, uuid);
+        return asyncCleanDirPreUpload(outPath, compositionId);
       })
       .then(function() {
         console.log('uploadToS3');
-        return asyncUploadToS3(outPath, uuid);
+        return asyncUploadToS3(outPath, compositionId);
       })
       .then(function() {
         console.log('destropTmpDir');
@@ -346,25 +353,30 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
       })
       .then(function() {
         console.log('video processed successfully');
-      })
-      .then(function() {
-        // see if uuid is already in db
-        return db.findRecordByS3Id(uuid);
-      })
-      .then(function(record) {
-        console.log('texting link if record exists');
-        if (record) {
-          texter.sendURL({
-            phone : record.phone,
-            url   : process.env.ROOT_URL + '/composition/' + record.s3Id
-          });
+        if (process.env.location === 'desktop') {
+          // desktop, notify client socket connection
+          console.log('notifying client', clientId);
+          io.sockets.in(clientId).emit('new_msg', {msg: 'video_done_processing'});
         } else {
-          console.log('record does not exist, adding for future texting');
-          return db.remember({
-            s3Id: uuid,
-            texted: false,
-            emailed: false
-          })
+          // gallery, text phone number
+          // see if compositionId is already in db
+          db.findRecordByS3Id(compositionId)
+            .then(function(record) {
+              console.log('texting link if record exists');
+              if (record) {
+                texter.sendURL({
+                  phone : record.phone,
+                  url   : process.env.ROOT_URL + '/composition/' + record.s3Id
+                });
+              } else {
+                console.log('record does not exist, adding for future texting');
+                return db.remember({
+                  s3Id: compositionId,
+                  texted: false,
+                  emailed: false
+                })
+              }
+            })
         }
       })
       .catch(function(err) {
