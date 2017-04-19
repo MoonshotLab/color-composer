@@ -132,7 +132,7 @@
   .composition-overlay.share-confirmation,
   .composition-overlay.share-email {
     .contents {
-      max-height: 300px;
+      max-height: 400px;
     }
 
     .wrap {
@@ -395,6 +395,7 @@ article {
   }
 
   .email-copy {
+    font-size: 2.2rem;
     line-height: 1.5em;
   }
 
@@ -448,10 +449,11 @@ article {
   #email {
     display: block;
     height: 5vw;
+    max-height: 8rem;
     margin-bottom: 1vw;
     padding: 0 0.8vw;
     border: 0.4rem solid #000;
-    font-size: 2vw;
+    font-size: 3.6rem;
     font-weight: 700;
     line-height: 4.7vw;
     text-align: center;
