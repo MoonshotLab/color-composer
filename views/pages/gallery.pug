@@ -7,15 +7,15 @@ block content
   include ../partials/composer-main.pug
 
 block scripts
-  script(src='js/lib/jquery.min.js')
-  script(src='js/lib/paper-full.min.js')
+  script(src='/js/lib/jquery.min.js')
+  script(src='/js/lib/paper-full.min.js')
   script.
     paper.install(window);
     const canvas = document.getElementById('#{config.canvasId}');
     paper.setup(canvas);
-  script(src='js/lib/animatePaper.min.js')
-  script(src='js/lib/maskedInput.min.js')
-  script(src='js/lib/RecordRTC.js')
-  script(src='js/lib/recorder.js')
-  script(src='js/lib/download.js')
-  script(src='js/main.bundle.js')
+  script(src='/js/lib/animatePaper.min.js')
+  script(src='/js/lib/maskedInput.min.js')
+  script(src='/js/lib/RecordRTC.js')
+  script(src='/js/lib/recorder.js')
+  script(src='/js/lib/download.js')
+  script(src='/js/main.bundle.js')
