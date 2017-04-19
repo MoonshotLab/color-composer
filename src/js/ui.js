@@ -60,7 +60,6 @@ export function getNormalizedEventCenter(event) {
 }
 
 export function verifyBrowserWidth() {
-  console.log('verifyBrowserWidth');
   const scaleFactor = 0.9;
   const canvasWidth = $(window).width() * scaleFactor;
   const canvasHeight = $(window).height() * scaleFactor;
