@@ -16,15 +16,18 @@ block framed_content
     li.share-item#facebook
       a(href=`http://www.facebook.com/share.php?u=${rootUrl}/composition/${uuid}&amp;title=%23BlochGalleriesKC`)
         img(src='/img/facebook.svg')
-        span Facebook
+        span.vh Facebook
     li.share-item#twitter
       a(href=`http://twitter.com/share?text=%23BlochGalleriesKC&url=${rootUrl}/composition/${uuid}`)
         img(src='/img/twitter.svg')
-        span Twitter
+        span.vh Twitter
     li.share-item#download
       a(href=`${s3Path}/${uuid}.mp4` download)
         img(src='/img/download.svg')
-        span Download
+        span.vh Download
+    li.share-item#make-your-own
+      a(href='https://color-composer.net/')
+        span Make your own
 
   p.composition-dl-share-copy To download, right-click video and select “Save As”
   include ../partials/composition-overlays.pug

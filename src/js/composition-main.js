@@ -15,7 +15,6 @@ const $body = $('body');
 function asyncMakeEmailShareRequest(email, s3Id) {
   return new Promise(function(resolve, reject) {
     try {
-
       const queryString = qs.stringify({
         email: email,
         s3Id: s3Id

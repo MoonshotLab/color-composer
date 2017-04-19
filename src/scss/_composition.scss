@@ -2,6 +2,12 @@ html.adownload {
   .composition-dl-share-copy {
     display: none;
   }
+
+  .share-item#download {
+    @media(min-width: 1000px) {
+      display: block;
+    }
+  }
 }
 
 .composition-share {
@@ -22,9 +28,35 @@ html.adownload {
 
   &#download {
     display: none;
+  }
+
+  &#make-your-own {
+    display: none;
 
     @media(min-width: 1000px) {
       display: block;
+    }
+
+    a,
+    span {
+      display: block;
+      position: relative;
+    }
+
+    a {
+      height: 5rem;
+      border: 3px solid white;
+      // padding: 3px;
+      padding: 0 20px;
+      border-radius: 2.5rem;
+    }
+
+    span {
+      text-transform: uppercase;
+      font-style: normal;
+      font-weight: bold;
+      top: 50%;
+      transform: translateY(-50%);
     }
   }
 
@@ -36,7 +68,7 @@ html.adownload {
     display: block;
   }
 
-  span {
+  span.vh {
     @extend %visually-hidden;
   }
 }
