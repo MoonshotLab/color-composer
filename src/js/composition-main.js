@@ -35,10 +35,15 @@ function closeOverlay() {
   $body.removeClass(emailShareConfirmationActiveClasses);
 }
 
+function hookUpEmailShareButton() {
+  const $emailShareButton = $('.share-item#email');
+  $emailShareButton.on(tapEvent, openEmailOverlay);
+}
+
 function hookUpEmailSendButton() {
   const $emailSend = $('.share-email button.send');
   const $emailInputWrap = $('.email-input-wrap');
-  const $emailInput = $('#email');
+  const $emailInput = $('#email-input');
   const $emailForm = $('form.email-container');
 
   $body.find('.overlay.closeable').on(tapEvent, function(e) {
@@ -90,10 +95,18 @@ function openEmailOverlay() {
   $body.addClass(emailShareOverlayActiveClasses);
 }
 
+function hookUpRandomOverlayGraphics() {
+  $body.find('.card-wrap article').each(function(i, el) {
+    const numBg = 6; // 6 different bgs specified in css
+    $(el).attr('data-bg', i % numBg);
+  });
+}
+
 function run() {
   initCompositionAnalytics();
+  hookUpEmailShareButton();
   hookUpEmailSendButton();
-  openEmailOverlay();
+  hookUpRandomOverlayGraphics();
 }
 
 run();

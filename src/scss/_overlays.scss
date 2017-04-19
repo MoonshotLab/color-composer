@@ -166,6 +166,14 @@
   z-index: -1;
   color: #000;
 
+  &.composition-overlay {
+    height: 100vh;
+
+    .contents {
+      top: 45%;
+    }
+  }
+
   .contents {
     position: absolute;
     top: 50%;
@@ -419,7 +427,7 @@ article {
     &.invalid-number,
     &.invalid-email {
       #phone,
-      #email {
+      #email-input {
         border-color: #E20046;
       }
 
@@ -446,7 +454,7 @@ article {
   }
 
   #phone,
-  #email {
+  #email-input {
     display: block;
     height: 5vw;
     max-height: 8rem;
@@ -464,7 +472,7 @@ article {
     letter-spacing: 0.4rem;
   }
 
-  #email {
+  #email-input {
     width: 100%;
 
     &:focus {

@@ -21,6 +21,7 @@ html.adownload {
 .share-item {
   display: inline-block;
   padding: 1rem;
+  cursor: pointer;
 
   @media(min-width: 1000px) {
     padding: 1rem 2rem;
