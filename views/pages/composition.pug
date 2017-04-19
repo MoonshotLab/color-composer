@@ -8,7 +8,7 @@ block og_meta
   meta(property='og:url', content= rootUrl + '/composition/' + uuid)
     
 block framed_content
-  video(width='100%', height='100%', poster=`${s3Path}/${uuid}.jpg`, controls, preload='auto')
+  video(id='composition-video', width='100%', height='100%', poster=`${s3Path}/${uuid}.jpg`, controls, preload='auto', data-s3Id=`${uuid}`)
     source(src=`${s3Path}/${uuid}.mp4`)
     source(src=`${s3Path}/${uuid}.webm`)
 
@@ -27,9 +27,13 @@ block framed_content
         span Download
 
   p.composition-dl-share-copy To download, right-click video and select “Save As”
+  include ../partials/composition-overlays.pug
 
 
 block scripts
+  script.
+    window.kan = window.kan || {};
+    window.kan.s3Id = #{uuid};
   script(src='/js/lib/jquery.min.js')
   script(src='/js/lib/download.js')
   script(src='/js/lib/modernizr-custom.js')

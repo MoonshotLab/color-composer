@@ -80,6 +80,18 @@
     }
   }
 
+  &.share-email-active {
+    .overlay.share-email {
+      opacity: 1;
+      z-index: 3;
+    }
+    // .main-controls > li:not(.share),
+    // .aux-controls-wrap {
+    //   opacity: 0.25;
+    //   filter: blur(1px);
+    // }
+  }
+
   &.share-prepare-active {
     .overlay.share-prepare {
       opacity: 1;
@@ -114,6 +126,17 @@
     .contents {
       width: 50vw;
       height: 50vw;
+    }
+  }
+
+  .composition-overlay.share-confirmation,
+  .composition-overlay.share-email {
+    .contents {
+      max-height: 300px;
+    }
+
+    .wrap {
+      display: block;
     }
   }
 
@@ -340,7 +363,8 @@ article {
 }
 
 // sharing - phone
-.overlay.share-phone {
+.overlay.share-phone,
+.overlay.share-email {
 
   & * {
     box-sizing: border-box;
@@ -358,15 +382,30 @@ article {
     height: 100%;
   }
 
-  .output {
+  .email-container {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+
+    > * {
+      position: relative;
+    }
+  }
+
+  .email-copy {
+    line-height: 1.5em;
+  }
+
+  .output,
+  .email-input-wrap {
     float: left;
-    width: 60%;
     padding-right: 5%;
     text-align: left;
 
     &:before {
       visibility: hidden;
-      content: 'Enter a valid phone number: xxx-xxx-xxxx';
       text-transform: uppercase;
       position: absolute;
       top: -2em;
@@ -376,8 +415,10 @@ article {
       margin-left: 0.4rem;
     }
 
-    &.invalid-number {
-      #phone {
+    &.invalid-number,
+    &.invalid-email {
+      #phone,
+      #email {
         border-color: #E20046;
       }
 
@@ -387,7 +428,24 @@ article {
     }
   }
 
-  #phone {
+  .output {
+    width: 60%;
+
+    &:before {
+      content: 'Enter a valid phone number: xxx-xxx-xxxx';
+    }
+  }
+
+  .email-input-wrap {
+    width: 85%;
+
+    &:before {
+      content: 'Email is not formatted properly';
+    }
+  }
+
+  #phone,
+  #email {
     display: block;
     height: 5vw;
     margin-bottom: 1vw;
@@ -395,10 +453,21 @@ article {
     border: 0.4rem solid #000;
     font-size: 2vw;
     font-weight: 700;
-    letter-spacing: 0.4rem;
     line-height: 4.7vw;
     text-align: center;
     user-select: none;
+  }
+
+  #phone {
+    letter-spacing: 0.4rem;
+  }
+
+  #email {
+    width: 100%;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .instructions {
@@ -415,8 +484,22 @@ article {
   }
 
   .keypad {
-    float: right;
     width: 35%;
+  }
+
+  .email-send-wrap {
+    width: 15%;
+    height: 4vw;
+
+    .send {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+
+  .keypad,
+  .email-send-wrap {
+    float: right;
 
     button {
       position: relative;

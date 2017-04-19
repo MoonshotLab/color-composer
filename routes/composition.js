@@ -3,6 +3,7 @@ const router = express.Router();
 
 const db = require('./../lib/db');
 const texter = require('./../lib/texter');
+const util = require('./../lib/util');
 
 router.get('/:id', function(req, res) {
   res.render('pages/composition', {
@@ -79,5 +80,34 @@ router.post('/new', function(req, res) {
     }
   }
 });
+
+router.post('/send-email', function(req, res) {
+  if (!!req.query && !!req.query.email && !!req.query.s3Id) {
+    try {
+      const email = req.query.email;
+      const s3Id = req.query.s3Id;
+
+      console.log(`Emailing composition ${s3Id} to ${email}`);
+
+      util.asyncDownloadFilesFromS3(s3Id)
+        .then(function(stream) {
+          return util.asyncSendEmailWithAttachment(email, stream);
+        })
+        .then(function() {
+          res.sendStatus(200);
+        })
+        .catch(function(e) {
+          console.error(e);
+          res.sendStatus(401);
+        });
+    } catch(e) {
+      console.error(e);
+      res.sendStatus(401);
+    }
+  } else {
+    console.error('malformed request to share via email');
+    res.sendStatus(401);
+  }
+})
 
 module.exports = router;
