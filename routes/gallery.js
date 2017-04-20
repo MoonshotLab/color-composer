@@ -15,8 +15,9 @@ router.get('/', function (req, res) {
       bodyClasses: 'mobile'
     });
   } else {
-    const location = 'gallery';
-    const template = location;
+    const template = 'gallery';
+    const location = template;
+    const videoUrl = 'https://s3.amazonaws.com/nelson-atkins/cc_intro.mp4';
 
     res.render(`pages/${template}`, {
       config: clientConfig,
@@ -25,7 +26,8 @@ router.get('/', function (req, res) {
       location: location,
       bodyClasses: `video-playing ${location}`,
       bodyId: 'body',
-      title: 'Color Composer'
+      title: 'Color Composer',
+      videoUrl: videoUrl
     });
   }
 });
