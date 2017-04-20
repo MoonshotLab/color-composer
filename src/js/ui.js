@@ -292,7 +292,9 @@ function tipsPressed() {
 
 function initLogoRefresh() {
   $('.main-logo').on(tapEvent, function() {
-    location.reload();
+    if (window.kan.location !== 'desktop') {
+      location.reload();
+    }
   });
 }
 
