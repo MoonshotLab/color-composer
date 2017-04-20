@@ -117,15 +117,24 @@
   }
 
   .overlay.window-too-small {
-    background: #000000;
+    background-color: #ffffff;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
     pointer-events: none;
 
     .contents {
-      width: 50vw;
+      width: 75vw;
       height: 50vw;
+      max-width: 70rem;
+    }
+
+    .title {
+      font-size: 3vw;
+    }
+
+    article {
+      border: none;
     }
   }
 
