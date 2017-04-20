@@ -47,6 +47,10 @@ exports.contextualTuts = [
     copy: "<strong>Double-tap</strong> a filled shape to <strong>unfill</strong> it. Repeat to <strong>FILL</strong> an unfilled shape.",
   },
   {
+    type: "fillDesktop",
+    copy: "<strong>Double-click</strong> a filled shape to <strong>unfill</strong> it. Repeat to <strong>FILL</strong> an unfilled shape.",
+  },
+  {
     type: "pinch",
     copy: "<strong>Pinch</strong> shapes with <strong>two fingers</strong> to <strong>resize</strong> and <strong>move</strong> them.",
   },

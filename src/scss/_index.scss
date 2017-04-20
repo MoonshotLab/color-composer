@@ -260,6 +260,10 @@ body.gallery #canvas {
     font-weight: 600;
     font-size: 1.4rem;
 
+    body.desktop & {
+      width: 28rem;
+    }
+
     &:after {
       content: '';
       display: block;

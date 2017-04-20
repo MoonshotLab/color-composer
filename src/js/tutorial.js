@@ -38,6 +38,8 @@ export function addContextualTut(tutName) {
     let shapePath = window.kan.shapePath;
     let shapeCenter = shapePath.bounds.center;
 
+    if (tutName === 'fill' && window.kan.location === 'desktop') tutName = 'fillDesktop';
+
     let tutCopy = getTutByName(tutName);
 
     if (tutCopy !== null) {
