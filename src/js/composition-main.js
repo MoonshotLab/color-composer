@@ -61,15 +61,10 @@ function hookUpEmailSendButton() {
     if (validator.isEmail(email)) {
       // submit!
       $emailInputWrap.removeClass(invalidEmailClass);
-      asyncMakeEmailShareRequest(email, s3Id)
-        .then(function(resp) {
-          closeOverlay();
-          $body.addClass(emailShareConfirmationActiveClasses);
-          setTimeout(closeOverlay, 1000 * 3);
-        })
-        .catch(function(e) {
-          console.error(e);
-        });
+      asyncMakeEmailShareRequest(email, s3Id);
+      closeOverlay();
+      $body.addClass(emailShareConfirmationActiveClasses);
+      setTimeout(closeOverlay, 1000 * 3);
     } else {
       $emailInputWrap.addClass(invalidEmailClass);
     }

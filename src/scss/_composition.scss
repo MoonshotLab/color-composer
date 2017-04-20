@@ -61,6 +61,14 @@ html.adownload {
     }
   }
 
+  &#email {
+    display: none;
+
+    @media(min-width: 1000px) {
+      display: block;
+    }
+  }
+
   img {
     width: 5rem;
   }
