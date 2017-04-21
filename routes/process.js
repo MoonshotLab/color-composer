@@ -311,65 +311,72 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
       clientId = req.body.uuid;
     }
 
-    console.log(`processing ${compositionId} at ${outPath}`);
-    console.log('makeDirectory');
+    let identifier = null;
+    if (clientId === null && process.env.LOCATION === 'desktop') {
+      identifier = clientId;
+    } else {
+      identifier = 'gallery';
+    }
+
+    console.log(`${identifier}: processing ${compositionId} at ${outPath}`);
+    console.log(`${identifier}: makeDirectory`);
     asyncMakeDirectory(outPath)
       .then(function() {
-        console.log('movingBlobFiles');
+        console.log(`${identifier}: movingBlobFiles`);
         return asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob)
       })
       .then(function(resp) {
         res.send(compositionId);
-        console.log('mergeAndResize');
+        console.log(`${identifier}: mergeAndResize`);
         return asyncMergeAndResize(outPath, resp.videoBlobPath, resp.audioBlobPath);
       })
       .then(function() {
-        console.log('makeIntoTransportStream');
+        console.log(`${identifier}: makeIntoTransportStream`);
         return asyncMakeIntoTransportStream(outPath);
       })
       .then(function() {
-        console.log('concatWithBumper');
+        console.log(`${identifier}: concatWithBumper`);
         return asyncConcatWithBumper(outPath, compositionId);
       })
       .then(function() {
-        console.log('generateThumbnail');
+        console.log(`${identifier}: generateThumbnail`);
         return asyncGenerateThumbnail(outPath, compositionId);
       })
       .then(function() {
-        console.log('makeWebm');
+        console.log(`${identifier}: makeWebm`);
         return asyncMakeWebMFromMp4(outPath, compositionId);
       })
       .then(function() {
-        console.log('cleanDirPreUpload');
+        console.log(`${identifier}: cleanDirPreUpload`);
         return asyncCleanDirPreUpload(outPath, compositionId);
       })
       .then(function() {
-        console.log('uploadToS3');
+        console.log(`${identifier}: uploadToS3`);
         return asyncUploadToS3(outPath, compositionId);
       })
       .then(function() {
-        console.log('destropTmpDir');
+        console.log(`${identifier}: destropTmpDir`);
         return asyncDestroyTmpDir(outPath);
       })
       .then(function() {
-        console.log('video processed successfully');
+        console.log(`${identifier}: video processed successfully`);
         if (process.env.LOCATION === 'desktop') {
           // desktop, notify client socket connection
-          console.log('notifying client', clientId);
+          console.log(`${identifier}: notifying client`);
           io.sockets.in(clientId).emit('new_msg', {msg: 'video_done_processing'});
         } else {
           // gallery, text phone number
           // see if compositionId is already in db
           db.findRecordByS3Id(compositionId)
             .then(function(record) {
-              console.log('texting link if record exists');
+              console.log(`${identifier}: texting link if record exists`);
               if (record) {
                 texter.sendURL({
                   phone : record.phone,
                   url   : process.env.ROOT_URL + '/composition/' + record.s3Id
                 });
               } else {
-                console.log('record does not exist, adding for future texting');
+                console.log(`${identifier}: record does not exist, adding for future texting`);
                 return db.remember({
                   s3Id: compositionId,
                   texted: false,

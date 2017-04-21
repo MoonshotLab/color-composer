@@ -36,7 +36,15 @@ http.listen(port, function() {
 
 io.sockets.on('connection', function (socket) {
   socket.on('join', function (data) {
-    console.log(`client ${data.uuid} connected`);
+    if (process.env.LOCATION === 'gallery') {
+      if (!!data.uuid) {
+        console.log(`gallery connected (${data.uuid})`);
+      } else {
+        console.log('gallery connected');
+      }
+    } else {
+      console.log(`client ${data.uuid} connected`);
+    }
     socket.join(data.uuid); // join client room to transmit data to
   });
 });
