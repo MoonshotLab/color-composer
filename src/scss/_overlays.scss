@@ -141,8 +141,8 @@
   .composition-overlay.share-confirmation,
   .composition-overlay.share-email {
     .contents {
-      height: 35rem;
-      width: 60rem;
+      height: 60%;
+      width: 50%;
     }
 
     .wrap {
@@ -166,27 +166,19 @@
 // overlay defaults
 .overlay {
   content: "";
-  position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: calc(100vh - 13rem);
+  position: absolute;
+  width: 100%;
+  height: calc(100% - 13rem);
   transition: opacity 0.5s;
   opacity: 0;
   z-index: -1;
   color: #000;
 
-  &.composition-overlay {
-    height: 100vh;
-
-    .contents {
-      top: 45%;
-    }
-  }
-
   .contents {
     position: absolute;
-    top: 50%;
+    top: calc(50% - 4rem);
     left: 50%;
     width: 40vw;
     height: 40vh;
@@ -479,6 +471,7 @@ article {
 
   #phone {
     font-size: 3.6rem;
+    line-height: 2em;
     letter-spacing: 0.4rem;
   }
 

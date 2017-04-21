@@ -1,3 +1,5 @@
+const throttle = require('throttleit');
+
 const validator = require('validator');
 const axios = require('axios');
 const Promise = require('bluebird');
@@ -6,11 +8,22 @@ const qs = require('qs');
 const invalidEmailClass = 'invalid-email';
 const tapEvent = 'click tap touch';
 
+const resizeDelay = 250; // ms
+
 const overlayActiveClass = 'overlay-active';
 const emailShareOverlayActiveClasses = 'share-email-active' + ' ' + overlayActiveClass;
 const emailShareConfirmationActiveClasses = 'share-confirmation-active' + ' ' + overlayActiveClass;
 
 const $body = $('body');
+
+function fixCanvasSize() {
+  const $frame = $('.framed-content').eq(0);
+  const containerWidth = $frame.width();
+  const containerHeight = containerWidth / 2 + 130;
+
+  const $overlays = $('.overlay');
+  $overlays.css('height', containerWidth / 2);
+}
 
 function asyncMakeEmailShareRequest(email, s3Id) {
   return new Promise(function(resolve, reject) {
@@ -102,6 +115,13 @@ function run() {
   hookUpEmailShareButton();
   hookUpEmailSendButton();
   hookUpRandomOverlayGraphics();
+  fixCanvasSize();
 }
 
 run();
+
+window.onresize = throttle(function() {
+  window.kan.resizeCanvasTimeout = setTimeout(function() {
+    fixCanvasSize();
+  }, resizeDelay * 2);
+}, resizeDelay);

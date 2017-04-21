@@ -65,7 +65,7 @@ export function exitTutorialMode() {
 
       if ($body.hasClass('window-too-small-active') !== true && window.kan.location !== 'desktop') {
         overlays.openOverlay('intro');
-        
+
         window.kan.inactivityTimeout = setTimeout(function() {
           overlays.openOverlay('continue');
         }, timing.continueInactivityDelay);

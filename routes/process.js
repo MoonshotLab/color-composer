@@ -312,7 +312,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
     }
 
     let identifier = null;
-    if (clientId === null && process.env.LOCATION === 'desktop') {
+    if (clientId !== null && process.env.LOCATION === 'desktop') {
       identifier = clientId;
     } else {
       identifier = 'gallery';

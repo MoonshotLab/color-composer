@@ -96,6 +96,9 @@ export function fixCanvasSize() {
   const offset = $drawCanvas.offset();
   canvasTop = offset.top;
   canvasLeft = offset.left;
+
+  const $overlays = $('.overlay');
+  $overlays.css('height', containerWidth / 2);
 }
 
 export function fixTutorialVideoSize() {

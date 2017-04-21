@@ -305,8 +305,10 @@ body.gallery #canvas {
 .icon-check {
   content: "";
   position: relative;
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 55%;
+  height: 55%;
+  min-width: 2.2rem;
+  min-height: 2.2rem;
   background-image: url('/img/check-mark.svg');
   background-size: contain;
   background-position: center center;
