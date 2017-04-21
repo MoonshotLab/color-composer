@@ -53,7 +53,7 @@ router.post('/new', function(req, res) {
               .then(function() {
                 texter.sendURL({
                   phone : req.query.phone,
-                  url   : process.env.ROOT_URL + '/composition/' + req.query.s3Id
+                  url   : process.env.ROOT_URL_WWW + '/composition/' + req.query.s3Id
                 });
               })
             }

@@ -373,7 +373,7 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
               if (record) {
                 texter.sendURL({
                   phone : record.phone,
-                  url   : process.env.ROOT_URL + '/composition/' + record.s3Id
+                  url   : process.env.ROOT_URL_WWW + '/composition/' + record.s3Id
                 });
               } else {
                 console.log(`${identifier}: record does not exist, adding for future texting`);
