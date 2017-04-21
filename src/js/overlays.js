@@ -25,7 +25,7 @@ const $shareSend = $shareKeypad.find('.send');
 const $sharePhoneWrap = $('.share-phone .output');
 const invalidPhoneNumberClass = 'invalid-number';
 
-const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation', 'window-too-small'];
+const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation', 'window-too-small', 'share-bad-browser'];
 const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
 
 const overlayActiveClass = 'overlay-active';
@@ -84,6 +84,9 @@ export function openOverlay(overlayName) {
         break;
       case 'window-too-small':
         openWindowTooSmallOverlay();
+        break;
+      case 'share-bad-browser':
+        openShareBadBrowserOverlay();
         break;
     }
   } else {
@@ -148,6 +151,10 @@ function openShareConfirmationOverlay() {
 
 function openWindowTooSmallOverlay() {
   $body.addClass('window-too-small-active');
+}
+
+function openShareBadBrowserOverlay() {
+  $body.addClass('share-bad-browser-active');
 }
 
 // card slider navigation

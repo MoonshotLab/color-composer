@@ -116,6 +116,18 @@
     }
   }
 
+  &.share-bad-browser-active {
+    .overlay.share-bad-browser {
+      opacity: 1;
+      z-index: 3;
+    }
+    .main-controls,
+    .aux-controls-wrap {
+      opacity: 0.25;
+      filter: blur(1px);
+    }
+  }
+
   .overlay.window-too-small {
     background-color: #ffffff;
     height: 100vh;

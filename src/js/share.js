@@ -226,11 +226,15 @@ function handleGallerySharePressed() {
 }
 
 function handleDesktopSharePressed() {
-  ui.showDesktopSharePrepNotice();
-  ui.enterShareMode();
-  timing.clearTimeouts();
-  let s3Id = null;
-  asyncRecord()
+  // if (window.kan.ie === true || window.kan.safari === true) {
+  if (true) {
+    overlays.openOverlay('share-bad-browser');
+  } else {
+    ui.showDesktopSharePrepNotice();
+    ui.enterShareMode();
+    timing.clearTimeouts();
+    let s3Id = null;
+    asyncRecord()
     .then(function(id) {
       s3Id = id;
       return asyncAddDesktopCompositionToDb(s3Id);
@@ -254,4 +258,5 @@ function handleDesktopSharePressed() {
         console.log('error in share mode,', e);
       }
     })
+  }
 }
