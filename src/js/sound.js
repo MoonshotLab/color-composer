@@ -137,8 +137,12 @@ export function formatShapeSoundData(shapeName, data) {
 
   returnData.src = data.urls.map((url) => `./audio/shapes/${shapeName}/${url}`);
   returnData.sprite = data.sprite;
-  returnData.html5 = false;
   returnData.loop = false;
+  if (window.kan.ie === true) {
+    returnData.html5 = true; // insist on html audio for ie
+  } else {
+    returnData.html5 = false;
+  }
 
   return returnData;
 }

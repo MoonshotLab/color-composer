@@ -57,7 +57,9 @@ export function resetWindow() {
     location: $('body').hasClass('gallery') ? 'gallery' : 'desktop',
     resizeCanvasTimeout: null,
     stopTimeouts: false,
-    uuid: clientId
+    uuid: clientId,
+    ie: false,
+    safari: false
   };
 }
 

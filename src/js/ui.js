@@ -1,6 +1,8 @@
 const config = require('./config');
 require('howler');
 
+const bowser = require('bowser');
+
 const sound = require('./sound');
 const tutorial = require('./tutorial');
 const overlays = require('./overlays');
@@ -52,6 +54,17 @@ export function init() {
   initShareButton();
   initContextualTuts();
   resetCanvas();
+  detectBrowser();
+}
+
+function detectBrowser() {
+  if (bowser.msie === true) {
+    window.kan.ie = true;
+  }
+
+  if (bowser.safari === true) {
+    window.kan.safari = true;
+  }
 }
 
 export function getNormalizedEventCenter(event) {
