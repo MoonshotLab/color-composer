@@ -307,6 +307,10 @@ body.gallery #canvas {
 
   .tut-copy {
     width: 80%;
+
+    body.desktop & {
+      text-align: left;
+    }
   }
 }
 
