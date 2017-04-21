@@ -116,6 +116,10 @@ body.gallery #canvas {
   height: 13rem;
   padding: 0 3rem;
 
+  body.desktop & {
+    padding: 0;
+  }
+
   ul,
   li {
     margin: 0;
@@ -186,6 +190,10 @@ body.gallery #canvas {
 
 .aux-controls-wrap {
   right: 3rem;
+
+  body.desktop & {
+    right: 0;
+  }
 }
 
 .palette-colors {
