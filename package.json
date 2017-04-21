@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "airbnb-js-shims": "^1.1.1",
     "array-range": "^1.0.1",
     "autoprefixer": "^6.5.3",
     "axios": "^0.15.3",

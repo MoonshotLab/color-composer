@@ -1,5 +1,7 @@
 const throttle = require('throttleit');
 
+require('airbnb-js-shims');
+
 const validator = require('validator');
 const axios = require('axios');
 const Promise = require('bluebird');

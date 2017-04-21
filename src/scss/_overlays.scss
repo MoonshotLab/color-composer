@@ -176,6 +176,10 @@
   z-index: -1;
   color: #000;
 
+  &.window-too-small {
+    position: fixed;
+  }
+
   .contents {
     position: absolute;
     top: calc(50% - 4rem);

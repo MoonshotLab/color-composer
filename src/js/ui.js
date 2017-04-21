@@ -97,7 +97,7 @@ export function fixCanvasSize() {
   canvasTop = offset.top;
   canvasLeft = offset.left;
 
-  const $overlays = $('.overlay');
+  const $overlays = $('.overlay:not(.window-too-small)');
   $overlays.css('height', containerWidth / 2);
 }
 
