@@ -232,31 +232,33 @@ function handleDesktopSharePressed() {
     ui.showDesktopSharePrepNotice();
     ui.enterShareMode();
     timing.clearTimeouts();
+    window.kan.overlays = false; // make sure no overlays pop up
     let s3Id = null;
+
     asyncRecord()
-    .then(function(id) {
-      s3Id = id;
-      return asyncAddDesktopCompositionToDb(s3Id);
-      // console.log('recording done');
-    })
-    .then(function() {
-      return asyncWaitForDesktopCompositionToFinishProcessing();
-    })
-    .then(function() {
-      // redirect to composition
-      ga('send', 'event', 'share', 'desktopCompositionRedirect');
-      // window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
-      window.location.href = `https://www.dev.color-composer.net/composition/${s3Id}`; // TODO: REMOVE!
-    })
-    .catch(function(e) {
-      ui.exitShareMode(); // make sure
-      if (e === 'timeout') {
-        console.log('error in share mode, going into tutorial');
-        video.enterTutorialMode();
-      } else {
-        // continue, share modal did not time out, reject silently
-        console.log('error in share mode,', e);
-      }
-    })
+      .then(function(id) {
+        s3Id = id;
+        return asyncAddDesktopCompositionToDb(s3Id);
+        // console.log('recording done');
+      })
+      .then(function() {
+        return asyncWaitForDesktopCompositionToFinishProcessing();
+      })
+      .then(function() {
+        // redirect to composition
+        ga('send', 'event', 'share', 'desktopCompositionRedirect');
+        // window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
+        window.location.href = `https://www.dev.color-composer.net/composition/${s3Id}`; // TODO: REMOVE!
+      })
+      .catch(function(e) {
+        ui.exitShareMode(); // make sure
+        if (e === 'timeout') {
+          console.log('error in share mode, going into tutorial');
+          video.enterTutorialMode();
+        } else {
+          // continue, share modal did not time out, reject silently
+          console.log('error in share mode,', e);
+        }
+      })
   }
 }
