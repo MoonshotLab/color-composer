@@ -15,11 +15,11 @@ block framed_content
 
   ul.composition-share
     li.share-item#facebook
-      a(href=`http://www.facebook.com/share.php?u=${rootUrl}/composition/${uuid}&amp;title=%23BlochGalleriesKC`)
+      a(href=`http://www.facebook.com/share.php?u=${rootUrl}/composition/${uuid}&amp;title=%23BlochGalleriesKC`, target="_blank")
         img(src='/img/facebook.svg')
         span.vh Facebook
     li.share-item#twitter
-      a(href=`http://twitter.com/share?text=%23BlochGalleriesKC&url=${rootUrl}/composition/${uuid}`)
+      a(href=`http://twitter.com/share?text=%23BlochGalleriesKC&url=${rootUrl}/composition/${uuid}`, target="_blank")
         img(src='/img/twitter.svg')
         span.vh Twitter
     li.share-item#download
