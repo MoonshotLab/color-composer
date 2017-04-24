@@ -252,6 +252,7 @@ function handleDesktopSharePressed() {
       })
       .catch(function(e) {
         ui.exitShareMode(); // make sure
+        window.kan.overlays = true;
         if (e === 'timeout') {
           console.log('error in share mode, going into tutorial');
           video.enterTutorialMode();
