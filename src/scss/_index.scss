@@ -56,14 +56,18 @@ path {
   stroke-linecap: round;
 }
 
-#canvas {
+#drawCanvas {
   display: block;
   position: relative;
   z-index: 2;
   cursor: pointer;
 }
 
-body.gallery #canvas {
+body.desktop #drawCanvas {
+  margin-bottom: 13rem;
+}
+
+body.gallery #drawCanvas {
   width: 100vw;
   height: calc(100vh - 13rem);
   cursor: none;

@@ -93,25 +93,36 @@ function hideExpandBrowserMessage() {
 }
 
 export function fixCanvasSize() {
-  console.log('fixCanvasSize');
-  const $frame = $('.framed-content').eq(0);
-  const containerWidth = $frame.width();
-  const containerHeight = containerWidth / 2 + 130;
+  try {
+    const $frame = $('.framed-content').eq(0);
+    const containerWidth = $frame.width();
+    const containerHeight = containerWidth / 2;
 
-  if (window.kan.location === 'gallery') {
-    $drawCanvas.width('100%');
-    $drawCanvas.height('calc(100vh - 13rem)');
-  } else {
-    $drawCanvas.width(`${containerWidth / 10}rem`);
-    $drawCanvas.height(`${containerHeight / 10}rem`);
+    if (window.kan.location === 'gallery') {
+      $drawCanvas.width('100%');
+      $drawCanvas.height('calc(100vh - 13rem)');
+    } else {
+      $drawCanvas.width(`${containerWidth}px`);
+      $drawCanvas.height(`${containerHeight}px`);
+      $drawCanvas.css('width', `${containerWidth}px`);
+      $drawCanvas.css('height', `${containerHeight}px`);
+      $drawCanvas.attr('width', `${containerWidth}px`);
+      $drawCanvas.attr('height', `${containerHeight}px`);
+
+      // fix paper view size as well
+      paper.view.viewSize.width = $drawCanvas.width();
+      paper.view.viewSize.height = $drawCanvas.height();
+    }
+
+    const offset = $drawCanvas.offset();
+    canvasTop = offset.top;
+    canvasLeft = offset.left;
+
+    const $overlays = $('.overlay:not(.window-too-small)');
+    $overlays.css('height', containerWidth / 2);
+  } catch(e) {
+    console.log('error', e);
   }
-
-  const offset = $drawCanvas.offset();
-  canvasTop = offset.top;
-  canvasLeft = offset.left;
-
-  const $overlays = $('.overlay:not(.window-too-small)');
-  $overlays.css('height', containerWidth / 2);
 }
 
 export function fixTutorialVideoSize() {
@@ -181,6 +192,7 @@ function unditherButtonsByName(buttonNames) {
 export function enterShareMode() {
   sound.stopPlaying(true);
   ditherAllButtons();
+  tutorial.hideContextualTuts();
   clearTimeout(window.kan.playPromptTimeout);
   touch.disableAllEvents();
 }
