@@ -226,8 +226,7 @@ function handleGallerySharePressed() {
 }
 
 function handleDesktopSharePressed() {
-  // if (window.kan.ie === true || window.kan.safari === true) {
-  if (true) {
+  if (window.kan.ie === true || window.kan.safari === true) {
     overlays.openOverlay('share-bad-browser');
   } else {
     ui.showDesktopSharePrepNotice();
