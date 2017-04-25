@@ -6,7 +6,15 @@ block og_meta
   meta(property='og:type', content='website')
   meta(property='og:image', content= s3Path + '/' + uuid + '.jpg')
   meta(property='og:image:secure_url', content= s3Path + '/' + uuid + '.jpg')
+  meta(property='og:image:width', content='1980')
+  meta(property='og:image:height', content='990')
   meta(property='og:url', content= rootUrl + '/composition/' + uuid)
+  meta(name='twitter:card' content='summary_large_image')
+  meta(name='twitter:site' content='nelson_atkins')
+  meta(name='twitter:title' content='My Kandinsky-inspired Soundscape')
+  meta(name='twitter:description' content='Color Composer from the Nelson-Atkins Museum of Art.')
+  meta(name='twitter:image' content=s3Path + '/' + uuid + '.jpg')
+  meta(name='twitter:domain' content=rootUrl + '/composition/' + uuid)
     
 block framed_content
   video(id='composition-video', width='100%', height='100%', poster=`${s3Path}/${uuid}.jpg`, controls, preload='auto', data-s3Id=`${uuid}`)
