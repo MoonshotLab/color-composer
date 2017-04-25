@@ -41,10 +41,11 @@ const ditheredClass = 'dithered';
 const shareModeClass = 'share-mode';
 
 export function init() {
+  setupPaper();
+  resetCanvas();
   fixCanvasSize();
   fixTutorialVideoSize();
   verifyBrowserWidth();
-  setupPaper();
   initLogoRefresh();
   initColorPalette();
   initNewButton();
@@ -53,7 +54,6 @@ export function init() {
   initTipsButton();
   initShareButton();
   initContextualTuts();
-  resetCanvas();
   detectBrowser();
 }
 
@@ -108,10 +108,6 @@ export function fixCanvasSize() {
       $drawCanvas.css('height', `${containerHeight}px`);
       $drawCanvas.attr('width', `${containerWidth}px`);
       $drawCanvas.attr('height', `${containerHeight}px`);
-
-      // fix paper view size as well
-      paper.view.viewSize.width = $drawCanvas.width();
-      paper.view.viewSize.height = $drawCanvas.height();
     }
 
     const offset = $drawCanvas.offset();
@@ -120,6 +116,18 @@ export function fixCanvasSize() {
 
     const $overlays = $('.overlay:not(.window-too-small)');
     $overlays.css('height', containerWidth / 2);
+
+    const canvasWidth = $drawCanvas.width();
+    const canvasHeight = $drawCanvas.height();
+
+    paper.view.viewSize.width = canvasWidth
+    paper.view.viewSize.height = canvasHeight
+
+    // fix canvas bg raster size as well
+    const canvasBg = paper.project.layers.background._namedChildren.canvasBg[0];
+    canvasBg.size.width = canvasWidth;
+    canvasBg.size.height = canvasHeight;
+    canvasBg.position = paper.view.center;
   } catch(e) {
     console.log('error', e);
   }
@@ -419,14 +427,14 @@ export function resetCanvas() {
   paper.project.activeLayer.name = 'background';
   const numCanvasses = 10;
   const randomCanvasIndex = Math.round(Math.random() * (numCanvasses - 1)) + 1; // [1, numCanvasses]
+
   const canvasBg = new Raster(`canvas-${randomCanvasIndex}`);
   canvasBg.name = 'canvasBg';
   canvasBg.position = paper.view.center;
+  canvasBg.size.width = paper.view.viewSize.width;
+  canvasBg.size.height = paper.view.viewSize.height;
 
   // add canvas layer
-  const scaleFactorHorizontal = paper.view.viewSize.width / canvasBg.size.width;
-  const scaleFactorVertical = paper.view.viewSize.height / canvasBg.size.height;
-  canvasBg.scale(Math.max(scaleFactorHorizontal, scaleFactorVertical));
   let layer = new Layer(); // init new layer that all other shapes will be drawn upon
   paper.project.activeLayer.name = 'canvas';
 }

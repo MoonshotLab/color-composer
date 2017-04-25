@@ -31,7 +31,7 @@ const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).joi
 const overlayActiveClass = 'overlay-active';
 
 export function openOverlay(overlayName) {
-  console.log('attempting to open overlay', overlayName);
+  // console.log('attempting to open overlay', overlayName);
   if (window.kan.overlays === false) return;
   if ($body.hasClass('window-too-small-active')) return; // don't open overlays if the window is too small
   if (allOverlays.includes(overlayName)) {
