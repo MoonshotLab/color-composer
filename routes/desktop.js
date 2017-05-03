@@ -17,7 +17,7 @@ router.get('/', function (req, res) {
   } else {
     const template = 'desktop';
     const location = template;
-    const videoUrl = 'https://s3.amazonaws.com/nelson-atkins/cc_intro_desktop.mp4';
+    const videoUrl = 'https://s3.amazonaws.com/nelson-atkins/cc_intro_desktop_web.mp4';
 
     res.render(`pages/${template}`, {
       config: clientConfig,
