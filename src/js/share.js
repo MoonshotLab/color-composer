@@ -247,8 +247,7 @@ function handleDesktopSharePressed() {
       .then(function() {
         // redirect to composition
         ga('send', 'event', 'share', 'desktopCompositionRedirect');
-        // window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
-        window.location.href = `https://www.dev.color-composer.net/composition/${s3Id}`; // TODO: REMOVE!
+        window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
       })
       .catch(function(e) {
         ui.exitShareMode(); // make sure
