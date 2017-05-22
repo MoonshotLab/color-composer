@@ -177,7 +177,11 @@ export function handleSharePressed() {
     return;
   }
 
-  ga('send', 'event', 'share', 'modalFired');
+  try {
+    ga('send', 'event', 'share', 'modalFired');
+  } catch(e) {
+    console.error(e);
+  }
 
   if (window.kan.location === 'gallery') {
     handleGallerySharePressed();
@@ -207,7 +211,11 @@ function handleGallerySharePressed() {
     .then(function() {
       // close overlay
       overlays.openOverlay('share-confirmation');
-      ga('send', 'event', 'share', 'mobileLinkSent');
+      try {
+        ga('send', 'event', 'share', 'mobileLinkSent');
+      } catch(e) {
+        console.error(e);
+      }
       setTimeout(function() {
         video.enterTutorialMode();
       }, 1000 * 4);
@@ -245,8 +253,13 @@ function handleDesktopSharePressed() {
         return asyncWaitForDesktopCompositionToFinishProcessing();
       })
       .then(function() {
+        try {
+          ga('send', 'event', 'share', 'desktopCompositionRedirect');
+        } catch(e) {
+          console.error(e);
+        }
+
         // redirect to composition
-        ga('send', 'event', 'share', 'desktopCompositionRedirect');
         window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
       })
       .catch(function(e) {

@@ -15,11 +15,15 @@ const $videoWrapper = $body.find('#video-wrap');
 const $video = $videoWrapper.find('video');
 
 export function enterTutorialMode() {
-  ga('send', {
-    hitType: 'pageView',
-    page: 'tutorial',
-    title: 'Color Composer'
-  });
+  try {
+    ga('send', {
+      hitType: 'pageView',
+      page: 'tutorial',
+      title: 'Color Composer'
+    });
+  } catch(e) {
+    console.error(e);
+  }
   console.log('entering tutorial mode');
   playVideo();
   $body.addClass(videoPlayingClass);
@@ -44,11 +48,15 @@ export function enterTutorialMode() {
 }
 
 export function exitTutorialMode() {
-  ga('send', {
-    hitType: 'pageView',
-    page: 'draw',
-    title: 'Color Composer'
-  });
+  try {
+    ga('send', {
+      hitType: 'pageView',
+      page: 'draw',
+      title: 'Color Composer'
+    });
+  } catch(e) {
+    console.error(e);
+  }
   console.log('exiting tutorial mode');
   sound.reinitShapeSounds()
     .then(function() {

@@ -89,15 +89,27 @@ function hookUpEmailSendButton() {
 
 function initCompositionAnalytics() {
   $('.share-item#facebook').on(tapEvent, function(e) {
-    ga('send', 'event', 'share', 'facebookShare');
+    try {
+      ga('send', 'event', 'share', 'facebookShare');
+    } catch(e) {
+      console.error(e);
+    }
   });
 
   $('.share-item#twitter').on(tapEvent, function(e) {
-    ga('send', 'event', 'share', 'twitterShare');
+    try {
+      ga('send', 'event', 'share', 'twitterShare');
+    } catch(e) {
+      console.error(e);
+    }
   });
 
   $('.share-item#download').on(tapEvent, function(e) {
-    ga('send', 'event', 'share', 'downloadVideo');
+    try {
+      ga('send', 'event', 'share', 'downloadVideo');
+    } catch(e) {
+      console.error(e);
+    }
   });
 }
 

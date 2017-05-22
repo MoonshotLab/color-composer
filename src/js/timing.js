@@ -24,7 +24,13 @@ export function init() {
     } else {
       location = 'home';
     }
-    ga('set', 'dimension1', location);
+
+    try {
+      ga('set', 'dimension1', location);
+    } catch(e) {
+      console.error(e);
+    }
+    
     video.enterTutorialMode();
   }
 }
