@@ -260,7 +260,7 @@ function handleDesktopSharePressed() {
         }
 
         // redirect to composition
-        window.location.href = `https://www.color-composer.net/composition/${s3Id}`;
+        window.location.href = `https://color-composer.net/composition/${s3Id}`;
       })
       .catch(function(e) {
         ui.exitShareMode(); // make sure
