@@ -70,6 +70,7 @@ export function exitTutorialMode() {
       clearInterval(window.kan.continueCountdownInterval);
 
       ui.verifyBrowserWidth();
+      ui.detectBrowser();
 
       if ($body.hasClass('window-too-small-active') !== true && window.kan.location !== 'desktop') {
         overlays.openOverlay('intro');
