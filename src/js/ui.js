@@ -58,7 +58,7 @@ export function init() {
 }
 
 function detectBrowser() {
-  if (bowser.msie === true) {
+  if (bowser.msie === true || bowser.msedge === true) {
     window.kan.ie = true;
   }
 
