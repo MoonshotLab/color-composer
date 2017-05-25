@@ -59,7 +59,8 @@ export function resetWindow() {
     stopTimeouts: false,
     uuid: clientId,
     ie: false,
-    safari: false
+    safari: false,
+    edge: false
   };
 }
 
