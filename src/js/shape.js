@@ -12,7 +12,7 @@ export const thresholdDistMultiplier = 0.1;
 
 export const detector = new ShapeDetector(ShapeDetector.defaultShapes);
 
-export const shapeNames = ["line", "circle", "square", "triangle", "other"];
+export const shapeNames = ['line', 'circle', 'square', 'triangle', 'other'];
 
 const transparent = color.transparent;
 
@@ -28,12 +28,12 @@ let keepaliveInterval = null;
 // the canvas recorder automatically trims 'still' frames, so I add a semitransparent 1px square to trick the recorder into recording :)
 function initKeepaliveShape() {
   keepaliveShape = Path.Rectangle({
-   point: [1, 1],
-   size: [1, 1],
-   strokeColor: new Color(0, 0.001),
-   visible: false,
-   name: 'keepalive'
- });
+    point: [1, 1],
+    size: [1, 1],
+    strokeColor: new Color(0, 0.001),
+    visible: false,
+    name: 'keepalive'
+  });
 }
 
 export function startKeepaliveAnimation() {
@@ -41,7 +41,7 @@ export function startKeepaliveAnimation() {
   keepaliveInterval = setInterval(function() {
     keepaliveShape.rotation += 5;
   }, 40);
-};
+}
 
 export function stopKeepaliveAnimation() {
   keepaliveShape.visible = false;
@@ -54,7 +54,7 @@ export function destroyGroupPops(group) {
   // console.log('pops to be destroyed', groupPopsBefore);
   if (groupPopsBefore.length > 0) {
     groupPopsBefore.forEach(function(pop) {
-      pop.remove()
+      pop.remove();
     });
   }
   const groupPopsAfter = util.getGroupPops(group);
@@ -64,7 +64,7 @@ export function destroyGroupPops(group) {
 export function fillInGroupPopsById(groupId) {
   const group = paper.project.getItem({
     className: 'Group',
-    match: (el) => el.id === groupId
+    match: el => el.id === groupId
   });
 
   if (!!group && group.children.length > 0) {
@@ -120,7 +120,12 @@ export function cleanUpGroup(group) {
   const acceptableNames = ['mask', 'outer', 'shapePath', 'loop', 'pop'];
 
   group.children.forEach(function(groupChild) {
-    if (groupChild.className === 'CompoundPath' || groupChild.name === null || !acceptableNames.includes(groupChild.name) || !groupChild.length > 0) {
+    if (
+      groupChild.className === 'CompoundPath' ||
+      groupChild.name === null ||
+      !acceptableNames.includes(groupChild.name) ||
+      !groupChild.length > 0
+    ) {
       groupChild.remove();
     }
   });
@@ -133,7 +138,7 @@ export function cleanUpGroup(group) {
       });
       delete group._namedChildren['outer 1'];
     }
-  } catch(e) {
+  } catch (e) {
     // console.log('issue deleting unwanted child');
   }
 
@@ -204,7 +209,6 @@ export function updatePops() {
         //     }
         //   }
         // });
-
       }
     });
 
@@ -221,10 +225,14 @@ export function getOutlineGroup(truedShape) {
   let middlePath = new Path();
   middlePath.name = 'middle';
   let sizes = [];
-  let angle = null, lastAngle = null, angleDelta;
+  let angle = null,
+    lastAngle = null,
+    angleDelta;
 
-  let firstTop = null, firstBottom = null;
-  let lastTop = null, lastBottom = null;
+  let firstTop = null,
+    firstBottom = null;
+  let lastTop = null,
+    lastBottom = null;
 
   if (!(truedShape.length > 0)) return new Group(outerPath, middlePath);
 
@@ -242,13 +250,19 @@ export function getOutlineGroup(truedShape) {
     for (let j = 0; j < sizes.length; j++) {
       cumSize += sizes[j];
     }
-    let avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
+    let avgSize = Math.max(5, (cumSize / sizes.length + size) / 2);
 
     const point = truedShape.getPointAt(i);
     const normal = truedShape.getNormalAt(i);
 
-    const top = new Point(point.x + normal.x * avgSize, point.y + normal.y * avgSize);
-    const bottom = new Point(point.x - normal.x * avgSize, point.y - normal.y * avgSize);
+    const top = new Point(
+      point.x + normal.x * avgSize,
+      point.y + normal.y * avgSize
+    );
+    const bottom = new Point(
+      point.x - normal.x * avgSize,
+      point.y - normal.y * avgSize
+    );
 
     // console.log('point', point, 'normal', normal);
     // console.log('top', top, 'bottom', bottom);
@@ -269,9 +283,18 @@ export function getOutlineGroup(truedShape) {
   }
 
   if (truedShape.closed === true) {
-    const centerTop = new Point((firstTop.x + lastTop.x) / 2, (firstTop.y + lastTop.y) / 2);
-    const centerBottom = new Point((firstBottom.x + lastBottom.x) / 2, (firstBottom.y + lastBottom.y) / 2);
-    const center = new Point((centerTop.x + centerBottom.x) / 2, (centerTop.y + centerBottom.y) / 2);
+    const centerTop = new Point(
+      (firstTop.x + lastTop.x) / 2,
+      (firstTop.y + lastTop.y) / 2
+    );
+    const centerBottom = new Point(
+      (firstBottom.x + lastBottom.x) / 2,
+      (firstBottom.y + lastBottom.y) / 2
+    );
+    const center = new Point(
+      (centerTop.x + centerBottom.x) / 2,
+      (centerTop.y + centerBottom.y) / 2
+    );
 
     outerPath.add(centerTop);
     outerPath.insert(0, centerBottom);
@@ -374,13 +397,13 @@ export function getShapePrediction(path) {
   if (shapePrediction.score === 0) {
     // algorithm doesn't like vertical lines for some reason
     // if the certainty is 0 it's probably a line
-    prediction.pattern = "line";
+    prediction.pattern = 'line';
     prediction.score = 0.9;
   } else {
     if (shapePrediction.score > 0.5) {
       prediction.pattern = shapePrediction.pattern;
     } else {
-      prediction.pattern = "other";
+      prediction.pattern = 'other';
     }
     prediction.score = shapePrediction.score;
   }
@@ -423,7 +446,7 @@ export function stringifyPoint(point) {
 }
 
 export function parsePoint(pointStr) {
-  let split = pointStr.split(',').map((num) => Math.floor(num));
+  let split = pointStr.split(',').map(num => Math.floor(num));
 
   if (split.length >= 2) {
     return new Point(split[0], split[1]);
@@ -458,13 +481,13 @@ export function processShapeData(json) {
         returnShape.push({
           x: positionInfo[0],
           y: positionInfo[1]
-        })
+        });
       } else {
         returnShape.push({
           x: segment[0],
           y: segment[1]
         });
-      };
+      }
     });
   }
   return returnShape;
@@ -503,7 +526,7 @@ export function findInteriorCurves(path) {
         }
 
         // child.remove();
-      })
+      });
     } else {
       if (pathClone.closed) {
         let enclosedLoop = pathClone.clone();
@@ -538,15 +561,27 @@ export function getExtendedPath(path, bruteForce = false) {
 
   const firstSegment = extendedPath.firstSegment;
   const nextSegment = firstSegment.next;
-  const startAngle = Math.atan2(nextSegment.point.y - firstSegment.point.y, nextSegment.point.x - firstSegment.point.x); // rad
+  const startAngle = Math.atan2(
+    nextSegment.point.y - firstSegment.point.y,
+    nextSegment.point.x - firstSegment.point.x
+  ); // rad
   const inverseStartAngle = startAngle + Math.PI;
-  const extendedStartPoint = new Point(firstSegment.point.x + (Math.cos(inverseStartAngle) * thresholdDist / 2), firstSegment.point.y + (Math.sin(inverseStartAngle) * thresholdDist / 2));
+  const extendedStartPoint = new Point(
+    firstSegment.point.x + Math.cos(inverseStartAngle) * thresholdDist / 2,
+    firstSegment.point.y + Math.sin(inverseStartAngle) * thresholdDist / 2
+  );
   extendedPath.insert(0, extendedStartPoint);
 
   const lastSegment = extendedPath.lastSegment;
   const penSegment = lastSegment.previous; // penultimate
-  const endAngle = Math.atan2(lastSegment.point.y - penSegment.point.y, lastSegment.point.x - penSegment.point.x); // rad
-  const extendedEndPoint = new Point(lastSegment.point.x + (Math.cos(endAngle) * thresholdDist / 2), lastSegment.point.y + (Math.sin(endAngle) * thresholdDist / 2));
+  const endAngle = Math.atan2(
+    lastSegment.point.y - penSegment.point.y,
+    lastSegment.point.x - penSegment.point.x
+  ); // rad
+  const extendedEndPoint = new Point(
+    lastSegment.point.x + Math.cos(endAngle) * thresholdDist / 2,
+    lastSegment.point.y + Math.sin(endAngle) * thresholdDist / 2
+  );
   extendedPath.add(extendedEndPoint);
 
   // extendedPath.visible = true;
@@ -569,7 +604,8 @@ export function getBruteExtendedPath(path) {
     extendedPath.unite();
     let crossings = extendedPath.resolveCrossings();
     if (!!crossings && !!crossings.children && crossings.children.length > 0) {
-      let maxArea = 0, maxChild = null;
+      let maxArea = 0,
+        maxChild = null;
       crossings.children.forEach(function(child) {
         if (child.area > maxArea) {
           maxChild = child;
@@ -606,13 +642,20 @@ export function getTrimmedPath(path) {
       let intersectionPoint = intersections[i].point;
 
       // if the average of the distance between the first and last points and the intersection point is within the threshold, trim
-      if (firstPoint.getDistance(intersectionPoint) + lastPoint.getDistance(intersectionPoint) < 2 * thresholdDist) {
+      if (
+        firstPoint.getDistance(intersectionPoint) +
+          lastPoint.getDistance(intersectionPoint) <
+        2 * thresholdDist
+      ) {
         // console.log('trimming path');
         let dividedPath = pathClone.clone(); // resolve crossings seems to modify the path it was passed, so make an extra clone to be safe
         dividedPath.visible = false;
         let pathCrossings = dividedPath.resolveCrossings();
 
-        if (pathCrossings.className === 'CompoundPath' && pathCrossings.children.length > 0) {
+        if (
+          pathCrossings.className === 'CompoundPath' &&
+          pathCrossings.children.length > 0
+        ) {
           for (let j = 0; j < pathCrossings.children.length; j++) {
             let child = pathCrossings.children[j];
             if (child.closed) {
@@ -626,7 +669,10 @@ export function getTrimmedPath(path) {
 
         let trimmedPath = pathClone.subtract(dividedPath);
         if (trimmedPath.length === 0) return pathClone;
-        if (trimmedPath.className === 'CompoundPath' && trimmedPath.children.length > 0) {
+        if (
+          trimmedPath.className === 'CompoundPath' &&
+          trimmedPath.children.length > 0
+        ) {
           let closedChildren = [];
           trimmedPath.children.forEach(function(child, i) {
             if (child.length > 0 && child.closed) {
@@ -681,7 +727,6 @@ export function getTrimmedPath(path) {
     return path;
   }
 }
-
 
 export function hitTestGroupBounds(point) {
   let groups = util.getVisibleGroups();

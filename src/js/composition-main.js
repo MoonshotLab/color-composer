@@ -13,8 +13,10 @@ const tapEvent = 'click tap touch';
 const resizeDelay = 250; // ms
 
 const overlayActiveClass = 'overlay-active';
-const emailShareOverlayActiveClasses = 'share-email-active' + ' ' + overlayActiveClass;
-const emailShareConfirmationActiveClasses = 'share-confirmation-active' + ' ' + overlayActiveClass;
+const emailShareOverlayActiveClasses =
+  'share-email-active' + ' ' + overlayActiveClass;
+const emailShareConfirmationActiveClasses =
+  'share-confirmation-active' + ' ' + overlayActiveClass;
 
 const $body = $('body');
 
@@ -35,14 +37,13 @@ function asyncMakeEmailShareRequest(email, s3Id) {
         s3Id: s3Id
       });
 
-      axios.post('/composition/send-email?' + queryString)
-        .then(function(resp) {
-          resolve('email sent');
-        })
-    } catch(e) {
+      axios.post('/composition/send-email?' + queryString).then(function(resp) {
+        resolve('email sent');
+      });
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function closeOverlay() {
@@ -62,7 +63,7 @@ function hookUpEmailSendButton() {
   const $emailForm = $('form.email-container');
 
   $body.find('.overlay.closeable').on(tapEvent, function(e) {
-    if ( $(e.target).closest('.card-wrap').length !== 1 ) {
+    if ($(e.target).closest('.card-wrap').length !== 1) {
       closeOverlay();
     }
   });
@@ -83,15 +84,14 @@ function hookUpEmailSendButton() {
     } else {
       $emailInputWrap.addClass(invalidEmailClass);
     }
-
-  })
+  });
 }
 
 function initCompositionAnalytics() {
   $('.share-item#facebook').on(tapEvent, function(e) {
     try {
       ga('send', 'event', 'share', 'facebookShare');
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   });
@@ -99,7 +99,7 @@ function initCompositionAnalytics() {
   $('.share-item#twitter').on(tapEvent, function(e) {
     try {
       ga('send', 'event', 'share', 'twitterShare');
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   });
@@ -107,7 +107,7 @@ function initCompositionAnalytics() {
   $('.share-item#download').on(tapEvent, function(e) {
     try {
       ga('send', 'event', 'share', 'downloadVideo');
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   });

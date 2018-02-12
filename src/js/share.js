@@ -22,7 +22,7 @@ function asyncStopAudioRecordingAndExportBlob(recorder) {
       recorder.exportWAV(function(blob) {
         resolve(blob);
       });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });
@@ -35,7 +35,7 @@ function asyncStopVideoRecordingAndExportBlob(recorder) {
         let blob = recorder.getBlob();
         resolve(blob);
       });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });
@@ -55,53 +55,63 @@ export function asyncRecord() {
       canvasRecorder.startRecording();
       audioRecorder.record();
 
-      sound.asyncPlayCompositionOnce().then(function() {
-        return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
-          .then(function(values) {
-            let [audioBlob, videoBlob] = values;
-            // console.log('audioBlob', audioBlob);
-            // console.log('videoBlob', videoBlob);
+      sound
+        .asyncPlayCompositionOnce()
+        .then(function() {
+          return Promise.all([
+            asyncStopAudioRecordingAndExportBlob(audioRecorder),
+            asyncStopVideoRecordingAndExportBlob(canvasRecorder)
+          ])
+            .then(function(values) {
+              let [audioBlob, videoBlob] = values;
+              // console.log('audioBlob', audioBlob);
+              // console.log('videoBlob', videoBlob);
 
-            // console.log('sending files');
+              // console.log('sending files');
 
-            const formData = new FormData();
-            formData.append('audio', audioBlob);
-            formData.append('video', videoBlob);
-            formData.append('uuid', window.kan.uuid);
+              const formData = new FormData();
+              formData.append('audio', audioBlob);
+              formData.append('video', videoBlob);
+              formData.append('uuid', window.kan.uuid);
 
-            axios.post('/process', formData)
-              .then(function(resp) {
-                const s3Id = resp.data;
-                // fire share modal
-                resolve(s3Id);
-                // window.location.href = `/process?id=${videoId}`;
-              })
-              .catch(function(e) {
-                // there was an error uploading!
-                console.error(e);
-                reject(e);
-              });
-          })
-          .catch(function(e) {
-            console.error(e);
-            reject(e);
-          });
-      }).error(function(e) {
-        return Promise.all([asyncStopAudioRecordingAndExportBlob(audioRecorder), asyncStopVideoRecordingAndExportBlob(canvasRecorder)])
-          .then(function(values) {
-            // console.log(values)
-          })
-          .catch(function(e) {
-            // console.error(e);
-          })
-          .finally(function() {
-            reject(e);
-          })
-      });
-    } catch(e) {
+              axios
+                .post('/process', formData)
+                .then(function(resp) {
+                  const s3Id = resp.data;
+                  // fire share modal
+                  resolve(s3Id);
+                  // window.location.href = `/process?id=${videoId}`;
+                })
+                .catch(function(e) {
+                  // there was an error uploading!
+                  console.error(e);
+                  reject(e);
+                });
+            })
+            .catch(function(e) {
+              console.error(e);
+              reject(e);
+            });
+        })
+        .error(function(e) {
+          return Promise.all([
+            asyncStopAudioRecordingAndExportBlob(audioRecorder),
+            asyncStopVideoRecordingAndExportBlob(canvasRecorder)
+          ])
+            .then(function(values) {
+              // console.log(values)
+            })
+            .catch(function(e) {
+              // console.error(e);
+            })
+            .finally(function() {
+              reject(e);
+            });
+        });
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 export function asyncAddCompositionToDb(data) {
@@ -116,17 +126,18 @@ export function asyncAddCompositionToDb(data) {
         location: 'gallery'
       });
 
-      return axios.post('/composition/new?' + queryString)
+      return axios
+        .post('/composition/new?' + queryString)
         .then(function() {
           resolve('composition successfully posted');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncAddDesktopCompositionToDb(s3Id) {
@@ -138,23 +149,24 @@ function asyncAddDesktopCompositionToDb(s3Id) {
         location: 'desktop'
       });
 
-      return axios.post('/composition/new?' + queryString)
+      return axios
+        .post('/composition/new?' + queryString)
         .then(function() {
           resolve('composition successfully posted');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncWaitForDesktopCompositionToFinishProcessing() {
   return new Promise(function(resolve, reject) {
     try {
-      socket.on("new_msg", function(data) {
+      socket.on('new_msg', function(data) {
         console.log('data!', data);
         resolve(data.msg);
       });
@@ -162,10 +174,10 @@ function asyncWaitForDesktopCompositionToFinishProcessing() {
       setTimeout(function() {
         reject();
       }, 5 * 60 * 1000); // reject after 5 minutes
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 export function handleSharePressed() {
@@ -179,7 +191,7 @@ export function handleSharePressed() {
 
   try {
     ga('send', 'event', 'share', 'modalFired');
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
 
@@ -194,7 +206,8 @@ function handleGallerySharePressed() {
   overlays.openOverlay('share-prepare');
   // clearInterval(window.kan.inactivityTimeout);
   ui.enterShareMode();
-  overlays.asyncCloseOverlaysAfterDuration(1000 * 1)
+  overlays
+    .asyncCloseOverlaysAfterDuration(1000 * 1)
     .then(function() {
       return asyncRecord();
     })
@@ -213,7 +226,7 @@ function handleGallerySharePressed() {
       overlays.openOverlay('share-confirmation');
       try {
         ga('send', 'event', 'share', 'mobileLinkSent');
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
       setTimeout(function() {
@@ -230,11 +243,15 @@ function handleGallerySharePressed() {
         // continue, share modal did not time out, reject silently
         console.log('error in share mode,', e);
       }
-    })
+    });
 }
 
 function handleDesktopSharePressed() {
-  if (window.kan.ie === true || window.kan.safari === true || window.kan.edge === true) {
+  if (
+    window.kan.ie === true ||
+    window.kan.safari === true ||
+    window.kan.edge === true
+  ) {
     overlays.openOverlay('share-bad-browser');
   } else {
     ui.showDesktopSharePrepNotice();
@@ -255,7 +272,7 @@ function handleDesktopSharePressed() {
       .then(function() {
         try {
           ga('send', 'event', 'share', 'desktopCompositionRedirect');
-        } catch(e) {
+        } catch (e) {
           console.error(e);
         }
 
@@ -272,6 +289,6 @@ function handleDesktopSharePressed() {
           // continue, share modal did not time out, reject silently
           console.log('error in share mode,', e);
         }
-      })
+      });
   }
 }

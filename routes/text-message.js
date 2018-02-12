@@ -12,29 +12,41 @@ router.post('/', function(req, res) {
 
   const emailAddress = util.extractEmailFromString(req.body.Body);
 
-  if(emailAddress !== null && emailAddress.length > 0 && validator.isEmail(emailAddress)) {
+  if (
+    emailAddress !== null &&
+    emailAddress.length > 0 &&
+    validator.isEmail(emailAddress)
+  ) {
     const phoneNumber = req.body.From.replace('+', '');
 
-    db.findRecordByPhoneNumber(phoneNumber).then(function(record){
-      // check to see if the file exists, if not download it from S3
-      // then e-mail it
-      if (record) {
-        const file = path.join(process.cwd(), 'tmp', record.s3Id + '.mp4');
-        fs.stat(file, function(err, stat){
-          console.log('found record, downloading and emailing to', emailAddress);
-          if (err) {
-            util.asyncDownloadFilesFromS3(record.s3Id)
-              .then(function(stream) {
+    db
+      .findRecordByPhoneNumber(phoneNumber)
+      .then(function(record) {
+        // check to see if the file exists, if not download it from S3
+        // then e-mail it
+        if (record) {
+          const file = path.join(process.cwd(), 'tmp', record.s3Id + '.mp4');
+          fs.stat(file, function(err, stat) {
+            console.log(
+              'found record, downloading and emailing to',
+              emailAddress
+            );
+            if (err) {
+              util.asyncDownloadFilesFromS3(record.s3Id).then(function(stream) {
                 util.sendEmail(emailAddress, stream);
               });
-          } else {
-            util.sendEmail(emailAddress, file);
-          }
-        });
-      } else {
-        console.log('could not find a matching record for phone number:', phoneNumber);
-      }
-    }).catch(console.log);
+            } else {
+              util.sendEmail(emailAddress, file);
+            }
+          });
+        } else {
+          console.log(
+            'could not find a matching record for phone number:',
+            phoneNumber
+          );
+        }
+      })
+      .catch(console.log);
   }
 
   res.send('');

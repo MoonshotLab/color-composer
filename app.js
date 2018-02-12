@@ -9,8 +9,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 exports.io = io;
 
-const bodyParser= require('body-parser');
-const autoReap  = require('multer-autoreap');
+const bodyParser = require('body-parser');
+const autoReap = require('multer-autoreap');
 
 const path = require('path');
 
@@ -34,8 +34,8 @@ http.listen(port, function() {
   console.log('Server running on port ' + port);
 });
 
-io.sockets.on('connection', function (socket) {
-  socket.on('join', function (data) {
+io.sockets.on('connection', function(socket) {
+  socket.on('join', function(data) {
     if (process.env.LOCATION === 'gallery') {
       if (!!data.uuid) {
         console.log(`gallery connected (${data.uuid})`);

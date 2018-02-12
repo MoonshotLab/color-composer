@@ -50,7 +50,7 @@ function asyncMoveFile(inPath, outPath) {
       fs.rename(inPath, outPath, function() {
         resolve(`file ${inPath} moved to ${outPath}`);
       });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });
@@ -61,7 +61,10 @@ function asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob) {
     try {
       const videoBlobPath = path.join(outPath, 'videoblob');
       const audioBlobPath = path.join(outPath, 'audioblob');
-      Promise.all([asyncMoveFile(videoBlob.path, videoBlobPath), asyncMoveFile(audioBlob.path, audioBlobPath)])
+      Promise.all([
+        asyncMoveFile(videoBlob.path, videoBlobPath),
+        asyncMoveFile(audioBlob.path, audioBlobPath)
+      ])
         .then(function() {
           resolve({
             videoBlobPath: videoBlobPath,
@@ -70,11 +73,11 @@ function asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob) {
         })
         .catch(function(e) {
           reject(e);
-        })
-    } catch(e) {
+        });
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncMergeAndResize(outPath) {
@@ -97,14 +100,15 @@ function asyncMergeAndResize(outPath) {
         '-y'
       ].join(' ');
 
-      cp.exec(command)
+      cp
+        .exec(command)
         .then(function() {
           resolve('asyncMergeAndResize successful');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });
@@ -125,17 +129,18 @@ function asyncMakeIntoTransportStream(outPath) {
         '-y'
       ].join(' ');
 
-      cp.exec(command)
+      cp
+        .exec(command)
         .then(function() {
           resolve('makeIntoTransportStream successful');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncConcatWithBumper(outPath, compositionId) {
@@ -152,17 +157,18 @@ function asyncConcatWithBumper(outPath, compositionId) {
         '-y'
       ].join(' ');
 
-      cp.exec(command)
+      cp
+        .exec(command)
         .then(function() {
           resolve('concatWithBumper successful');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncMakeWebMFromMp4(outPath, compositionId) {
@@ -181,17 +187,18 @@ function asyncMakeWebMFromMp4(outPath, compositionId) {
         '-y'
       ].join(' ');
 
-      cp.exec(command)
+      cp
+        .exec(command)
         .then(function() {
-          resolve('makeWebm successful')
+          resolve('makeWebm successful');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncGenerateThumbnail(outPath, compositionId) {
@@ -208,17 +215,18 @@ function asyncGenerateThumbnail(outPath, compositionId) {
         '-y'
       ].join(' ');
 
-      cp.exec(command)
+      cp
+        .exec(command)
         .then(function() {
           resolve('generateThumbnail successful');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncRemoveFile(filePath) {
@@ -227,10 +235,10 @@ function asyncRemoveFile(filePath) {
       fs.unlink(filePath, function() {
         resolve(`${filePath} removed`);
       });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncCleanDirPreUpload(outPath, compositionId) {
@@ -242,14 +250,19 @@ function asyncCleanDirPreUpload(outPath, compositionId) {
       const audioBlobPath = path.join(outPath, 'audioblob');
 
       // there has to be a more elegant way to build this list. list comprehensions??
-      Promise.all([asyncRemoveFile(mergedTsPath), asyncRemoveFile(mergedMp4Path), asyncRemoveFile(videoBlobPath), asyncRemoveFile(audioBlobPath)])
+      Promise.all([
+        asyncRemoveFile(mergedTsPath),
+        asyncRemoveFile(mergedMp4Path),
+        asyncRemoveFile(videoBlobPath),
+        asyncRemoveFile(audioBlobPath)
+      ])
         .then(function() {
-          resolve('directory cleaned')
+          resolve('directory cleaned');
         })
         .catch(function(e) {
           reject(e);
         });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });
@@ -266,18 +279,19 @@ function asyncUploadToS3(outPath, compositionId) {
           files.push(path.join(outPath, file));
         });
 
-        s3.asyncRemember(compositionId, files)
+        s3
+          .asyncRemember(compositionId, files)
           .then(function() {
             resolve('uploaded to s3');
           })
           .catch(function(e) {
             reject(e);
-          })
-      })
-    } catch(e) {
+          });
+      });
+    } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function asyncDestroyTmpDir(outPath) {
@@ -286,7 +300,7 @@ function asyncDestroyTmpDir(outPath) {
       rimraf(outPath, function() {
         resolve('directory destroyed');
       });
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });
@@ -296,7 +310,7 @@ router.get('/', function(req, res) {
   res.render('process', {
     videoId: req.query.id
   });
-})
+});
 
 router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
   if ('video' in req.files && 'audio' in req.files) {
@@ -323,12 +337,16 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
     asyncMakeDirectory(outPath)
       .then(function() {
         console.log(`${identifier}: movingBlobFiles`);
-        return asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob)
+        return asyncMoveUploadedFilesToDirectory(outPath, videoBlob, audioBlob);
       })
       .then(function(resp) {
         res.send(compositionId);
         console.log(`${identifier}: mergeAndResize`);
-        return asyncMergeAndResize(outPath, resp.videoBlobPath, resp.audioBlobPath);
+        return asyncMergeAndResize(
+          outPath,
+          resp.videoBlobPath,
+          resp.audioBlobPath
+        );
       })
       .then(function() {
         console.log(`${identifier}: makeIntoTransportStream`);
@@ -363,27 +381,30 @@ router.post('/', upload.fields(uploadFieldsSpec), function(req, res, next) {
         if (process.env.LOCATION === 'desktop') {
           // desktop, notify client socket connection
           console.log(`${identifier}: notifying client`);
-          io.sockets.in(clientId).emit('new_msg', {msg: 'video_done_processing'});
+          io.sockets
+            .in(clientId)
+            .emit('new_msg', { msg: 'video_done_processing' });
         } else {
           // gallery, text phone number
           // see if compositionId is already in db
-          db.findRecordByS3Id(compositionId)
-            .then(function(record) {
-              console.log(`${identifier}: texting link if record exists`);
-              if (record) {
-                texter.sendURL({
-                  phone : record.phone,
-                  url   : process.env.ROOT_URL_WWW + '/composition/' + record.s3Id
-                });
-              } else {
-                console.log(`${identifier}: record does not exist, adding for future texting`);
-                return db.remember({
-                  s3Id: compositionId,
-                  texted: false,
-                  emailed: false
-                })
-              }
-            })
+          db.findRecordByS3Id(compositionId).then(function(record) {
+            console.log(`${identifier}: texting link if record exists`);
+            if (record) {
+              texter.sendURL({
+                phone: record.phone,
+                url: process.env.ROOT_URL_WWW + '/composition/' + record.s3Id
+              });
+            } else {
+              console.log(
+                `${identifier}: record does not exist, adding for future texting`
+              );
+              return db.remember({
+                s3Id: compositionId,
+                texted: false,
+                emailed: false
+              });
+            }
+          });
         }
       })
       .catch(function(err) {

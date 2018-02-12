@@ -83,7 +83,7 @@ export function verifyBrowserWidth() {
 
   if (canvasWidth < config.minWidth || canvasHeight < config.minHeight) {
     showExpandBrowserMessage();
-  }  else {
+  } else {
     hideExpandBrowserMessage();
   }
 }
@@ -124,15 +124,15 @@ export function fixCanvasSize() {
     const canvasWidth = $drawCanvas.width();
     const canvasHeight = $drawCanvas.height();
 
-    paper.view.viewSize.width = canvasWidth
-    paper.view.viewSize.height = canvasHeight
+    paper.view.viewSize.width = canvasWidth;
+    paper.view.viewSize.height = canvasHeight;
 
     // fix canvas bg raster size as well
     const canvasBg = paper.project.layers.background._namedChildren.canvasBg[0];
     canvasBg.size.width = canvasWidth;
     canvasBg.size.height = canvasHeight;
     canvasBg.position = paper.view.center;
-  } catch(e) {
+  } catch (e) {
     console.log('error', e);
   }
 }
@@ -148,10 +148,10 @@ export function fixTutorialVideoSize() {
 
   if (videoWidthToHeightRatio < windowWidthToHeightRatio) {
     // entire width does not fit, make width 100% and height auto
-    $tutorialVideo.css({width: '100%', height: 'auto'});
+    $tutorialVideo.css({ width: '100%', height: 'auto' });
   } else {
     // entire width fits, make height 100% and width auto
-    $tutorialVideo.css({width: 'auto', height: '100%'});
+    $tutorialVideo.css({ width: 'auto', height: '100%' });
   }
 }
 
@@ -170,7 +170,7 @@ function unditherAllButtons() {
 export function ditherButtonsByName(buttonNames, undither = false) {
   if (buttonNames.length > 0) {
     if ($.isArray(buttonNames)) {
-      buttonNames.forEach((name) => ditherButtonByName(name, undither));
+      buttonNames.forEach(name => ditherButtonByName(name, undither));
     } else {
       ditherButtonByName(buttonNames, undither);
     }
@@ -245,7 +245,7 @@ function undoPressed() {
 
   if (item) {
     item.visible = true; // make sure
-    switch(lastMove.type) {
+    switch (lastMove.type) {
       case 'newGroup':
         // console.log('removing group');
         sound.removeShapeFromComposition(item);
@@ -258,7 +258,6 @@ function undoPressed() {
           lastMove.removedGroup.data.fresh = true;
           shape.updatePops();
         }
-
 
         const numGroups = util.getNumVisibleGroups();
         // console.log('numGroups', numGroups);
@@ -282,7 +281,7 @@ function undoPressed() {
       case 'transform':
         item.data.fresh = true;
         if (!!lastMove.position) {
-          item.position = lastMove.position
+          item.position = lastMove.position;
           if (item.data && item.data.tut && item.data.tut.length > 0) {
             // item has connected contextual tut, move it to the right place
             const $tut = $(`.tut[data-tut-type='${tutName}']`);
@@ -300,7 +299,7 @@ function undoPressed() {
         }
         break;
       default:
-        // console.log('unknown case');
+      // console.log('unknown case');
     }
   } else {
     // console.log('could not find matching item');
@@ -361,7 +360,8 @@ function selectColorFromPaletteUsingSvgElement($svg) {
       .attr('rx', 0)
       .attr('ry', 0);
 
-    $svg.addClass(paletteSelectedClass)
+    $svg
+      .addClass(paletteSelectedClass)
       .attr('width', paletteSelectedColorSize)
       .attr('height', paletteSelectedColorSize)
       .find('rect')
@@ -379,7 +379,7 @@ function initColorPalette() {
     if (!$body.hasClass(playingClass)) {
       const $svg = $(this).find('svg.palette-color');
       selectColorFromPaletteUsingSvgElement($svg);
-    };
+    }
   });
 }
 
@@ -420,7 +420,7 @@ function initShareButton() {
 function initContextualTuts() {
   const $tuts = $('.contextual-tuts .tut');
   $tuts.on(tapEvent, function() {
-    $(this).css({visibility: 'hidden'});
+    $(this).css({ visibility: 'hidden' });
   });
 }
 

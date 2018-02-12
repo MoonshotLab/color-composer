@@ -1,5 +1,5 @@
 require('howler');
-const Promise = require("bluebird");
+const Promise = require('bluebird');
 
 const ui = require('./ui');
 const shape = require('./shape');
@@ -13,7 +13,7 @@ const $body = $('body');
 
 const measures = 4;
 const bpm = 120;
-const beatLength = (60 / bpm) * 1000; // ms
+const beatLength = 60 / bpm * 1000; // ms
 export const measureLength = beatLength * 4;
 export const compositionLength = measureLength * measures;
 
@@ -40,8 +40,12 @@ export function getShapeSoundObj(path) {
   let colorName = color.getPathColorName(path);
   if (colorName === null) colorName = 'black'; // just in case
 
-  const quantizedSoundStartTime = quantizeLength(path.bounds.x / viewWidth * compositionLength); // ms
-  const quantizedSoundDuration = quantizeLength(path.bounds.width / viewWidth * compositionLength); // ms
+  const quantizedSoundStartTime = quantizeLength(
+    path.bounds.x / viewWidth * compositionLength
+  ); // ms
+  const quantizedSoundDuration = quantizeLength(
+    path.bounds.width / viewWidth * compositionLength
+  ); // ms
 
   let soundObj = {};
   soundObj.sound = shapeSounds[shapePrediction.pattern];
@@ -59,9 +63,8 @@ export function getShapeSoundObj(path) {
       soundObj.sound.on('loaderror', function() {
         reject(`Group ${soundObj.groupId} failed to load sound`);
       });
-    })
-  }
-
+    });
+  };
 
   return soundObj;
 }
@@ -106,7 +109,7 @@ function asyncGetShapeSoundFromShapeName(shapeName) {
     return {
       shapeName: shapeName,
       sound: sound
-    }
+    };
   });
 }
 
@@ -135,7 +138,7 @@ export function asyncInitShapeSounds() {
 export function formatShapeSoundData(shapeName, data) {
   let returnData = {};
 
-  returnData.src = data.urls.map((url) => `./audio/shapes/${shapeName}/${url}`);
+  returnData.src = data.urls.map(url => `./audio/shapes/${shapeName}/${url}`);
   returnData.sprite = data.sprite;
   returnData.loop = false;
   if (window.kan.ie === true) {
@@ -148,8 +151,9 @@ export function formatShapeSoundData(shapeName, data) {
 }
 
 export function quantizeLength(duration) {
-  const smallestDuration = (60 / bpm);
-  const returnDuration = Math.floor(duration / smallestDuration) * smallestDuration;
+  const smallestDuration = 60 / bpm;
+  const returnDuration =
+    Math.floor(duration / smallestDuration) * smallestDuration;
 
   if (returnDuration > 0) {
     return returnDuration;
@@ -161,12 +165,16 @@ export function quantizeLength(duration) {
 
 export function quantizePosition(position, viewWidth) {
   const smallestInterval = viewWidth / (4 * measures);
-  return returnPosition = Math.floor(position / smallestInterval) * smallestInterval;
+  return (returnPosition =
+    Math.floor(position / smallestInterval) * smallestInterval);
 }
 
 export function asyncPlayShape(shapeSoundObj) {
   return new Promise(function(resolve, reject) {
-    Promise.all([asyncPlayShapeSound(shapeSoundObj), animation.asyncPlayShapeAnimation(shapeSoundObj.groupId)])
+    Promise.all([
+      asyncPlayShapeSound(shapeSoundObj),
+      animation.asyncPlayShapeAnimation(shapeSoundObj.groupId)
+    ])
       .then(function() {
         resolve(`Group ${shapeSoundObj.groupId} fully done playing`);
       })
@@ -180,13 +188,15 @@ export function asyncPlayShapeSound(shapeSoundObj) {
   return new Promise(function(resolve, reject) {
     try {
       // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);
-      shapeSoundObj.play().then(function(res) {
-        resolve(res);
-      })
-      .catch(function(e) {
-        reject(e);
-      });
-    } catch(e) {
+      shapeSoundObj
+        .play()
+        .then(function(res) {
+          resolve(res);
+        })
+        .catch(function(e) {
+          reject(e);
+        });
+    } catch (e) {
       reject(`Error playing shapeSoundObj sound: ${e}`);
     }
   });
@@ -204,11 +214,15 @@ export function removeShapeFromComposition(shapeGroup) {
     } else if ('pathId' in sound) {
       let item = getItems({
         match: function(el) {
-          return el.id === sound.pathId
+          return el.id === sound.pathId;
         }
       });
       if (item.length > 0) {
-        if (!!item.parent && item.parent.className === 'Group' && item.parent.id === shapeGroup.id) {
+        if (
+          !!item.parent &&
+          item.parent.className === 'Group' &&
+          item.parent.id === shapeGroup.id
+        ) {
           window.kan.composition.splice(i, 1);
           return;
         }
@@ -253,17 +267,22 @@ export function startComposition(composition, loop = false) {
           return;
         }
 
-        asyncPlayShape(shapeSoundObj).then(function(res) {
-          // console.log(res);
-        }).error(function(e) {
-          // console.log('Error playing shapeSoundObj', e);
-        });
+        asyncPlayShape(shapeSoundObj)
+          .then(function(res) {
+            // console.log(res);
+          })
+          .error(function(e) {
+            // console.log('Error playing shapeSoundObj', e);
+          });
       }, shapeSoundObj.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
     });
 
     iterations++;
-    window.kan.compositionTimeout = setTimeout(repeatComposition, compositionLength - trimmedCompositionObj.startTime);
+    window.kan.compositionTimeout = setTimeout(
+      repeatComposition,
+      compositionLength - trimmedCompositionObj.startTime
+    );
   }
 
   function playCompositionOnce() {
@@ -277,11 +296,13 @@ export function startComposition(composition, loop = false) {
         }
 
         // console.log('playing: ', shapeSoundObj.sound, shapeSoundObj.spriteName, shapeSoundObj.startTime);
-        asyncPlayShape(shapeSoundObj).then(function(res) {
-          // console.log(res);
-        }).error(function(e) {
-          // console.log('Error playing shapeSoundObj', e);
-        });
+        asyncPlayShape(shapeSoundObj)
+          .then(function(res) {
+            // console.log(res);
+          })
+          .error(function(e) {
+            // console.log('Error playing shapeSoundObj', e);
+          });
       }, shapeSoundObj.startTime);
       window.kan.soundTimeouts.push(soundTimeout);
     });
@@ -291,7 +312,10 @@ export function startComposition(composition, loop = false) {
   function repeatComposition() {
     if (loop === true) {
       playCompositionOnce();
-      window.kan.compositionInterval = setInterval(playCompositionOnce, compositionLength);
+      window.kan.compositionInterval = setInterval(
+        playCompositionOnce,
+        compositionLength
+      );
     } else {
       if (iterations < 2) {
         playCompositionOnce();
@@ -314,11 +338,13 @@ export function asyncPlayCompositionMultipleTimes(repeats = 1) {
 
     Promise.each(promisedRepeats, function() {
       // console.log('repeat');
-    }).then(function() {
-      resolve('Repeats done');
-    }).error(function(e) {
-      reject(e);
-    });
+    })
+      .then(function() {
+        resolve('Repeats done');
+      })
+      .error(function(e) {
+        reject(e);
+      });
   });
 }
 
@@ -336,36 +362,40 @@ export function asyncPlayCompositionOnce() {
       shapePromises.push(asyncPlayShapeWithDelay(shape));
     });
 
-    Promise.all(shapePromises).then(function(res) {
-      const endTime = new Date().getTime();
-      const playTime = endTime - startTime;
+    Promise.all(shapePromises)
+      .then(function(res) {
+        const endTime = new Date().getTime();
+        const playTime = endTime - startTime;
 
-      // wait for composition to be fully done before repeating (play is naturally truncated when the last shape finishes playing)
-      if (playTime < compositionLength) {
-        return Promise.delay(compositionLength - playTime).then(function() {
+        // wait for composition to be fully done before repeating (play is naturally truncated when the last shape finishes playing)
+        if (playTime < compositionLength) {
+          return Promise.delay(compositionLength - playTime).then(function() {
+            shape.stopKeepaliveAnimation();
+            resolve(`Composition fully done, after a wait`);
+          });
+        } else {
           shape.stopKeepaliveAnimation();
-          resolve(`Composition fully done, after a wait`);
-        })
-      } else {
+          resolve(`Composition fully done, with no wait`);
+        }
+      })
+      .error(function(e) {
         shape.stopKeepaliveAnimation();
-        resolve(`Composition fully done, with no wait`);
-      }
-    }).error(function(e) {
-      shape.stopKeepaliveAnimation();
-      reject(e);
-    });
-  })
+        reject(e);
+      });
+  });
 }
 
 function asyncPlayShapeWithDelay(shape) {
   return new Promise(function(resolve, reject) {
     const soundTimeout = setTimeout(function() {
       // console.log('playing: ', shape.sound, shape.spriteName, shape.startTime);
-      asyncPlayShape(shape).then(function(res) {
-        resolve(res);
-      }).error(function(e) {
-        reject(`Error playing shape with delay: ${e}`);
-      });
+      asyncPlayShape(shape)
+        .then(function(res) {
+          resolve(res);
+        })
+        .error(function(e) {
+          reject(`Error playing shape with delay: ${e}`);
+        });
     }, shape.startTime);
     window.kan.soundTimeouts.push(soundTimeout);
   });
@@ -392,7 +422,7 @@ export function getTrimmedCompositionObj(composition) {
   return {
     composition: trimmedComposition,
     startTime: startTime
-  }
+  };
 }
 
 function getCompositionStartTime(composition) {

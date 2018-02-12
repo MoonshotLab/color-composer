@@ -39,7 +39,15 @@ export function init() {
   hammerTips.on('swipe', overlays.cardNavNext);
 
   hammerCanvas = new Hammer.Manager(ui.drawCanvas);
-  hammerCanvas.add(new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 400, time: 150, posThreshold: 50 }));
+  hammerCanvas.add(
+    new Hammer.Tap({
+      event: 'doubletap',
+      taps: 2,
+      interval: 400,
+      time: 150,
+      posThreshold: 50
+    })
+  );
   hammerCanvas.add(new Hammer.Tap({ event: 'singletap' }));
   hammerCanvas.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL }));
   hammerCanvas.add(new Hammer.Pinch());
@@ -80,8 +88,8 @@ function enablePanAndPinchEvents(enable = true) {
 
 function enableTapEvents(enable = true) {
   enable = enable === true;
-  hammerCanvas.get('singletap').set({enable: enable});
-  hammerCanvas.get('doubletap').set({enable: enable});
+  hammerCanvas.get('singletap').set({ enable: enable });
+  hammerCanvas.get('doubletap').set({ enable: enable });
 }
 
 function disableTapEvents() {
@@ -91,7 +99,7 @@ function disableTapEvents() {
 function enablePanEvents(enable = true) {
   enable = enable === true;
 
-  hammerCanvas.get('pan').set({enable: enable});
+  hammerCanvas.get('pan').set({ enable: enable });
   // hammerCanvas.get('panstart').set({enable: enable});
   // hammerCanvas.get('panmove').set({enable: enable});
   // hammerCanvas.get('panend').set({enable: enable});
@@ -104,7 +112,7 @@ function disablePanEvents() {
 function enablePinchEvents(enable = true) {
   enable = enable === true;
 
-  hammerCanvas.get('pinch').set({enable: enable});
+  hammerCanvas.get('pinch').set({ enable: enable });
   // hammerCanvas.get('pinchstart').set({enable: enable});
   // hammerCanvas.get('pinchmove').set({enable: enable});
   // hammerCanvas.get('pinchend').set({enable: enable});
@@ -142,7 +150,6 @@ function doubleTap(event) {
   if (hitResult) {
     shape.toggleFill(hitResult.item);
     tutorial.hideContextualTutByName('fill');
-
   } else {
     window.kan.pinchedGroup = null;
     // console.log('hit no item');
@@ -246,18 +253,18 @@ function panMove(event) {
         cumSize += sizes[j];
       }
       // const avgSize = ((cumSize / sizes.length) + size) / 2;
-      const avgSize = Math.max(5, ((cumSize / sizes.length) + size) / 2);
+      const avgSize = Math.max(5, (cumSize / sizes.length + size) / 2);
 
       const halfPointX = (point.x + prevPoint.x) / 2;
       const halfPointY = (point.y + prevPoint.y) / 2;
       const halfPoint = new Point(halfPointX, halfPointY);
 
-      const topX = halfPoint.x + Math.cos(angle - Math.PI/2) * avgSize;
-      const topY = halfPoint.y + Math.sin(angle - Math.PI/2) * avgSize;
+      const topX = halfPoint.x + Math.cos(angle - Math.PI / 2) * avgSize;
+      const topY = halfPoint.y + Math.sin(angle - Math.PI / 2) * avgSize;
       const top = new Point(topX, topY);
 
-      const bottomX = halfPoint.x + Math.cos(angle + Math.PI/2) * avgSize;
-      const bottomY = halfPoint.y + Math.sin(angle + Math.PI/2) * avgSize;
+      const bottomX = halfPoint.x + Math.cos(angle + Math.PI / 2) * avgSize;
+      const bottomY = halfPoint.y + Math.sin(angle + Math.PI / 2) * avgSize;
       const bottom = new Point(bottomX, bottomY);
 
       outerPath.add(top);
@@ -308,7 +315,10 @@ function panEnd(event) {
   }
   outerPath.visible = false;
 
-  if (shapePath.length < minShapeSize || (shapePath.data && shapePath.data.tooLong === true)) {
+  if (
+    shapePath.length < minShapeSize ||
+    (shapePath.data && shapePath.data.tooLong === true)
+  ) {
     // console.log('path is too short');
     shapePath.remove();
     hammerCanvas.on('panstart', panStart);
@@ -345,13 +355,18 @@ function panEnd(event) {
   const centerPoint = new Point(shapeSize.width / 2, shapeSize.height / 2);
   const angle = util.rad(Math.random() * 360);
   const gradientSize = (shapeSize.width + shapeSize.height) / 4;
-  const originX = centerPoint.x + Math.cos(angle - Math.PI/2) * gradientSize;
-  const originY = centerPoint.y + Math.sin(angle - Math.PI/2) * gradientSize;
-  const destinationX = centerPoint.x + Math.cos(angle + Math.PI/2) * gradientSize;
-  const destinationY = centerPoint.y + Math.sin(angle + Math.PI/2) * gradientSize;
+  const originX = centerPoint.x + Math.cos(angle - Math.PI / 2) * gradientSize;
+  const originY = centerPoint.y + Math.sin(angle - Math.PI / 2) * gradientSize;
+  const destinationX =
+    centerPoint.x + Math.cos(angle + Math.PI / 2) * gradientSize;
+  const destinationY =
+    centerPoint.y + Math.sin(angle + Math.PI / 2) * gradientSize;
 
   const origin = new Point(originX + shapeSize.x, originY + shapeSize.y);
-  const destination = new Point(destinationX + shapeSize.x, destinationY + shapeSize.y);
+  const destination = new Point(
+    destinationX + shapeSize.x,
+    destinationY + shapeSize.y
+  );
   // group.addChild(new Path.Circle({
   //   center: origin,
   //   radius: 5,
@@ -365,10 +380,10 @@ function panEnd(event) {
   group.data.originalColor = currentColor;
   group.data.color = {
     gradient: {
-      stops: config.palette.gradients[currentColor],
+      stops: config.palette.gradients[currentColor]
     },
     origin: origin,
-    destination: destination,
+    destination: destination
   };
   group.data.scale = 1; // init variable to track scale changes
   group.data.rotation = 0; // init variable to track rotation changes
@@ -430,11 +445,11 @@ function panEnd(event) {
     loop.bringToFront();
   });
 
-
   shapeMask.unite();
   let crossings = shapeMask.resolveCrossings();
   if (!!crossings && !!crossings.children && crossings.children.length > 0) {
-    let maxArea = 0, maxChild = null;
+    let maxArea = 0,
+      maxChild = null;
     crossings.children.forEach(function(child) {
       if (child.area > maxArea) {
         maxChild = child;
@@ -474,14 +489,14 @@ function panEnd(event) {
 
   if (config.runAnimations) {
     const scaleFactor = 0.9;
-    group.animate(
-      [{
+    group.animate([
+      {
         properties: {
           scale: scaleFactor
         },
         settings: {
           duration: 100,
-          easing: "easeOut",
+          easing: 'easeOut'
         }
       },
       {
@@ -490,10 +505,10 @@ function panEnd(event) {
         },
         settings: {
           duration: 100,
-          easing: "easeIn",
+          easing: 'easeIn'
         }
-      }]
-    );
+      }
+    ]);
   }
 
   if (!tutorial.allTutsCompleted()) {
@@ -504,7 +519,10 @@ function panEnd(event) {
 
     if (!tutorialCompletion['fill'] && truedShape.closed) {
       tutName = 'fill';
-    } else if (!tutorialCompletion['pinch'] && window.kan.shapesSinceTut === tutorial.shapeLimit) {
+    } else if (
+      !tutorialCompletion['pinch'] &&
+      window.kan.shapesSinceTut === tutorial.shapeLimit
+    ) {
       tutName = 'pinch';
     }
 
@@ -647,11 +665,16 @@ function pinchMove(event) {
 
     tutorial.hideContextualTutByName('pinch');
 
-    if (pinchedGroup.bounds.width < minShapeSize || pinchedGroup.bounds.height < minShapeSize) {
+    if (
+      pinchedGroup.bounds.width < minShapeSize ||
+      pinchedGroup.bounds.height < minShapeSize
+    ) {
       // only allow a shape to scale down if it is larger than the minimum size
       scaleDelta = 1.1;
-    } else if (pinchedGroup.bounds.width >= paper.view.viewSize.width ||
-        pinchedGroup.bounds.height >= paper.view.viewSize.height) {
+    } else if (
+      pinchedGroup.bounds.width >= paper.view.viewSize.width ||
+      pinchedGroup.bounds.height >= paper.view.viewSize.height
+    ) {
       // only allow shape to scale up if it fits in the viewport
       scaleDelta = 0.9;
     } else {
@@ -678,8 +701,14 @@ function pinchMove(event) {
 
       // check if scaling went awry, cannot be too big or too small
       // hypotenuse must fit within view bounds
-      const hypot = util.hypot(pinchedGroup.bounds.width, pinchedGroup.bounds.height);
-      const viewHypot = util.hypot(paper.view.viewSize.width, paper.view.viewSize.height)
+      const hypot = util.hypot(
+        pinchedGroup.bounds.width,
+        pinchedGroup.bounds.height
+      );
+      const viewHypot = util.hypot(
+        paper.view.viewSize.width,
+        paper.view.viewSize.height
+      );
       if (hypot >= viewHypot) {
         // shape is too big, bring it back down to size
         scaleDelta = viewHypot * maxScaleFactor / hypot;
@@ -724,7 +753,11 @@ function pinchEnd(event) {
       move.scale = originalScale / pinchedGroup.data.scale;
     }
 
-    if (pinchedGroup.children.length > 0 && pinchedGroup._namedChildren.shapePath && pinchedGroup._namedChildren.shapePath.length > 0) {
+    if (
+      pinchedGroup.children.length > 0 &&
+      pinchedGroup._namedChildren.shapePath &&
+      pinchedGroup._namedChildren.shapePath.length > 0
+    ) {
       // update shapePath sound object if possible
       sound.removeShapeFromComposition(pinchedGroup); // sound is now wrong
 
@@ -736,7 +769,6 @@ function pinchEnd(event) {
     window.kan.moves.push(move);
 
     if (Math.abs(event.velocity) > 1) {
-
       // hide any connected tuts
       if (!!$pinchedTut) {
         tutorial.hideContextualTut($pinchedTut);
@@ -812,27 +844,34 @@ function pinchCancel(event) {
 }
 
 function throwPinchedGroup() {
-
   const velocityMultiplier = 25;
   const lastEvent = window.kan.lastEvent;
   const viewWidth = paper.view.viewSize.width;
   const viewHeight = paper.view.viewSize.height;
   let pinchedGroup = window.kan.pinchedGroup;
 
-  if (pinchedGroup === null || (pinchedGroup.data && pinchedGroup.data.thrown === false)) return;
-  if (pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
-      pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
-      pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||
-      pinchedGroup.position.y >= viewHeight + pinchedGroup.bounds.height) {
-        pinchedGroup.data.offScreen = true;
-        pinchedGroup.visible = false;
-        sound.removeShapeFromComposition(pinchedGroup);
-        window.kan.pinchedGroup = null;
+  if (
+    pinchedGroup === null ||
+    (pinchedGroup.data && pinchedGroup.data.thrown === false)
+  )
+    return;
+  if (
+    pinchedGroup.position.x <= 0 - pinchedGroup.bounds.width ||
+    pinchedGroup.position.x >= viewWidth + pinchedGroup.bounds.width ||
+    pinchedGroup.position.y <= 0 - pinchedGroup.bounds.height ||
+    pinchedGroup.position.y >= viewHeight + pinchedGroup.bounds.height
+  ) {
+    pinchedGroup.data.offScreen = true;
+    pinchedGroup.visible = false;
+    sound.removeShapeFromComposition(pinchedGroup);
+    window.kan.pinchedGroup = null;
     return;
   }
   requestAnimationFrame(throwPinchedGroup);
-  const newX = pinchedGroup.position.x + lastEvent.velocityX * velocityMultiplier;
-  const newY = pinchedGroup.position.y + lastEvent.velocityY * velocityMultiplier;
+  const newX =
+    pinchedGroup.position.x + lastEvent.velocityX * velocityMultiplier;
+  const newY =
+    pinchedGroup.position.y + lastEvent.velocityY * velocityMultiplier;
   const newPos = new Point(newX, newY);
   pinchedGroup.position = newPos;
 }
@@ -841,5 +880,4 @@ function eventTargetIsOnCanvas(event) {
   if (!event) return false;
   if (event.target != ui.drawCanvas) return false;
   return true;
-
 }

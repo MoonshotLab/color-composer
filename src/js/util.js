@@ -5,12 +5,12 @@ const config = require('./config');
 // Converts from degrees to radians.
 export function rad(degrees) {
   return degrees * Math.PI / 180;
-};
+}
 
 // Converts from radians to degrees.
 export function deg(radians) {
   return radians * 180 / Math.PI;
-};
+}
 
 export function hypot(a, b) {
   return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)); // pythagorean!
@@ -18,7 +18,7 @@ export function hypot(a, b) {
 
 // returns absolute value of the delta of two angles in radians
 export function angleDelta(x, y) {
-  return Math.abs(Math.atan2(Math.sin(y - x), Math.cos(y - x)));;
+  return Math.abs(Math.atan2(Math.sin(y - x), Math.cos(y - x)));
 }
 
 // distance between two points
@@ -38,7 +38,7 @@ export function getNumVisibleGroups() {
 export function getVisibleGroups() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.visible === true
+    match: el => el.visible === true
   });
 }
 
@@ -62,19 +62,19 @@ export function getNumGroups() {
 export function getFreshGroups() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.data && el.data.line === false && el.data.fresh === true
+    match: el => el.data && el.data.line === false && el.data.fresh === true
   });
 }
 
 export function getAllPops() {
   return paper.project.getItems({
-    match: (el) => el.data && el.data.pop === true
+    match: el => el.data && el.data.pop === true
   });
 }
 
 export function clearGroupPops(group) {
   const pops = getGroupPops(group);
-  pops.forEach((pop) => pop.remove());
+  pops.forEach(pop => pop.remove());
 }
 
 export function getGroupPops(group) {
@@ -83,13 +83,14 @@ export function getGroupPops(group) {
 
   if (group.children.length > 0) {
     const groupPops = group.getItems({
-      match: (el) => el.data && el.data.pop === true
+      match: el => el.data && el.data.pop === true
     });
     returnPops = returnPops.concat(groupPops);
   }
 
   const intersectingPops = paper.project.getItems({
-    match: (el) => el.data && el.data.pop === true && el.data.intersectingGroup === group.id
+    match: el =>
+      el.data && el.data.pop === true && el.data.intersectingGroup === group.id
   });
 
   if (intersectingPops.length > 0) {
@@ -102,7 +103,7 @@ export function getGroupPops(group) {
 export function getPopCandidates() {
   return paper.project.getItems({
     className: 'Group',
-    match: (el) => el.data && el.data.line === false && el.visible === true
+    match: el => el.data && el.data.line === false && el.visible === true
   });
 }
 
@@ -125,21 +126,24 @@ export function setUuid() {
 }
 
 // http://blog.soulserv.net/understanding-object-cloning-in-javascript-part-i/
-export function shallowCopy( original ) {
-    // First create an empty object with
-    // same prototype of our original source
-    var clone = Object.create( Object.getPrototypeOf( original ) ) ;
+export function shallowCopy(original) {
+  // First create an empty object with
+  // same prototype of our original source
+  var clone = Object.create(Object.getPrototypeOf(original));
 
-    var i, keys = Object.getOwnPropertyNames( original ) ;
+  var i,
+    keys = Object.getOwnPropertyNames(original);
 
-    for ( i = 0 ; i < keys.length ; i ++ ) {
-      // copy each property into the clone
-      Object.defineProperty( clone , keys[ i ] ,
-        Object.getOwnPropertyDescriptor( original , keys[ i ] )
-      ) ;
-    }
+  for (i = 0; i < keys.length; i++) {
+    // copy each property into the clone
+    Object.defineProperty(
+      clone,
+      keys[i],
+      Object.getOwnPropertyDescriptor(original, keys[i])
+    );
+  }
 
-    return clone ;
+  return clone;
 }
 
 export function randomPick(array) {

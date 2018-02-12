@@ -16,34 +16,34 @@ function asyncAnimateScale(item, totalDuration) {
       item.animate([
         {
           properties: {
-            scale: 1.15,
+            scale: 1.15
           },
           settings: {
             duration: totalDuration / 4,
-            easing: "easeOut",
+            easing: 'easeOut'
           }
         },
         {
           properties: {
-            scale: 1,
+            scale: 1
           },
           settings: {
-            duration: totalDuration - (totalDuration / 4),
-            easing: "easeIn",
+            duration: totalDuration - totalDuration / 4,
+            easing: 'easeIn',
             complete: function() {
               item.data.animating = false;
               resolve('asyncAnimateScale done');
             }
           }
-        },
+        }
       ]);
-    } catch(e) {
+    } catch (e) {
       item.stop({
         goToEnd: true
       });
       reject(e);
     }
-  })
+  });
 }
 
 function asyncAnimateBrightness(item, totalDuration, finalColor) {
@@ -61,38 +61,38 @@ function asyncAnimateBrightness(item, totalDuration, finalColor) {
         {
           properties: {
             fillColor: {
-              brightness: "+0.2",
+              brightness: '+0.2'
             }
           },
           settings: {
             duration: totalDuration / 4,
-            easing: "easeInOut",
+            easing: 'easeInOut'
           }
         },
         {
           properties: {
             fillColor: {
-              brightness: "-0.2",
+              brightness: '-0.2'
             }
           },
           settings: {
-            duration: totalDuration - (totalDuration / 4),
-            easing: "easeInOut",
+            duration: totalDuration - totalDuration / 4,
+            easing: 'easeInOut',
             complete: function() {
               item.data.animating = false;
               item.fillColor = finalColor;
               resolve('asyncAnimateBrightness done');
             }
           }
-        },
+        }
       ]);
-    } catch(e) {
+    } catch (e) {
       item.stop({
         goToEnd: true
       });
       reject(e);
     }
-  })
+  });
 }
 
 export function asyncPlayShapeAnimation(shapeId) {
@@ -100,7 +100,7 @@ export function asyncPlayShapeAnimation(shapeId) {
     try {
       const item = paper.project.getItem({
         match: function(el) {
-          return (el.id === shapeId);
+          return el.id === shapeId;
         }
       });
 
@@ -114,7 +114,11 @@ export function asyncPlayShapeAnimation(shapeId) {
           }
         }
 
-        if (group !== null && group.children.length > 0 && Object.keys(group._namedChildren).length > 0) {
+        if (
+          group !== null &&
+          group.children.length > 0 &&
+          Object.keys(group._namedChildren).length > 0
+        ) {
           if (group.data.animating === true) {
             resolve('group already animating, ignoring');
           }
@@ -159,8 +163,7 @@ export function asyncPlayShapeAnimation(shapeId) {
       } else {
         reject(`could not find item with id ${shapeId}`);
       }
-
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });

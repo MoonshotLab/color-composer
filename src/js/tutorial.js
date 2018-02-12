@@ -38,7 +38,8 @@ export function addContextualTut(tutName) {
     let shapePath = window.kan.shapePath;
     let shapeCenter = shapePath.bounds.center;
 
-    if (tutName === 'fill' && window.kan.location === 'desktop') tutName = 'fillDesktop';
+    if (tutName === 'fill' && window.kan.location === 'desktop')
+      tutName = 'fillDesktop';
 
     let tutCopy = getTutByName(tutName);
 
@@ -46,7 +47,11 @@ export function addContextualTut(tutName) {
       const $tut = $(`.tut[data-tut-type='${tutName}']`);
       if ($tut.length > 0) {
         const tutPos = getTutPositionFromCenter($tut, shapeCenter);
-        $tut.css({top: `${tutPos.y}px`, left: `${tutPos.x}px`, visibility: 'visible'});
+        $tut.css({
+          top: `${tutPos.y}px`,
+          left: `${tutPos.x}px`,
+          visibility: 'visible'
+        });
         $tut.addClass('animated bounceIn');
       }
     }
@@ -54,7 +59,7 @@ export function addContextualTut(tutName) {
 }
 
 export function hideContextualTut($tut) {
-  $tut.css({visibility: 'hidden'});
+  $tut.css({ visibility: 'hidden' });
 }
 
 export function hideContextualTutByName(tutName) {
@@ -64,26 +69,26 @@ export function hideContextualTutByName(tutName) {
 
 export function hideContextualTuts() {
   const $tuts = $('.contextual-tuts .tut');
-  $tuts.css({visibility: 'hidden'});
+  $tuts.css({ visibility: 'hidden' });
 }
 
 export function resetContextualTuts() {
   hideContextualTuts();
   window.kan.tutorialCompletion = {
-    "fill": false,
-    "pinch": false,
+    fill: false,
+    pinch: false
   };
 }
 
 export function moveContextualTut($tut, centerPoint) {
   let tutPos = getTutPositionFromCenter($tut, centerPoint);
-  $tut.css({top: `${tutPos.y}px`, left: `${tutPos.x}px`});
+  $tut.css({ top: `${tutPos.y}px`, left: `${tutPos.x}px` });
 }
 
 export function getTutPositionFromCenter($tut, centerPoint) {
   const tutWidth = $tut.outerWidth();
   const tutHeight = $tut.outerHeight();
-  const leftPos = centerPoint.x - (tutWidth / 2);
+  const leftPos = centerPoint.x - tutWidth / 2;
   const topPos = centerPoint.y - tutHeight - tutArrowHeight;
   return new Point(leftPos, topPos);
 }

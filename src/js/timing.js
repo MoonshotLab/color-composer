@@ -27,10 +27,10 @@ export function init() {
 
     try {
       ga('set', 'dimension1', location);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
-    
+
     video.enterTutorialMode();
   }
 }

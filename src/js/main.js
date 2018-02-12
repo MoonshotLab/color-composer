@@ -40,8 +40,8 @@ export function resetWindow() {
     lastRotation: 0,
     originalPosition: null,
     tutorialCompletion: {
-      "fill": false,
-      "pinch": false,
+      fill: false,
+      pinch: false
     },
     inactivityTimeout: null,
     playPromptTimeout: null,
@@ -74,7 +74,8 @@ $(window).on('load', function() {
     overlays.init();
     timing.init();
     shape.init();
-    sound.init()
+    sound
+      .init()
       .then(function() {
         // sound.init() is async because it loads in the sound files
         touch.init();
@@ -82,12 +83,12 @@ $(window).on('load', function() {
       .fail(function(e) {
         console.error('error initting shape sounds:', e);
         location.reload();
-      })
+      });
   }
 
   try {
     run();
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     // setTimeout(function() {
     //   // wait 5 seconds then reload

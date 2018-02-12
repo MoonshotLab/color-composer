@@ -21,7 +21,7 @@ export function enterTutorialMode() {
       page: 'tutorial',
       title: 'Color Composer'
     });
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
   console.log('entering tutorial mode');
@@ -54,11 +54,12 @@ export function exitTutorialMode() {
       page: 'draw',
       title: 'Color Composer'
     });
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
   console.log('exiting tutorial mode');
-  sound.reinitShapeSounds()
+  sound
+    .reinitShapeSounds()
     .then(function() {
       clearInterval(window.kan.refreshCheckInterval);
       Howler.mute(false);
@@ -72,19 +73,21 @@ export function exitTutorialMode() {
       ui.verifyBrowserWidth();
       ui.detectBrowser();
 
-      if ($body.hasClass('window-too-small-active') !== true && window.kan.location !== 'desktop') {
+      if (
+        $body.hasClass('window-too-small-active') !== true &&
+        window.kan.location !== 'desktop'
+      ) {
         overlays.openOverlay('intro');
 
         window.kan.inactivityTimeout = setTimeout(function() {
           overlays.openOverlay('continue');
         }, timing.continueInactivityDelay);
       }
-
     })
-  .fail(function(e) {
-    console.error('error initting shape sounds:', e);
-    location.reload();
-  });
+    .fail(function(e) {
+      console.error('error initting shape sounds:', e);
+      location.reload();
+    });
 }
 
 export function pauseVideo() {

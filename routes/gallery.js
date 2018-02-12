@@ -6,7 +6,7 @@ const MobileDetect = require('mobile-detect');
 const clientConfig = require('./../src/js/config');
 const util = require('./../lib/util');
 
-router.get('/', function (req, res) {
+router.get('/', function(req, res) {
   const md = new MobileDetect(req.headers['user-agent']);
 
   if (md.mobile() !== null) {

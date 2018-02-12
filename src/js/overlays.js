@@ -25,8 +25,21 @@ const $shareSend = $shareKeypad.find('.send');
 const $sharePhoneWrap = $('.share-phone .output');
 const invalidPhoneNumberClass = 'invalid-number';
 
-const allOverlays = ['intro', 'play-prompt', 'share-prompt', 'continue', 'tips', 'share', 'share-prepare', 'share-confirmation', 'window-too-small', 'share-bad-browser'];
-const overlayOpenClasses = allOverlays.map((overlay) => `${overlay}-active`).join(' ');
+const allOverlays = [
+  'intro',
+  'play-prompt',
+  'share-prompt',
+  'continue',
+  'tips',
+  'share',
+  'share-prepare',
+  'share-confirmation',
+  'window-too-small',
+  'share-bad-browser'
+];
+const overlayOpenClasses = allOverlays
+  .map(overlay => `${overlay}-active`)
+  .join(' ');
 
 const overlayActiveClass = 'overlay-active';
 
@@ -47,9 +60,11 @@ export function openOverlay(overlayName) {
     closeAndResetOverlays();
     tutorial.hideContextualTuts();
     $body.addClass(overlayActiveClass);
-    $body.find('.overlay.closeable:not(.tips):not(.share-phone)').on(tapEvent, function() {
-      closeAndResetOverlays();
-    });
+    $body
+      .find('.overlay.closeable:not(.tips):not(.share-phone)')
+      .on(tapEvent, function() {
+        closeAndResetOverlays();
+      });
 
     switch (overlayName) {
       case 'intro':
@@ -107,7 +122,9 @@ function openSharePromptOverlay() {
 }
 
 export function resetContinueCountdown() {
-  $('.overlay.continue .countdown-num').html(parseInt(timing.continueInactivityDelay / 1000));
+  $('.overlay.continue .countdown-num').html(
+    parseInt(timing.continueInactivityDelay / 1000)
+  );
   clearInterval(window.kan.continueCountdownInterval);
 }
 
@@ -160,9 +177,9 @@ function openShareBadBrowserOverlay() {
 // card slider navigation
 export function cardNavNext() {
   let $old = $body.find('.card-wrap .current');
-  let $new = ($old.next().length) ? $old.next() : $cardItems.first();
-  let $next = ($new.next().length) ? $new.next() : $cardItems.first();
-  let $third = ($next.next().length) ? $next.next() : $cardItems.first().next();
+  let $new = $old.next().length ? $old.next() : $cardItems.first();
+  let $next = $new.next().length ? $new.next() : $cardItems.first();
+  let $third = $next.next().length ? $next.next() : $cardItems.first().next();
   let slide = $new.index();
   $old.removeClass().addClass('remove');
   $new.removeClass().addClass('current');
@@ -180,12 +197,12 @@ function cardInteractions() {
 
   $body.find('.overlay.closeable').on(tapEvent, function(e) {
     const currentTime = Date.now();
-    if (timeOfLastInteraction > (currentTime - 250)) {
+    if (timeOfLastInteraction > currentTime - 250) {
       return;
     }
     timeOfLastInteraction = currentTime;
 
-    if ( $(e.target).closest('.card-wrap').length == 1 ) {
+    if ($(e.target).closest('.card-wrap').length == 1) {
       // directly on a card, navigate to the next one
       // console.log('hi');
       cardNavNext();
@@ -218,18 +235,18 @@ export function asyncCloseOverlaysAfterDuration(duration) {
         closeAndResetOverlays();
         resolve('asyncCloseOverlaysAfterDuration done');
       }, duration);
-    } catch(e) {
+    } catch (e) {
       clearTimeout(closeOverlayTimeout);
       reject(e);
     }
-  })
+  });
 }
 
 // deal a fresh stack of cards
 function activateTipsCards() {
   let $new = $cardItems.first();
-  let $next = ($new.next().length) ? $new.next() : $cardItems.first();
-  let $third = ($next.next().length) ? $next.next() : $cardItems.first().next();
+  let $next = $new.next().length ? $new.next() : $cardItems.first();
+  let $third = $next.next().length ? $next.next() : $cardItems.first().next();
   $cardItems.removeClass();
   $new.removeClass().addClass('current');
   $next.removeClass().addClass('next');
@@ -267,11 +284,11 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
 
     $shareSend.on(tapEvent, function(e) {
       const phoneNumWithHyphens = $sharePhone.text();
-      let phoneNumRaw = phoneNumWithHyphens.replace(/\D/g,'');
+      let phoneNumRaw = phoneNumWithHyphens.replace(/\D/g, '');
 
       if (validator.isMobilePhone(phoneNumRaw, 'en-US')) {
         $sharePhoneWrap.removeClass(invalidPhoneNumberClass);
-        if(phoneNumRaw.length == 10) phoneNumRaw = '1' + phoneNumRaw;
+        if (phoneNumRaw.length == 10) phoneNumRaw = '1' + phoneNumRaw;
         clearTimeout(inactivityTimeout);
         resolve({
           phone: phoneNumRaw,
@@ -281,7 +298,7 @@ export function asyncWaitForWellFormedPhoneNumber(s3Id) {
         $sharePhoneWrap.addClass(invalidPhoneNumberClass);
       }
     });
-  })
+  });
 }
 
 // phone inputs
@@ -290,7 +307,11 @@ function phoneNumberInputs() {
   $sharePhone.mask('000-000-0000');
   // get interactions from the keypad
   $shareKeypad.find('.num').on(tapEvent, function(e) {
-    let phoneNumber = $sharePhone.html().toString() + $(e.target).html().toString();
+    let phoneNumber =
+      $sharePhone.html().toString() +
+      $(e.target)
+        .html()
+        .toString();
     phoneNumber = $sharePhone.masked(phoneNumber);
     $sharePhone.html(phoneNumber);
   });

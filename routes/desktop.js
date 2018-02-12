@@ -6,7 +6,7 @@ const MobileDetect = require('mobile-detect');
 const clientConfig = require('./../src/js/config');
 const util = require('./../lib/util');
 
-router.get('/', function (req, res) {
+router.get('/', function(req, res) {
   const md = new MobileDetect(req.headers['user-agent']);
 
   if (md.mobile() !== null) {
@@ -17,7 +17,8 @@ router.get('/', function (req, res) {
   } else {
     const template = 'desktop';
     const location = template;
-    const videoUrl = 'https://s3.amazonaws.com/nelson-atkins/cc_intro_desktop_web.mp4';
+    const videoUrl =
+      'https://s3.amazonaws.com/nelson-atkins/cc_intro_desktop_web.mp4';
 
     res.render(`pages/${template}`, {
       config: clientConfig,
